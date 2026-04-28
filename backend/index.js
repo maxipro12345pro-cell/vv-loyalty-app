@@ -43,43 +43,52 @@ function getTier(totalSpent){
  };
 }
 
-
- if(loadedUsers[id].history === undefined){
-   loadedUsers[id].history = [];
- }
-
-}
-
-   return loadedUsers;
- }
-
- return {
-   1:{id:1,balance:0,totalSpent:0}
- };
-}
-
-
-
 app.get("/",(req,res)=>{
  res.send("Bot backend works");
 });
 
-app.get("/user/:id",(req,res)=>{
- const id=req.params.id;
+app.get("/user/:id", async (req,res)=>{
+ const id = String(req.params.id);
 
- if(!users[id]){
-   users[id]={id:id,balance:0,totalSpent:0,history:[]};
-   saveUsers();
+ let { data: user, error } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", id)
+   .single();
+
+ if(error && error.code !== "PGRST116"){
+   return res.status(500).json({ error: error.message });
  }
 
- const tier = getTier(users[id].totalSpent);
+ if(!user){
+   const { data: newUser, error: insertError } = await supabase
+     .from("users")
+     .insert({
+       id: id,
+       balance: 0,
+       total_spent: 0,
+       history: []
+     })
+     .select()
+     .single();
+
+   if(insertError){
+     return res.status(500).json({ error: insertError.message });
+   }
+
+   user = newUser;
+ }
+
+ const tier = getTier(Number(user.total_spent || 0));
 
  res.json({
-   ...users[id],
-   tier:tier
+   id: user.id,
+   balance: Number(user.balance || 0),
+   totalSpent: Number(user.total_spent || 0),
+   history: user.history || [],
+   tier: tier
  });
 });
-
 app.get("/qr/:id",(req,res)=>{
  const timestamp=Date.now();
  const data=`${req.params.id}:${timestamp}`;
@@ -94,7 +103,7 @@ app.get("/qr/:id",(req,res)=>{
  });
 });
 
-app.post("/scan",(req,res)=>{
+app.post("/scan", async (req,res)=>{
  const {qr,amount,product}=req.body;
 
  if(!qr){
@@ -106,76 +115,152 @@ app.post("/scan",(req,res)=>{
  }
 
  const parts=qr.split(":");
- const id=parts[0];
+ const id=String(parts[0]);
 
- if(!users[id]){
-   users[id]={id:id,balance:0,totalSpent:0,history:[]};
+ let { data: user, error } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", id)
+   .single();
+
+ if(error && error.code !== "PGRST116"){
+   return res.status(500).json({ error: error.message });
  }
 
- if(users[id].totalSpent === undefined){
-   users[id].totalSpent = 0;
+ if(!user){
+   const { data: newUser, error: insertError } = await supabase
+     .from("users")
+     .insert({
+       id:id,
+       balance:0,
+       total_spent:0,
+       history:[]
+     })
+     .select()
+     .single();
+
+   if(insertError){
+     return res.status(500).json({ error: insertError.message });
+   }
+
+   user = newUser;
  }
 
- users[id].totalSpent += amount;
+ const oldHistory = user.history || [];
+ const newTotalSpent = Number(user.total_spent || 0) + Number(amount);
+ const tier = getTier(newTotalSpent);
+ const bonus = Number(amount) * (tier.cashback / 100);
+ const newBalance = Number(user.balance || 0) + bonus;
 
- const tier = getTier(users[id].totalSpent);
- const bonus = amount * (tier.cashback / 100);
+ const newHistory = [
+   {
+     type:"purchase",
+     amount:Number(amount),
+     bonus:bonus,
+     product:product || "Purchase",
+     date:new Date().toLocaleString()
+   },
+   ...oldHistory
+ ];
 
-users[id].balance += bonus;
+ const { error: updateError } = await supabase
+   .from("users")
+   .update({
+     balance:newBalance,
+     total_spent:newTotalSpent,
+     history:newHistory
+   })
+   .eq("id", id);
 
-users[id].history.unshift({
- type:"purchase",
- amount:amount,
- bonus:bonus,
- product:product || "Purchase",
- date:new Date().toLocaleString()
-});
-
-saveUsers();
+ if(updateError){
+   return res.status(500).json({ error:updateError.message });
+ }
 
  res.json({
    success:true,
-   balance:users[id].balance,
-   totalSpent:users[id].totalSpent,
+   balance:newBalance,
+   totalSpent:newTotalSpent,
+   history:newHistory,
    tier:tier
  });
 });
-
-app.post("/redeem",(req,res)=>{
+app.post("/redeem", async (req,res)=>{
  const {id,points}=req.body;
 
  if(!points || points<=0){
    return res.status(400).json({error:"Enter points amount"});
  }
 
- if(!users[id]){
-   users[id]={id:id,balance:0,totalSpent:0,history:[]};
+ let { data:user, error } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", String(id))
+   .single();
+
+ if(error){
+   return res.status(500).json({error:error.message});
  }
 
- if(users[id].balance < points){
+ if(Number(user.balance) < Number(points)){
    return res.status(400).json({error:"Not enough points"});
  }
 
-users[id].balance -= points;
+ const newBalance =
+   Number(user.balance) - Number(points);
 
-users[id].history.unshift({
- type:"redeem",
- points:points,
- date:new Date().toLocaleString()
-});
+ const newHistory = [
+ {
+   type:"redeem",
+   points:Number(points),
+   date:new Date().toLocaleString()
+ },
+ ...(user.history || [])
+ ];
 
-saveUsers();
+ const { error:updateError } = await supabase
+   .from("users")
+   .update({
+      balance:newBalance,
+      history:newHistory
+   })
+   .eq("id", String(id));
 
- const tier = getTier(users[id].totalSpent);
+ if(updateError){
+   return res.status(500).json({error:updateError.message});
+ }
+
+ const tier=getTier(Number(user.total_spent||0));
 
  res.json({
    success:true,
-   balance:users[id].balance,
-   totalSpent:users[id].totalSpent,
+   balance:newBalance,
+   totalSpent:Number(user.total_spent||0),
+   history:newHistory,
    tier:tier
  });
 });
+const TelegramBot = require("node-telegram-bot-api");
 
+if(process.env.BOT_TOKEN){
+ const bot = new TelegramBot(process.env.8740692659:AAFR_dyI5e2dHnKmjmYG4LE8SEXiNYHD5sc, { polling: true });
+
+ bot.onText(/\/start/, (msg)=>{
+   bot.sendMessage(msg.chat.id, "Bine ai venit în V&V Privilege Club ✨", {
+     reply_markup: {
+       inline_keyboard: [
+         [
+           {
+             text: "Open V&V Privilege Club",
+             web_app: {
+               url: process.env.https://vv-loyalty-app.vercel.app/frontend/client.html
+             }
+           }
+         ]
+       ]
+     }
+   });
+ });
+}
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT,()=>{
