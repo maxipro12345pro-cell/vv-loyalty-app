@@ -244,13 +244,16 @@ const TelegramBot = require("node-telegram-bot-api");
 if(process.env.BOT_TOKEN){
  const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
-bot.onText(/^\/start(?:\s.*)?$/, (msg)=>{
+ bot.onText(/^\/start(?:\s.*)?$/, (msg)=>{
   bot.sendMessage(
-    msg.chat.id,
-    "Bine ai venit în V&V Privilege Club ✨\n\nApasă butonul verde de jos pentru a deschide V&V."
+   msg.chat.id,
+   "Bine ai venit în V&V Privilege Club ✨\n\nApasă butonul verde de jos pentru a deschide V&V."
   );
-});
+ });
+}
+
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT,()=>{
  console.log("Server running on " + PORT);
 });
