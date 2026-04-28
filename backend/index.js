@@ -1,15 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-const fs = require("fs");
+const { createClient } = require("@supabase/supabase-js");
 
+const supabase = createClient(
+ process.env.SUPABASE_URL,
+ process.env.SUPABASE_KEY
+);
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
 const SECRET = "vv_secret";
-const DB_FILE = "users.json";
 
 function getTier(totalSpent){
  if(totalSpent >= 30000){
@@ -40,15 +43,6 @@ function getTier(totalSpent){
  };
 }
 
-function loadUsers(){
- if(fs.existsSync(DB_FILE)){
-   const loadedUsers = JSON.parse(fs.readFileSync(DB_FILE,"utf8"));
-
-for(const id in loadedUsers){
-
- if(loadedUsers[id].totalSpent === undefined){
-   loadedUsers[id].totalSpent = 0;
- }
 
  if(loadedUsers[id].history === undefined){
    loadedUsers[id].history = [];
@@ -64,11 +58,7 @@ for(const id in loadedUsers){
  };
 }
 
-let users = loadUsers();
 
-function saveUsers(){
- fs.writeFileSync(DB_FILE,JSON.stringify(users,null,2));
-}
 
 app.get("/",(req,res)=>{
  res.send("Bot backend works");
