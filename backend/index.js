@@ -244,22 +244,20 @@ const TelegramBot = require("node-telegram-bot-api");
 if(process.env.BOT_TOKEN){
  const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
- bot.onText(/\/start/, (msg)=>{
-   bot.sendMessage(msg.chat.id, "Bine ai venit în V&V Privilege Club ✨", {
-     reply_markup: {
-       inline_keyboard: [
-         [
-           {
-             text: "Open V&V Privilege Club",
-             web_app: {
-               url: process.env.WEBAPP_URL
-             }
-           }
-         ]
-       ]
-     }
-   });
- });
+bot.onText(/\/start/, (msg)=>{
+  bot.sendMessage(msg.chat.id, "Bine ai venit în V&V Privilege Club ✨", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "Open V&V Privilege Club",
+            url: process.env.WEBAPP_URL
+          }
+        ]
+      ]
+    }
+  });
+});
 }
 const PORT = process.env.PORT || 3000;
 
