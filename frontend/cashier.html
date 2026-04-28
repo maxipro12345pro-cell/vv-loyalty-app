@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<script src="https://unpkg.com/html5-qrcode"></script>
+<title>V&V Cashier Panel</title>
+
+<style>
+body{
+ margin:0;
+ background:#0b0b0f;
+ color:white;
+ font-family:Arial, sans-serif;
+ padding:25px;
+}
+
+.panel{
+ max-width:430px;
+ margin:auto;
+ background:#111119;
+ padding:24px;
+ border-radius:28px;
+ border:1px solid rgba(214,178,94,.35);
+}
+
+h1{
+ color:#d6b25e;
+ letter-spacing:2px;
+}
+
+input, textarea{
+ width:100%;
+ box-sizing:border-box;
+ padding:12px;
+ border-radius:12px;
+ border:none;
+ margin-top:10px;
+ outline:none;
+}
+
+textarea{
+ height:90px;
+ resize:none;
+}
+
+button{
+ width:100%;
+ border:none;
+ border-radius:18px;
+ padding:16px;
+ font-weight:bold;
+ background:#d6b25e;
+ color:#111;
+ cursor:pointer;
+ margin-top:12px;
+}
+
+.secondary{
+ background:#1f1f2a;
+ color:#d6b25e;
+ border:1px solid rgba(214,178,94,.3);
+}
+
+.error{
+ display:none;
+ color:#ff6b6b;
+ font-size:13px;
+ margin-top:10px;
+}
+
+.success{
+ display:none;
+ color:#6ee7b7;
+ font-size:13px;
+ margin-top:10px;
+}
+
+.card{
+ background:#15151d;
+ border-radius:20px;
+ padding:18px;
+ margin-top:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+<h1>V&V Cashier</h1>
+
+<div class="card">
+<h3>Client QR</h3>
+<textarea id="qrInput" placeholder="Paste scanned QR here"></textarea>
+<button class="secondary" onclick="startScanner()">Open Camera Scanner</button>
+
+<div id="reader" style="
+display:none;
+margin-top:15px;
+border-radius:18px;
+overflow:hidden;">
+</div>
+</div>
+
+<div class="card">
+<h3>Add Purchase</h3>
+
+<input id="purchaseAmount"
+type="number"
+min="1"
+placeholder="Purchase amount">
+
+<input id="productName"
+type="text"
+placeholder="Product name">
+
+<button onclick="addPurchase()">
+Add purchase bonus
+</button>
+
+</div>
+
+<div class="card">
+<h3>Redeem Points</h3>
+<input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
+<button class="secondary" onclick="redeemPoints()">Redeem points</button>
+</div>
+
+<div id="errorMsg" class="error"></div>
+<div id="successMsg" class="success"></div>
+
+<div class="card">
+<h3>Client Result</h3>
+<p>Balance: <span id="balance">—</span> MDL</p>
+<p>Status: <span id="tier">—</span></p>
+</div>
+
+</div>
+
+<script>
+const API = "http://172.20.10.2:3000";
+async function loadClientResult(){
+ const qr=document.getElementById("qrInput").value.trim();
+ const clientId=getClientIdFromQR(qr);
+
+ if(!clientId) return;
+
+ const res=await fetch("http://172.20.10.2:3000/user/" + clientId);
+ const data=await res.json();
+
+ updateResult(data);
+}
+function clearMessages(){
+ document.getElementById("errorMsg").style.display="none";
+ document.getElementById("successMsg").style.display="none";
+}
+
+function getClientIdFromQR(qr){
+ if(!qr) return null;
+ return qr.split(":")[0];
+}
+
+function showError(text){
+ const box=document.getElementById("errorMsg");
+ box.innerText=text;
+ box.style.display="block";
+}
+
+function showSuccess(text){
+ const box=document.getElementById("successMsg");
+ box.innerText=text;
+ box.style.display="block";
+}
+
+function updateResult(data){
+ document.getElementById("balance").innerText =
+ Number(data.balance).toFixed(2);
+
+ document.getElementById("tier").innerText =
+ data.tier.name + " · Cashback " + data.tier.cashback + "%";
+}
+
+async function addPurchase(){
+ clearMessages();
+
+ const qr=document.getElementById("qrInput").value.trim();
+ const amount=document.getElementById("purchaseAmount").value;
+const product=document.getElementById("productName").value.trim();
+
+ if(!qr){
+   showError("Scan or paste client QR first");
+   return;
+ }
+
+ if(!amount || Number(amount)<=0){
+   showError("Enter purchase amount");
+   return;
+ }
+
+ const res=await fetch(API + "/scan",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+ qr:qr,
+ amount:Number(amount),
+ product:product
+})
+ });
+
+ const data=await res.json();
+
+ if(!res.ok){
+   showError(data.error || "Purchase error");
+   return;
+ }
+
+ updateResult(data);
+ showSuccess("Bonus added successfully");
+ document.getElementById("purchaseAmount").value="";
+document.getElementById("productName").value="";
+}
+
+async function redeemPoints(){
+ clearMessages();
+
+ const qr=document.getElementById("qrInput").value.trim();
+ const points=document.getElementById("redeemAmount").value;
+
+ const clientId=getClientIdFromQR(qr);
+
+ if(!clientId){
+   showError("Scan or paste client QR first");
+   return;
+ }
+
+ if(!points || Number(points)<=0){
+   showError("Enter points amount");
+   return;
+ }
+
+ const res=await fetch(API + "/redeem",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+     id:clientId,
+     points:Number(points)
+   })
+ });
+
+ const data=await res.json();
+
+ if(!res.ok){
+   showError(data.error || "Redeem error");
+   return;
+ }
+
+ updateResult(data);
+ showSuccess("Points redeemed successfully");
+ document.getElementById("redeemAmount").value="";
+}
+let qrScanner = null;
+
+function startScanner(){
+ const reader = document.getElementById("reader");
+ reader.style.display = "block";
+
+ if(qrScanner){
+   qrScanner.clear();
+ }
+
+ qrScanner = new Html5Qrcode("reader");
+
+ qrScanner.start(
+   { facingMode: "environment" },
+   {
+     fps: 10,
+     qrbox: { width: 250, height: 250 }
+   },
+   (decodedText) => {
+     document.getElementById("qrInput").value = decodedText;
+
+     qrScanner.stop();
+     reader.style.display = "none";
+
+     showSuccess("QR scanned successfully");
+     loadClientResult();
+   },
+   () => {}
+ );
+}
+</script>
+
+</body>
+</html>

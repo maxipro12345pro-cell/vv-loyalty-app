@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>V&V Perfume</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+.profile,
+.badge{
+ cursor:pointer;
+}
+button{
+ border:none;
+ border-radius:18px;
+ padding:16px;
+ font-weight:bold;
+ background:#d6b25e;
+ color:#111;
+ cursor:pointer;
+ width:100%;
+ margin-top:18px;
+}
+body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
+.app{max-width:430px;margin:auto;min-height:100vh;padding:22px;box-sizing:border-box;background:linear-gradient(180deg,#111119,#050507)}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.logo{
+ font-size:26px;
+ font-weight:bold;
+ letter-spacing:3px;
+ color:var(--tierColor,#d6b25e);
+ cursor:pointer;
+}
+.profile{
+ min-width:74px;
+ height:38px;
+ padding:0 16px;
+ border-radius:999px;
+ background:#1f1f2a;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:var(--tierColor,#d6b25e);
+ font-weight:600;
+}
+.balance-card{background:linear-gradient(135deg,#1c1c24,#0f0f14);border:1px solid var(--tierBorder,rgba(214,178,94,.35));border-radius:28px;padding:24px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.label{color:#aaa;font-size:14px}
+.balance{font-size:42px;margin:10px 0;color:#fff}
+.badge{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ background:rgba(255,255,255,.08);
+ color:var(--tierColor,#d6b25e);
+ padding:10px 18px;
+ border-radius:999px;
+ font-size:14px;
+ line-height:1;
+ white-space:nowrap;
+ margin-top:14px;
+}
+.qr-box{margin-top:20px;text-align:center;background:#15151d;border-radius:24px;padding:20px;display:none}
+.offer{background:#15151d;border-radius:22px;padding:18px;margin-top:18px;border:1px solid rgba(255,255,255,.06)}
+.offer h3{margin:0 0 8px;color:#d6b25e}
+.offer p{margin:0;color:#aaa;font-size:14px}
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:auto;background:#111119;border-top:1px solid rgba(214,178,94,.2);display:flex;justify-content:space-around;padding:14px 0}
+.nav div{
+ color:#aaa;
+ font-size:13px;
+ cursor:pointer;
+ user-select:none;
+ -webkit-tap-highlight-color: transparent;
+}
+.nav .active{
+ color:var(--tierColor,#d6b25e);
+ font-weight:600;
+ border:1px solid var(--tierBorder,rgba(214,178,94,.35));
+ padding:8px 18px;
+ border-radius:999px;
+ background:rgba(255,255,255,.04);
+}
+.spacer{height:80px}
+@keyframes fadeUp{
+ from{
+  opacity:0;
+  transform:translateY(14px);
+ }
+ to{
+  opacity:1;
+  transform:translateY(0);
+ }
+}
+
+@keyframes softGlow{
+ 0%{box-shadow:0 18px 40px rgba(0,0,0,.45);}
+ 50%{box-shadow:0 18px 55px rgba(214,178,94,.18);}
+ 100%{box-shadow:0 18px 40px rgba(0,0,0,.45);}
+}
+
+.balance-card{
+ animation:fadeUp .6s ease;
+ box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
+.offer{
+ animation:fadeUp .7s ease;
+}
+
+button{
+ transition:transform .2s ease, box-shadow .2s ease;
+}
+
+button:active{
+ transform:scale(.97);
+}
+
+.badge,
+.profile{
+ transition:all .3s ease;
+}
+@keyframes modalIn{
+ from{
+  opacity:0;
+  transform:scale(.94) translateY(12px);
+ }
+ to{
+  opacity:1;
+  transform:scale(1) translateY(0);
+ }
+}
+
+.modal-content{
+ animation:modalIn .25s ease;
+}
+</style>
+</head>
+
+<body onload="loadUser()">
+
+<div class="app">
+<div id="homeTop">
+ <div class="header">
+<div>
+ <div class="logo" onclick="goHome()">V&V</div>
+ <div class="label" id="greeting" style="margin-top:6px;">
+  Welcome back
+ </div>
+</div>
+  <div class="profile" id="memberIcon" onclick="openLevels()">VIP</div>
+ </div>
+
+ <div class="balance-card">
+  <div class="label">Your bonus balance</div>
+  <div class="balance"><span id="balance">0.00</span> MDL</div>
+
+  <div class="badge" id="tierBadge" onclick="openLevels()">
+   CORE MEMBER · Cashback 5%
+  </div>
+  <div style="margin-top:18px;">
+   <div class="label" id="progressText">0 MDL to SILVER Status</div>
+   <div style="background:#2a2a33;border-radius:999px;height:10px;margin-top:8px;overflow:hidden;">
+    <div id="progressBar" style="
+ width:0%;
+ height:100%;
+ background:var(--tierColor,#d6b25e);
+ border-radius:999px;"
+ transition:width .6s ease, background .3s ease;">
+</div>
+   </div>
+  </div>
+
+  <button onclick="showQR()">Show QR</button>
+ </div>
+
+ </div>
+<div id="qrBox" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.72);
+justify-content:center;
+align-items:center;
+z-index:9999;">
+
+<div class="modal-content" style="
+background:#15151d;
+padding:34px;
+border-radius:32px;
+text-align:center;
+border:1px solid var(--tierBorder,rgba(214,178,94,.35));
+box-shadow:0 25px 70px rgba(0,0,0,.55);">
+
+<canvas id="qrCanvas"></canvas>
+
+<p class="label"
+style="margin-top:18px;">
+Show this QR at checkout
+</p>
+
+<button onclick="closeQR()">
+Close
+</button>
+
+</div>
+</div>
+
+<div id="homeTab">
+
+<div class="offer">
+ <h3>Recent Activity</h3>
+ <div id="historyList">
+  <p class="label">No activity yet</p>
+ </div>
+</div>
+
+<div class="offer">
+ <h3>Bonus Visit</h3>
+ <p>Earn extra rewards after your next purchase.</p>
+</div>
+
+<div class="offer">
+ <h3>New Arrivals</h3>
+ <p>Luxury fragrances selected for V&V clients.</p>
+</div>
+
+</div>
+
+
+<div id="shopTab" style="display:none;">
+ <div class="offer">
+  <h3>V&V Boutique</h3>
+  <p>Private fragrance collection coming soon.</p>
+ </div>
+</div>
+
+
+<div id="newsTab" style="display:none;">
+ <div class="offer">
+  <h3>News</h3>
+  <p>Exclusive launches and private events.</p>
+ </div>
+</div>
+
+
+<div class="spacer"></div>
+</div>
+
+
+<div class="nav">
+ <div id="navHome" class="active" onclick="showTab('home')">Home</div>
+ <div id="navShop" onclick="showTab('shop')">Boutique</div>
+ <div id="navNews" onclick="showTab('news')">News</div>
+</div>
+
+<div id="tierPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);justify-content:center;align-items:center;z-index:999;">
+ <div class="modal-content" style="background:#15151d;padding:35px;border-radius:30px;width:320px;text-align:center;border:1px solid var(--tierBorder,rgba(214,178,94,.35));box-shadow:0 20px 60px rgba(0,0,0,.5);">
+  <h2 style="color:var(--tierColor,#d6b25e);margin-top:0;">Congratulations</h2>
+  <p id="tierMessage" style="line-height:1.7;"></p>
+  <button onclick="closePopup()">Continue</button>
+ </div>
+</div>
+
+<script>
+function setGreeting(){
+
+ let name="Member";
+
+ if(window.Telegram &&
+    Telegram.WebApp &&
+    Telegram.WebApp.initDataUnsafe?.user?.first_name){
+
+   name=Telegram.WebApp.initDataUnsafe.user.first_name;
+ }
+
+ document.getElementById("greeting").innerText =
+ "Good evening, " + name;
+}
+
+let savedQR = "";
+let currentUserId = 1;
+let previousTier = null;
+const API = "${API}";
+function closePopup(){
+ document.getElementById(
+ "tierPopup"
+ ).style.display="none";
+}
+
+function closeQR(){
+ document.getElementById(
+ "qrBox"
+ ).style.display="none";
+}
+function openLevels(){
+ document.getElementById("levelsPopup").style.display="flex";
+}
+
+function closeLevels(){
+ document.getElementById("levelsPopup").style.display="none";
+}
+function goHome(){
+ window.scrollTo({
+  top:0,
+  behavior:"smooth"
+ });
+}
+function showTab(tab){
+
+ document.getElementById("homeTop").style.display="none";
+
+ document.getElementById("homeTab").style.display="none";
+ document.getElementById("shopTab").style.display="none";
+ document.getElementById("newsTab").style.display="none";
+
+ document.getElementById("navHome").classList.remove("active");
+ document.getElementById("navShop").classList.remove("active");
+ document.getElementById("navNews").classList.remove("active");
+
+ if(tab==="home"){
+   document.getElementById("homeTop").style.display="block";
+   document.getElementById("homeTab").style.display="block";
+   document.getElementById("navHome").classList.add("active");
+ }
+
+ if(tab==="shop"){
+   document.getElementById("shopTab").style.display="block";
+   document.getElementById("navShop").classList.add("active");
+ }
+
+ if(tab==="news"){
+   document.getElementById("newsTab").style.display="block";
+   document.getElementById("navNews").classList.add("active");
+ }
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function checkTierUpgrade(newTier,cashback){
+ if(previousTier===null){
+   previousTier=newTier;
+   return;
+ }
+
+ if(newTier!==previousTier){
+   document.getElementById("tierMessage").innerHTML =
+   "You unlocked <b>"+newTier+"</b> Member<br>Cashback increased to "+cashback+"%";
+
+   document.getElementById("tierPopup").style.display="flex";
+
+   confetti({
+    particleCount:120,
+    spread:80,
+    origin:{y:0.6},
+    colors:["#d6b25e","#f5d67b","#ffffff"]
+   });
+
+   setTimeout(()=>{
+    confetti({
+     particleCount:80,
+     spread:100,
+     origin:{y:0.5},
+     colors:["#d6b25e","#f5d67b","#ffffff"]
+    });
+   },400);
+
+   previousTier=newTier;
+ }
+}
+
+function updateTier(data){
+ document.getElementById("balance").innerText = Number(data.balance).toFixed(2);
+
+ document.getElementById("tierBadge").innerText =
+ data.tier.name + " MEMBER · Cashback " + data.tier.cashback + "%";
+document.getElementById("memberIcon").innerText =
+data.tier.name;
+let tierColor="#b57a4b"; // bronze
+
+if(data.tier.name==="SILVER"){
+ tierColor="#d8dde6";
+}
+
+if(data.tier.name==="GOLD"){
+ tierColor="#f2c94c";
+}
+
+if(data.tier.name==="BLACK"){
+ tierColor="#aab4c4";
+}
+document.documentElement.style.setProperty(
+ "--tierColor",
+ tierColor
+);
+document.documentElement.style.setProperty(
+ "--tierBorder",
+ tierColor
+);
+ document.getElementById("progressBar").style.width = data.tier.progress + "%";
+
+ if(data.tier.next){
+   let target=5000;
+   if(data.tier.name==="SILVER") target=15000;
+   if(data.tier.name==="GOLD") target=30000;
+
+const spent = Number(data.totalSpent) || 0;
+const left = Math.max(target - spent,0);   document.getElementById("progressText").innerText =
+   left + " MDL to " + data.tier.next + " Status";
+ } else {
+   document.getElementById("progressText").innerText =
+   "Highest level";
+ }
+
+checkTierUpgrade(data.tier.name,data.tier.cashback);
+}
+
+function updateHistory(data){
+
+ const box = document.getElementById("historyList");
+
+ if(!data.history || data.history.length===0){
+   box.innerHTML = '<p class="label">No activity yet</p>';
+   return;
+ }
+
+ box.innerHTML = data.history.slice(0,5).map(item=>{
+
+  if(item.type==="purchase"){
+   return `
+   <p class="label">
+   +${Number(item.bonus).toFixed(2)}
+   bonus · ${item.product || "Purchase"} · ${item.amount} MDL
+   <br>${item.date}
+   </p>`;
+  }
+
+  if(item.type==="redeem"){
+   return `
+   <p class="label">
+   -${Number(item.points).toFixed(2)}
+   points redeemed
+   <br>${item.date}
+   </p>`;
+  }
+
+ }).join("");
+
+}
+
+async function loadUser(){
+ setGreeting();
+ const res = await fetch(API + "/user/" + currentUserId);
+ const data = await res.json();
+
+ updateTier(data);
+ updateHistory(data);
+ previousTier = data.tier.name;
+}
+
+setInterval(loadUser,3000);
+
+async function showQR(){
+ const res = await fetch(API + "/qr/" + currentUserId);
+ const data = await res.json();
+
+ savedQR = data.qr;
+document.getElementById("qrBox").style.display="flex";
+ QRCode.toCanvas(
+  document.getElementById("qrCanvas"),
+  data.qr,
+  {width:220}
+ );
+}
+</script>
+<div id="levelsPopup" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.68);
+justify-content:center;
+align-items:center;
+z-index:999;
+">
+
+<div class="modal-content" style="
+background:#15151d;
+padding:28px;
+border-radius:28px;
+width:330px;
+border:1px solid var(--tierBorder,rgba(214,178,94,.35));
+box-shadow:0 20px 60px rgba(0,0,0,.55);
+">
+
+<h2 style="color:var(--tierColor,#d6b25e);margin-top:0;text-align:center;">
+Membership Levels
+</h2>
+
+<p class="label"><b style="color:#d6b25e;">CORE</b> — 0 MDL spent · Cashback 5%</p>
+<p class="label"><b style="color:#dfe5ef;">SILVER</b> — from 5 000 MDL · Cashback 7%</p>
+<p class="label"><b style="color:#ffd56a;">GOLD</b> — from 15 000 MDL · Cashback 8%</p>
+<p class="label"><b style="color:#c7d2e2;">BLACK</b> — from 30 000 MDL · Cashback 10%</p>
+
+<button onclick="closeLevels()">Close</button>
+</div>
+</div>
+</body>
+</html>

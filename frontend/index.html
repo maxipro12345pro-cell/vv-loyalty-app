@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>V&V Perfume</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+
+<style>
+body{
+ margin:0;
+ background:#0b0b0f;
+ color:white;
+ font-family:Arial, sans-serif;
+}
+
+.app{
+ max-width:430px;
+ margin:auto;
+ min-height:100vh;
+ padding:22px;
+ box-sizing:border-box;
+ background:linear-gradient(180deg,#111119,#050507);
+}
+
+.header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:25px;
+}
+
+.logo{
+ font-size:26px;
+ font-weight:bold;
+ letter-spacing:3px;
+ color:#d6b25e;
+}
+
+.profile{
+ width:42px;
+ height:42px;
+ border-radius:50%;
+ background:#1f1f2a;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:#d6b25e;
+}
+
+.balance-card{
+ background:linear-gradient(135deg,#1c1c24,#0f0f14);
+ border:1px solid rgba(214,178,94,.35);
+ border-radius:28px;
+ padding:24px;
+ box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
+
+.label{
+ color:#aaa;
+ font-size:14px;
+}
+
+.balance{
+ font-size:42px;
+ margin:10px 0;
+ color:#fff;
+}
+
+.badge{
+ display:inline-block;
+ background:rgba(214,178,94,.15);
+ color:#d6b25e;
+ padding:8px 14px;
+ border-radius:999px;
+ font-size:13px;
+ margin-top:8px;
+}
+
+input{
+ width:100%;
+ box-sizing:border-box;
+ padding:12px;
+ border-radius:12px;
+ border:none;
+ margin-top:10px;
+ outline:none;
+}
+
+button{
+ border:none;
+ border-radius:18px;
+ padding:16px;
+ font-weight:bold;
+ background:#d6b25e;
+ color:#111;
+ cursor:pointer;
+ width:100%;
+ margin-top:12px;
+}
+
+.secondary{
+ background:#1f1f2a;
+ color:#d6b25e;
+ border:1px solid rgba(214,178,94,.3);
+}
+
+.qr-box{
+ margin-top:20px;
+ text-align:center;
+ background:#15151d;
+ border-radius:24px;
+ padding:20px;
+ display:none;
+}
+
+.offer{
+ background:#15151d;
+ border-radius:22px;
+ padding:18px;
+ margin-top:18px;
+ border:1px solid rgba(255,255,255,.06);
+}
+
+.offer h3{
+ margin:0 0 8px;
+ color:#d6b25e;
+}
+
+.offer p{
+ margin:0;
+ color:#aaa;
+ font-size:14px;
+}
+
+.error{
+ display:none;
+ color:#ff6b6b;
+ font-size:12px;
+ font-weight:500;
+ margin-top:8px;
+}
+
+.success{
+ display:none;
+ color:#6ee7b7;
+ font-size:12px;
+ font-weight:500;
+ margin-top:8px;
+}
+
+.nav{
+ position:fixed;
+ bottom:0;
+ left:0;
+ right:0;
+ max-width:430px;
+ margin:auto;
+ background:#111119;
+ border-top:1px solid rgba(214,178,94,.2);
+ display:flex;
+ justify-content:space-around;
+ padding:14px 0;
+}
+
+.nav div{
+ color:#aaa;
+ font-size:13px;
+}
+
+.nav .active{
+ color:#d6b25e;
+}
+
+.spacer{
+ height:80px;
+}
+</style>
+</head>
+
+<body onload="loadUser()">
+
+<div class="app">
+
+ <div class="header">
+  <div class="logo">V&V</div>
+  <div class="profile">VIP</div>
+ </div>
+
+ <div class="balance-card">
+  <div class="label">Your bonus balance</div>
+  <div class="balance"><span id="balance">0</span> MDL</div>
+<div class="badge" id="tierBadge">CORE MEMBER · Cashback 5%</div>
+
+<div style="margin-top:18px;">
+ <div class="label" id="progressText">0 MDL spent · Next level: SILVER</div>
+
+ <div style="
+ background:#2a2a33;
+ border-radius:999px;
+ height:10px;
+ margin-top:8px;
+ overflow:hidden;">
+  <div id="progressBar" style="
+  width:0%;
+  height:100%;
+  background:#d6b25e;
+  border-radius:999px;">
+  </div>
+ </div>
+</div>
+  <input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
+  <div id="redeemError" class="error"></div>
+  <div id="redeemSuccess" class="success"></div>
+
+  <button onclick="redeemPoints()">Redeem Points</button>
+  <button class="secondary" onclick="showQR()">Show QR</button>
+ </div>
+
+ <div class="qr-box" id="qrBox">
+  <canvas id="qrCanvas"></canvas>
+  <p class="label">Show this QR at checkout</p>
+ </div>
+
+ <div class="offer">
+  <h3>Cashier Simulation</h3>
+
+  <input id="amount" type="number" min="1" placeholder="Purchase amount">
+
+  <div id="errorMsg" class="error"></div>
+  <div id="successMsg" class="success"></div>
+
+  <button onclick="scanPurchase()">Scan QR Purchase</button>
+ </div>
+
+ <div class="offer">
+  <h3>Exclusive Prices</h3>
+  <p>Private perfume offers available for 4 days.</p>
+ </div>
+
+ <div class="offer">
+  <h3>Bonus Visit</h3>
+  <p>Earn extra rewards after your next purchase.</p>
+ </div>
+
+ <div class="offer">
+  <h3>New Arrivals</h3>
+  <p>Luxury fragrances selected for V&V clients.</p>
+ </div>
+
+ <div class="spacer"></div>
+
+</div>
+
+<div class="nav">
+ <div class="active">Home</div>
+ <div>Shop</div>
+ <div>News</div>
+ <div>Profile</div>
+</div>
+
+<script>
+let savedQR = "";
+let currentUserId = 1;
+let previousTier = null;
+function closePopup(){
+function goldConfetti(){
+
+ confetti({
+   particleCount:120,
+   spread:80,
+   origin:{y:0.6},
+   colors:[
+    "#d6b25e",
+    "#f5d67b",
+    "#ffffff"
+   ]
+ });
+
+ setTimeout(()=>{
+
+  confetti({
+   particleCount:80,
+   spread:100,
+   origin:{y:0.5},
+   colors:[
+    "#d6b25e",
+    "#f5d67b",
+    "#ffffff"
+   ]
+  });
+
+ },400);
+
+}
+ document.getElementById(
+ "tierPopup"
+ ).style.display="none";
+}
+
+function checkTierUpgrade(newTier,cashback){
+if(previousTier===null){
+ previousTier=newTier;
+ return;
+}
+if(newTier!==previousTier){
+
+ document.getElementById(
+ "tierMessage"
+ ).innerHTML=
+ "You unlocked <b>"+newTier+
+ "</b> Member<br>Cashback increased to "+
+ cashback+"%";
+
+document.getElementById(
+ "tierPopup"
+).style.display="flex";
+confetti({
+ particleCount:120,
+ spread:80,
+ origin:{y:0.6},
+ colors:["#d6b25e","#f5d67b","#ffffff"]
+});
+
+setTimeout(()=>{
+ confetti({
+  particleCount:80,
+  spread:100,
+  origin:{y:0.5},
+  colors:["#d6b25e","#f5d67b","#ffffff"]
+ });
+},400);
+
+previousTier=newTier;
+}
+
+}
+function updateTier(data){
+document.getElementById("balance").innerText =
+Number(data.balance).toFixed(2);
+ document.getElementById("tierBadge").innerText =
+ data.tier.name + " MEMBER · Cashback " + data.tier.cashback + "%";
+
+ document.getElementById("progressBar").style.width =
+ data.tier.progress + "%";
+
+ if(data.tier.next){
+
+ let target=5000;
+
+ if(data.tier.name==="SILVER"){
+   target=15000;
+ }
+
+ if(data.tier.name==="GOLD"){
+   target=30000;
+ }
+
+ const left = target - data.totalSpent;
+
+ document.getElementById("progressText").innerText =
+ left + " MDL to " + data.tier.next + " Status";
+} else {
+   document.getElementById("progressText").innerText =
+   data.totalSpent + " MDL spent · Highest level";
+ }
+checkTierUpgrade(
+ data.tier.name,
+ data.tier.cashback
+);
+}
+
+async function loadUser(){
+ const res = await fetch('http://localhost:3000/user/' + currentUserId);
+ const data = await res.json();
+ updateTier(data);
+previousTier = data.tier.name;
+}
+
+function clearMessages(){
+ document.getElementById("errorMsg").style.display="none";
+ document.getElementById("successMsg").style.display="none";
+ document.getElementById("redeemError").style.display="none";
+ document.getElementById("redeemSuccess").style.display="none";
+}
+
+async function showQR(){
+ clearMessages();
+
+ const res = await fetch('http://localhost:3000/qr/' + currentUserId);
+ const data = await res.json();
+
+ savedQR = data.qr;
+
+ document.getElementById("qrBox").style.display = "block";
+
+ QRCode.toCanvas(
+   document.getElementById("qrCanvas"),
+   data.qr,
+   {width:220}
+ );
+}
+
+async function scanPurchase(){
+ clearMessages();
+
+ const errorBox = document.getElementById("errorMsg");
+ const successBox = document.getElementById("successMsg");
+ const amount = document.getElementById("amount").value;
+
+ if(!savedQR){
+   errorBox.innerText = "Please generate QR first";
+   errorBox.style.display = "block";
+   return;
+ }
+
+ if(!amount || Number(amount)<=0){
+   errorBox.innerText = "Enter purchase amount";
+   errorBox.style.display = "block";
+   return;
+ }
+
+ const res = await fetch('http://localhost:3000/scan',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+     qr:savedQR,
+     amount:Number(amount)
+   })
+ });
+
+ const data = await res.json();
+
+ if(!res.ok){
+   errorBox.innerText = data.error || "Scan error";
+   errorBox.style.display = "block";
+   return;
+ }
+
+ updateTier(data);
+
+ successBox.innerText = "Bonus added successfully";
+ successBox.style.display = "block";
+
+ document.getElementById("amount").value = "";
+}
+
+async function redeemPoints(){
+ clearMessages();
+
+ const errorBox = document.getElementById("redeemError");
+ const successBox = document.getElementById("redeemSuccess");
+ const points = document.getElementById("redeemAmount").value;
+
+ if(!points || Number(points)<=0){
+   errorBox.innerText = "Enter points amount";
+   errorBox.style.display = "block";
+   return;
+ }
+
+ const res = await fetch('http://localhost:3000/redeem',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+     id:currentUserId,
+     points:Number(points)
+   })
+ });
+
+ const data = await res.json();
+
+ if(!res.ok){
+   errorBox.innerText = data.error || "Redeem error";
+   errorBox.style.display = "block";
+   return;
+ }
+
+ updateTier(data);
+
+ successBox.innerText = "Points redeemed successfully";
+ successBox.style.display = "block";
+
+ document.getElementById("redeemAmount").value = "";
+}
+</script>
+<div id="tierPopup" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+justify-content:center;
+align-items:center;
+z-index:999;
+">
+
+<div style="
+background:#15151d;
+padding:35px;
+border-radius:30px;
+width:320px;
+text-align:center;
+border:1px solid rgba(214,178,94,.35);
+box-shadow:0 20px 60px rgba(0,0,0,.5);">
+
+<h2 style="color:#d6b25e;margin-top:0;">
+Congratulations
+</h2>
+
+<p id="tierMessage"
+style="line-height:1.7;">
+</p>
+
+<button onclick="closePopup()">
+Continue
+</button>
+
+</div>
+</div>
+</body>
+</html>
