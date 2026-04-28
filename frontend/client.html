@@ -292,8 +292,6 @@ Telegram.WebApp.initDataUnsafe.user.id
   );
 }
 
-loadUser();
-
 let previousTier = null;
 
 if(window.Telegram &&
@@ -301,11 +299,10 @@ if(window.Telegram &&
    Telegram.WebApp.initDataUnsafe &&
    Telegram.WebApp.initDataUnsafe.user){
 
- currentUserId = Telegram.WebApp.initDataUnsafe.user.id;
  Telegram.WebApp.expand();
 }
-
 const API = "https://vv-loyalty-app.onrender.com";
+loadUser();
 function closePopup(){
  document.getElementById(
  "tierPopup"
