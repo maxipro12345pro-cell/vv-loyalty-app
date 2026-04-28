@@ -146,7 +146,7 @@ async function loadClientResult(){
 
  if(!clientId) return;
 
- const res=await fetch("http://172.20.10.2:3000/user/" + clientId);
+const res=await fetch(API + "/user/" + clientId);
  const data=await res.json();
 
  updateResult(data);
