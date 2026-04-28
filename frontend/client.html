@@ -279,8 +279,16 @@ function setGreeting(){
 }
 
 let savedQR = "";
-let currentUserId = 1;
-let previousTier = null;
+let currentUserId = "1";
+
+if (
+ window.Telegram &&
+ Telegram.WebApp &&
+ Telegram.WebApp.initDataUnsafe &&
+ Telegram.WebApp.initDataUnsafe.user
+) {
+ currentUserId = String(Telegram.WebApp.initDataUnsafe.user.id);
+}let previousTier = null;
 
 if(window.Telegram &&
    Telegram.WebApp &&
