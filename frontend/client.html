@@ -414,7 +414,8 @@ document.documentElement.style.setProperty(
    if(data.tier.name==="GOLD") target=30000;
 
 const spent = Number(data.totalSpent) || 0;
-const left = Math.max(target - spent,0);   document.getElementById("progressText").innerText =
+const left = Math.max(target - spent,0);   
+document.getElementById("progressText").innerText =
    left + " MDL to " + data.tier.next + " Status";
  } else {
    document.getElementById("progressText").innerText =
@@ -458,15 +459,16 @@ function updateHistory(data){
 }
 
 async function loadUser(){
+
  setGreeting();
- fetch(API + "/user/" + currentUserId)
+
+ const res = await fetch(API + "/user/" + currentUserId);
  const data = await res.json();
 
  updateTier(data);
  updateHistory(data);
  previousTier = data.tier.name;
 }
-
 setInterval(loadUser,3000);
 
 async function showQR(){
