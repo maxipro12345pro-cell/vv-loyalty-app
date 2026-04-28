@@ -242,7 +242,7 @@ app.post("/redeem", async (req,res)=>{
 const TelegramBot = require("node-telegram-bot-api");
 
 if(process.env.BOT_TOKEN){
- const bot = new TelegramBot(process.env.8740692659:AAFR_dyI5e2dHnKmjmYG4LE8SEXiNYHD5sc, { polling: true });
+ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
  bot.onText(/\/start/, (msg)=>{
    bot.sendMessage(msg.chat.id, "Bine ai venit în V&V Privilege Club ✨", {
@@ -252,7 +252,7 @@ if(process.env.BOT_TOKEN){
            {
              text: "Open V&V Privilege Club",
              web_app: {
-               url: process.env.https://vv-loyalty-app.vercel.app/frontend/client.html
+               url: process.env.WEBAPP_URL
              }
            }
          ]
