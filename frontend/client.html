@@ -280,14 +280,18 @@ function setGreeting(){
 
 let savedQR = "";
 let currentUserId = 1;
+let previousTier = null;
 
 if(window.Telegram &&
    Telegram.WebApp &&
+   Telegram.WebApp.initDataUnsafe &&
    Telegram.WebApp.initDataUnsafe.user){
+
  currentUserId = Telegram.WebApp.initDataUnsafe.user.id;
  Telegram.WebApp.expand();
-}let previousTier = null;
-const API = "${API}";
+}
+
+const API = "https://vv-loyalty-app.onrender.com";
 function closePopup(){
  document.getElementById(
  "tierPopup"
@@ -455,7 +459,7 @@ function updateHistory(data){
 
 async function loadUser(){
  setGreeting();
- const res = await fetch(API + "/user/" + currentUserId);
+ fetch(API + "/user/" + currentUserId)
  const data = await res.json();
 
  updateTier(data);
@@ -470,7 +474,9 @@ async function showQR(){
  const data = await res.json();
 
  savedQR = data.qr;
-document.getElementById("qrBox").style.display="flex";
+
+ document.getElementById("qrBox").style.display="flex";
+
  QRCode.toCanvas(
   document.getElementById("qrCanvas"),
   data.qr,
