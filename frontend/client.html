@@ -515,18 +515,16 @@ function shareReferral(){
  const refLink =
  "https://t.me/VsVPerfume_bot?start=ref_" + currentUserId;
 
- if(navigator.share){
-   navigator.share({
-     title:"Join V&V Privilege Club",
-     text:"Discover V&V Privilege Club ✨",
-     url:refLink
-   });
- }
- else{
-   navigator.clipboard.writeText(refLink);
-   alert("Invitation link copied");
- }
+ const text =
+ "Join V&V Privilege Club ✨ " + refLink;
 
+ const telegramShare =
+ "https://t.me/share/url?url=" +
+ encodeURIComponent(refLink) +
+ "&text=" +
+ encodeURIComponent("Join V&V Privilege Club ✨");
+
+ window.open(telegramShare, "_blank");
 }
 </script>
 <div id="levelsPopup" style="
