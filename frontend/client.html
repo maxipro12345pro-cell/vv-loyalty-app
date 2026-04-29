@@ -237,12 +237,25 @@ Close
 
 
 <div id="ClubTab" style="display:none;">
+
+ <div class="offer">
+  <h3>Private Invitation</h3>
+  <p>
+   Invite a friend to V&V Privilege Club
+   and both receive exclusive rewards.
+  </p>
+
+  <button onclick="shareReferral()">
+   Send Invitation
+  </button>
+ </div>
+
  <div class="offer">
   <h3>Club</h3>
   <p>Exclusive launches and private events.</p>
  </div>
-</div>
 
+</div>
 
 <div class="spacer"></div>
 </div>
@@ -496,6 +509,24 @@ async function showQR(){
   data.qr,
   {width:220}
  );
+}
+function shareReferral(){
+
+ const refLink =
+ "https://t.me/VsVPerfume_bot?start=ref_" + currentUserId;
+
+ if(navigator.share){
+   navigator.share({
+     title:"Join V&V Privilege Club",
+     text:"Discover V&V Privilege Club ✨",
+     url:refLink
+   });
+ }
+ else{
+   navigator.clipboard.writeText(refLink);
+   alert("Invitation link copied");
+ }
+
 }
 </script>
 <div id="levelsPopup" style="
