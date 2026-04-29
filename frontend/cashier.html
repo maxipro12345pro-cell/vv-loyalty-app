@@ -86,7 +86,62 @@ button{
 </head>
 
 <body>
+<div id="pinScreen" style="
+position:fixed;
+inset:0;
+background:#0b0b0f;
+z-index:99999;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:25px;
+box-sizing:border-box;
+">
+ <div style="
+ max-width:360px;
+ width:100%;
+ background:#111119;
+ padding:28px;
+ border-radius:28px;
+ border:1px solid rgba(214,178,94,.35);
+ text-align:center;
+ ">
+  <h2 style="color:#d6b25e;">Cashier Access</h2>
+  <p style="color:#aaa;">Enter cashier PIN</p>
 
+  <input id="cashierPin" type="password" placeholder="PIN" style="
+  width:100%;
+  box-sizing:border-box;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  margin-top:10px;
+  ">
+
+  <button onclick="checkPin()" style="
+  width:100%;
+  border:none;
+  border-radius:18px;
+  padding:16px;
+  font-weight:bold;
+  background:#d6b25e;
+  color:#111;
+  cursor:pointer;
+  margin-top:14px;
+  ">
+  Enter
+  </button>
+
+  <div id="pinError" style="
+  display:none;
+  color:#ff6b6b;
+  margin-top:12px;
+  font-size:13px;
+  ">
+  Wrong PIN
+  </div>
+ </div>
+</div>
 <div class="panel">
 <h1>V&V Cashier</h1>
 
@@ -288,6 +343,15 @@ function startScanner(){
    },
    () => {}
  );
+}
+function checkPin(){
+ const pin = document.getElementById("cashierPin").value;
+
+ if(pin === "1234"){
+   document.getElementById("pinScreen").style.display = "none";
+ } else {
+   document.getElementById("pinError").style.display = "block";
+ }
 }
 </script>
 
