@@ -170,7 +170,8 @@ placeholder="Purchase amount">
 type="text"
 placeholder="Product name">
 
-<button onclick="addPurchase()">
+<button onclick="addPurchase()"
+pin: document.getElementById("cashierPin").value>
 Add purchase bonus
 </button>
 
@@ -179,7 +180,8 @@ Add purchase bonus
 <div class="card">
 <h3>Redeem Points</h3>
 <input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
-<button class="secondary" onclick="redeemPoints()">Redeem points</button>
+<button class="secondary" onclick="redeemPoints()"
+pin: document.getElementById("cashierPin").value>Redeem points</button>
 </div>
 
 <div id="errorMsg" class="error"></div>

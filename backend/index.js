@@ -104,8 +104,11 @@ app.get("/qr/:id",(req,res)=>{
 });
 
 app.post("/scan", async (req,res)=>{
- const {qr,amount,product}=req.body;
+const {qr,amount,product,pin}=req.body;
 
+if(pin !== process.env.CASHIER_PIN){
+ return res.status(403).json({error:"Invalid cashier PIN"});
+}
  if(!qr){
    return res.status(400).json({error:"QR is required"});
  }
@@ -185,8 +188,11 @@ app.post("/scan", async (req,res)=>{
  });
 });
 app.post("/redeem", async (req,res)=>{
- const {id,points}=req.body;
+const {id,points,pin}=req.body;
 
+if(pin !== process.env.CASHIER_PIN){
+ return res.status(403).json({error:"Invalid cashier PIN"});
+}
  if(!points || points<=0){
    return res.status(400).json({error:"Enter points amount"});
  }
