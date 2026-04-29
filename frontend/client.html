@@ -236,9 +236,9 @@ Close
 </div>
 
 
-<div id="newsTab" style="display:none;">
+<div id="ClubTab" style="display:none;">
  <div class="offer">
-  <h3>News</h3>
+  <h3>Club</h3>
   <p>Exclusive launches and private events.</p>
  </div>
 </div>
@@ -251,7 +251,7 @@ Close
 <div class="nav">
  <div id="navHome" class="active" onclick="showTab('home')">Home</div>
  <div id="navShop" onclick="showTab('shop')">Boutique</div>
- <div id="navNews" onclick="showTab('news')">News</div>
+ <div id="navClub" onclick="showTab('Club')">Club</div>
 </div>
 
 <div id="tierPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);justify-content:center;align-items:center;z-index:999;">
@@ -334,11 +334,11 @@ function showTab(tab){
 
  document.getElementById("homeTab").style.display="none";
  document.getElementById("shopTab").style.display="none";
- document.getElementById("newsTab").style.display="none";
+ document.getElementById("ClubTab").style.display="none";
 
  document.getElementById("navHome").classList.remove("active");
  document.getElementById("navShop").classList.remove("active");
- document.getElementById("navNews").classList.remove("active");
+ document.getElementById("navClub").classList.remove("active");
 
  if(tab==="home"){
    document.getElementById("homeTop").style.display="block";
@@ -351,9 +351,9 @@ function showTab(tab){
    document.getElementById("navShop").classList.add("active");
  }
 
- if(tab==="news"){
-   document.getElementById("newsTab").style.display="block";
-   document.getElementById("navNews").classList.add("active");
+ if(tab==="Club"){
+   document.getElementById("ClubTab").style.display="block";
+   document.getElementById("navClub").classList.add("active");
  }
 
  window.scrollTo({top:0,behavior:"smooth"});
