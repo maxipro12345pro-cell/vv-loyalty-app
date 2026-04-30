@@ -178,6 +178,49 @@ if(pin !== process.env.CASHIER_PIN){
  if(updateError){
    return res.status(500).json({ error:updateError.message });
  }
+if(
+ user.referred_by &&
+ user.referred_by !== id &&
+ user.referral_rewarded !== true &&
+ Number(user.total_spent || 0) === 0
+){
+const referralReward =
+ Math.round(Number(amount) * 0.05 * 100) / 100;
+ const { data: referrer, error: referrerError } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", user.referred_by)
+   .single();
+
+ if(!referrerError && referrer){
+   const referrerHistory = referrer.history || [];
+
+   await supabase
+     .from("users")
+     .update({
+       balance: Number(referrer.balance || 0) + referralReward,
+       referral_count: Number(referrer.referral_count || 0) + 1,
+       referral_bonus: Number(referrer.referral_bonus || 0) + referralReward,
+       history: [
+         {
+           type:"referral",
+           bonus: referralReward,
+           invitedUser: id,
+           date: new Date().toLocaleString()
+         },
+         ...referrerHistory
+       ]
+     })
+     .eq("id", user.referred_by);
+
+   await supabase
+     .from("users")
+     .update({
+       referral_rewarded: true
+     })
+     .eq("id", id);
+ }
+}
 
  res.json({
    success:true,
