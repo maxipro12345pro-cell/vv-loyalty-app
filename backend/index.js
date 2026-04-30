@@ -331,10 +331,12 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
    }
  }
 
- bot.sendMessage(
+   bot.sendMessage(
    chatId,
    "Bine ai venit în V&V Privilege Club ✨"
  );
+
+});
 
 }
 
