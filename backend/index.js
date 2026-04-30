@@ -49,36 +49,44 @@ app.get("/",(req,res)=>{
 
 app.get("/user/:id", async (req,res)=>{
  const id = String(req.params.id);
+ const ref = req.query.ref ? String(req.query.ref) : null;
 
- let { data: user, error } = await supabase
-   .from("users")
-   .select("*")
-   .eq("id", id)
-   .single();
+let { data: user, error } = await supabase
+  .from("users")
+  .select("*")
+  .eq("id", id)
+  .single();
 
- if(error && error.code !== "PGRST116"){
-   return res.status(500).json({ error: error.message });
- }
+// если пользователя нет — создаём
+if(!user){
+  await supabase.from("users").insert({
+    id: id,
+    balance: 0,
+    total_spent: 0,
+    history: [],
+    referred_by: ref || null,
+    referral_rewarded: false
+  });
 
- if(!user){
-   const { data: newUser, error: insertError } = await supabase
-     .from("users")
-     .insert({
-       id: id,
-       balance: 0,
-       total_spent: 0,
-       history: []
-     })
-     .select()
-     .single();
+  const { data: newUser } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-   if(insertError){
-     return res.status(500).json({ error: insertError.message });
-   }
+  user = newUser;
+}
+else{
+  // если пользователь уже есть, но ещё без реферала — записываем
+  if(ref && ref !== id && !user.referred_by){
+    await supabase
+      .from("users")
+      .update({ referred_by: ref })
+      .eq("id", id);
 
-   user = newUser;
- }
-
+    user.referred_by = ref;
+  }
+}
  const tier = getTier(Number(user.total_spent || 0));
 
  res.json({
@@ -86,9 +94,13 @@ app.get("/user/:id", async (req,res)=>{
    balance: Number(user.balance || 0),
    totalSpent: Number(user.total_spent || 0),
    history: user.history || [],
+   referralCount: Number(user.referral_count || 0),
+   referralBonus: Number(user.referral_bonus || 0),
+   referredBy: user.referred_by || null,
    tier: tier
  });
 });
+
 app.get("/qr/:id",(req,res)=>{
  const timestamp=Date.now();
  const data=`${req.params.id}:${timestamp}`;
@@ -98,9 +110,10 @@ app.get("/qr/:id",(req,res)=>{
  .update(data)
  .digest("hex");
 
- res.json({
-   qr:`${data}:${hash}`
- });
+res.json({
+  qr:`${data}:${hash}`
+});
+
 });
 
 app.post("/scan", async (req,res)=>{
