@@ -250,14 +250,43 @@ const TelegramBot = require("node-telegram-bot-api");
 if(process.env.BOT_TOKEN){
  const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
- bot.onText(/^\/start(?:\s.*)?$/, (msg)=>{
-  bot.sendMessage(
-   msg.chat.id,
-   "Bine ai venit în V&V Privilege Club ✨\n\nApasă butonul verde de jos pentru a deschide V&V."
-  );
- });
-}
+bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
 
+ const chatId = msg.chat.id;
+ const userId = String(msg.from.id);
+
+ const payload = match[1]; // сюда придёт ref_1006232036
+
+ let referredBy = null;
+
+ if(payload && payload.startsWith("ref_")){
+   referredBy = payload.replace("ref_", "");
+ }
+
+ // проверяем есть ли пользователь
+ let { data: existingUser } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", userId)
+   .single();
+
+ if(!existingUser){
+   // создаём нового пользователя
+   await supabase.from("users").insert({
+     id: userId,
+     balance: 0,
+     total_spent: 0,
+     history: [],
+     referred_by: referredBy
+   });
+ }
+
+ bot.sendMessage(
+   chatId,
+   "Bine ai venit în V&V Privilege Club ✨"
+ );
+
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT,()=>{
