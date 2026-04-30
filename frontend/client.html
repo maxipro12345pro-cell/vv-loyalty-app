@@ -346,8 +346,24 @@ if(window.Telegram &&
  Telegram.WebApp.expand();
 }
 const API = "https://vv-loyalty-app.onrender.com";
+
+let referralId = null;
+
+if(window.location.search){
+ const params = new URLSearchParams(window.location.search);
+ referralId = params.get("ref");
+}
+
+if(!referralId && window.Telegram?.WebApp?.initDataUnsafe?.start_param){
+ const startParam = window.Telegram.WebApp.initDataUnsafe.start_param;
+
+ if(startParam.startsWith("ref_")){
+   referralId = startParam.replace("ref_", "");
+ }
+}
+
 loadUser();
-function closePopup(){
+ function closePopup(){
  document.getElementById(
  "tierPopup"
  ).style.display="none";
@@ -517,7 +533,13 @@ async function loadUser(){
 
  setGreeting();
 
- const res = await fetch(API + "/user/" + currentUserId);
+let url = API + "/user/" + currentUserId;
+
+if(referralId && referralId !== currentUserId){
+ url += "?ref=" + referralId;
+}
+
+const res = await fetch(url);
  const data = await res.json();
 
 document.getElementById("referralCount").innerText =
