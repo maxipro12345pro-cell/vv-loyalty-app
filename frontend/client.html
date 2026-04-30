@@ -258,8 +258,9 @@ Close
   padding:14px;
  ">
   <div class="label">Invited friends</div>
-  <div style="font-size:24px;font-weight:bold;margin-top:6px;">0</div>
- </div>
+  <div style="font-size:24px;font-weight:bold;margin-top:6px;">
+ <span id="referralCount">0</span>
+</div> </div>
 
  <div style="
   background:rgba(255,255,255,.05);
@@ -268,7 +269,9 @@ Close
   padding:14px;
  ">
   <div class="label">Referral bonus</div>
-  <div style="font-size:24px;font-weight:bold;margin-top:6px;">0 MDL</div>
+ <div style="font-size:24px;font-weight:bold;margin-top:6px;">
+ <span id="referralBonus">0</span> MDL
+ </div>
  </div>
 
 </div>
@@ -516,6 +519,12 @@ async function loadUser(){
 
  const res = await fetch(API + "/user/" + currentUserId);
  const data = await res.json();
+
+document.getElementById("referralCount").innerText =
+Number(data.referralCount || 0);
+
+document.getElementById("referralBonus").innerText =
+Number(data.referralBonus || 0).toFixed(0);
 
  updateTier(data);
  updateHistory(data);

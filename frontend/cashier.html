@@ -261,9 +261,10 @@ const product=document.getElementById("productName").value.trim();
 body:JSON.stringify({
  qr:qr,
  amount:Number(amount),
- product:product
+ product:product,
+ pin:document.getElementById("cashierPin").value
 })
- });
+});
 
  const data=await res.json();
 
@@ -299,10 +300,11 @@ async function redeemPoints(){
  const res=await fetch(API + "/redeem",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({
-     id:clientId,
-     points:Number(points)
-   })
+body:JSON.stringify({
+ id:clientId,
+ points:Number(points),
+ pin:document.getElementById("cashierPin").value
+})
  });
 
  const data=await res.json();
