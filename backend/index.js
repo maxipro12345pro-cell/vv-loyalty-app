@@ -297,8 +297,7 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
 
  const chatId = msg.chat.id;
  const userId = String(msg.from.id);
-
- const payload = match[1]; // сюда придёт ref_1006232036
+ const payload = match[1];
 
  let referredBy = null;
 
@@ -306,6 +305,42 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
    referredBy = payload.replace("ref_", "");
  }
 
+ let { data: existingUser } = await supabase
+   .from("users")
+   .select("*")
+   .eq("id", userId)
+   .single();
+
+ if(!existingUser){
+   await supabase.from("users").insert({
+     id: userId,
+     balance: 0,
+     total_spent: 0,
+     history: [],
+     referred_by: referredBy,
+     referral_rewarded: false
+   });
+ } else {
+   if(
+     referredBy &&
+     referredBy !== userId &&
+     !existingUser.referred_by
+   ){
+     await supabase
+       .from("users")
+       .update({
+         referred_by: referredBy
+       })
+       .eq("id", userId);
+   }
+ }
+
+ bot.sendMessage(
+   chatId,
+   "Bine ai venit în V&V Privilege Club ✨"
+ );
+
+});
  // проверяем есть ли пользователь
  let { data: existingUser } = await supabase
    .from("users")
