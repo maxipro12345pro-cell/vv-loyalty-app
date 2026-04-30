@@ -82,7 +82,8 @@ if(
  ref &&
  ref !== id &&
  !user.referred_by &&
- Number(user.total_spent || 0) === 0
+ Number(user.total_spent || 0) === 0 &&
+ user.referral_rewarded !== true
 ){
     await supabase
       .from("users")
@@ -200,7 +201,8 @@ if(
  user.referred_by &&
  user.referred_by !== id &&
  user.referral_rewarded !== true &&
- Number(user.total_spent || 0) === 0
+ Number(user.total_spent || 0) === 0 &&
+ (user.history || []).length === 0
 ){
 const referralReward =
  Math.round(Number(amount) * 0.05 * 100) / 100;
