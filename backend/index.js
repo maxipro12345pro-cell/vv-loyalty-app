@@ -336,7 +336,8 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
    "Bine ai venit în V&V Privilege Club ✨"
  );
 
-});
+}
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT,()=>{
