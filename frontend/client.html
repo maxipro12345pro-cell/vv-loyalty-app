@@ -524,7 +524,14 @@ function updateHistory(data){
    <br>${item.date}
    </p>`;
   }
-
+  if(item.type==="referral"){
+   return `
+   <p class="label">
+   +${Number(item.bonus).toFixed(2)}
+   referral bonus · invited client ${item.invitedUser || ""}
+   <br>${item.date}
+   </p>`;
+  }
  }).join("");
 
 }
