@@ -321,11 +321,7 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      referral_rewarded: false
    });
  } else {
-   if(
-     referredBy &&
-     referredBy !== userId &&
-     !existingUser.referred_by
-   ){
+   if(referredBy && referredBy !== userId && !existingUser.referred_by){
      await supabase
        .from("users")
        .update({
@@ -333,30 +329,6 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
        })
        .eq("id", userId);
    }
- }
-
- bot.sendMessage(
-   chatId,
-   "Bine ai venit în V&V Privilege Club ✨"
- );
-
-});
- // проверяем есть ли пользователь
- let { data: existingUser } = await supabase
-   .from("users")
-   .select("*")
-   .eq("id", userId)
-   .single();
-
- if(!existingUser){
-   // создаём нового пользователя
-   await supabase.from("users").insert({
-     id: userId,
-     balance: 0,
-     total_spent: 0,
-     history: [],
-     referred_by: referredBy
-   });
  }
 
  bot.sendMessage(
