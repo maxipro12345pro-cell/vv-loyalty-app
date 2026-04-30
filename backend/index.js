@@ -339,16 +339,20 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      referral_rewarded: false
    });
  } else {
-   if(referredBy && referredBy !== userId && !existingUser.referred_by){
-     await supabase
-       .from("users")
-       .update({
-         referred_by: referredBy
-       })
-       .eq("id", userId);
-   }
- }
-
+if(
+ referredBy &&
+ referredBy !== userId &&
+ !existingUser.referred_by &&
+ Number(existingUser.total_spent || 0) === 0 &&
+ existingUser.referral_rewarded !== true
+){
+  await supabase
+    .from("users")
+    .update({
+      referred_by: referredBy
+    })
+    .eq("id", userId);
+}
    bot.sendMessage(
    chatId,
    "Bine ai venit în V&V Privilege Club ✨"
