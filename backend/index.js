@@ -78,7 +78,12 @@ if(!user){
 }
 else{
   // если пользователь уже есть, но ещё без реферала — записываем
-  if(ref && ref !== id && !user.referred_by){
+if(
+ ref &&
+ ref !== id &&
+ !user.referred_by &&
+ Number(user.total_spent || 0) === 0
+){
     await supabase
       .from("users")
       .update({ referred_by: ref })
