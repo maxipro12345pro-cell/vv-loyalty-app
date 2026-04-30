@@ -352,6 +352,7 @@ if(
       referred_by: referredBy
     })
     .eq("id", userId);
+ }
 }
    bot.sendMessage(
    chatId,
