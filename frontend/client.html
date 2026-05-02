@@ -137,8 +137,7 @@ button:active{
 </style>
 </head>
 
-<body onload="loadUser()">
-
+<body>
 <div class="app">
 <div id="homeTop">
  <div class="header">
@@ -161,12 +160,13 @@ button:active{
   <div style="margin-top:18px;">
    <div class="label" id="progressText">0 MDL to SILVER Status</div>
    <div style="background:#2a2a33;border-radius:999px;height:10px;margin-top:8px;overflow:hidden;">
-    <div id="progressBar" style="
+<div id="progressBar" style="
  width:0%;
  height:100%;
  background:var(--tierColor,#d6b25e);
- border-radius:999px;"
+ border-radius:999px;
  transition:width .6s ease, background .3s ease;">
+</div>
 </div>
    </div>
   </div>
@@ -360,8 +360,6 @@ if(!referralId && window.Telegram?.WebApp?.initDataUnsafe?.start_param){
    referralId = startParam.replace("ref_", "");
  }
 }
-
-loadUser();
  function closePopup(){
  document.getElementById(
  "tierPopup"
@@ -546,8 +544,12 @@ if(referralId && referralId !== currentUserId){
 }
 
 const res = await fetch(url);
- const data = await res.json();
+const data = await res.json();
 
+if(!res.ok || data.error){
+ console.log("User loading error:", data.error || res.status);
+ return;
+}
 document.getElementById("referralCount").innerText =
 Number(data.referralCount || 0);
 
@@ -558,8 +560,7 @@ Number(data.referralBonus || 0).toFixed(0);
  updateHistory(data);
  previousTier = data.tier.name;
 }
-setInterval(loadUser,3000);
-
+setInterval(loadUser,10000);
 async function showQR(){
  const res = await fetch(API + "/qr/" + currentUserId);
  const data = await res.json();
