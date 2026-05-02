@@ -57,6 +57,9 @@ let { data: user, error } = await supabase
   .eq("id", id)
   .single();
 
+if(error && error.code !== "PGRST116"){
+  return res.status(500).json({ error: error.message });
+}
 // если пользователя нет — создаём
 if(!user){
   await supabase.from("users").insert({
@@ -171,7 +174,7 @@ if(pin !== process.env.CASHIER_PIN){
  const oldHistory = user.history || [];
  const newTotalSpent = Number(user.total_spent || 0) + Number(amount);
  const tier = getTier(newTotalSpent);
- const bonus = Number(amount) * (tier.cashback / 100);
+ const bonus = Math.round(Number(amount) * (tier.cashback / 100) * 100) / 100;
  const newBalance = Number(user.balance || 0) + bonus;
 
  const newHistory = [
@@ -202,7 +205,8 @@ if(
  user.referred_by !== id &&
  user.referral_rewarded !== true &&
  Number(user.total_spent || 0) === 0 &&
- (user.history || []).length === 0
+ (user.history || []).length === 0 &&
+ Number(amount) >= 500
 ){
 const referralReward =
  Math.round(Number(amount) * 0.05 * 100) / 100;
