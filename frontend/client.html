@@ -544,7 +544,9 @@ async function loadUser(){
 
  setGreeting();
 
-let url = API + "/user/" + currentUserId;
+let username = Telegram.WebApp?.initDataUnsafe?.user?.username || "";
+
+let url = API + "/user/" + currentUserId + "?username=" + username;
 
 if(referralId && referralId !== currentUserId){
  url += "?ref=" + referralId;

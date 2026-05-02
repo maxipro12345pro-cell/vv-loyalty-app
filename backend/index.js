@@ -343,6 +343,7 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      history: [],
      referred_by: referredBy,
      referral_rewarded: false
+     username: req.query.username || null
    });
  } else {
 if(
