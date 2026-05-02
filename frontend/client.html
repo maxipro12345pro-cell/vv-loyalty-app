@@ -560,7 +560,8 @@ Number(data.referralBonus || 0).toFixed(0);
  updateHistory(data);
  previousTier = data.tier.name;
 }
-setInterval(loadUser,10000);
+
+setInterval(loadUser,3000);
 async function showQR(){
  const res = await fetch(API + "/qr/" + currentUserId);
  const data = await res.json();
