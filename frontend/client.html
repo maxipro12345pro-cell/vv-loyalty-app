@@ -162,7 +162,7 @@ button:active{
   <div class="balance"><span id="balance">0.00</span> MDL</div>
 
   <div class="badge" id="tierBadge" onclick="openLevels()">
-   CORE MEMBER · Cashback 5%
+   CORE MEMBER - Cashback 5%
   </div>
   <div style="margin-top:18px;">
    <div class="label" id="progressText">0 MDL to SILVER Status</div>
@@ -352,6 +352,7 @@ if(window.Telegram &&
  Telegram.WebApp.expand();
 }
 const API = "https://vv-loyalty-app.onrender.com";
+const telegramInitData = window.Telegram?.WebApp?.initData || "";
 
 let referralId = null;
 
@@ -457,7 +458,7 @@ function updateTier(data){
  document.getElementById("balance").innerText = Number(data.balance).toFixed(2);
 
  document.getElementById("tierBadge").innerText =
- data.tier.name + " MEMBER · Cashback " + data.tier.cashback + "%";
+ data.tier.name + " MEMBER - Cashback " + data.tier.cashback + "%";
 document.getElementById("memberIcon").innerText =
 data.tier.name;
 let tierColor="#b57a4b"; // bronze
@@ -512,48 +513,85 @@ function updateHistory(data){
  box.innerHTML = data.history.slice(0,5).map(item=>{
 
   if(item.type==="purchase"){
+   const product = escapeHTML(item.product || "Purchase");
+   const date = escapeHTML(item.date || "");
    return `
    <p class="label">
    +${Number(item.bonus).toFixed(2)}
-   bonus · ${item.product || "Purchase"} · ${item.amount} MDL
-   <br>${item.date}
+   bonus - ${product} - ${Number(item.amount || 0)} MDL
+   <br>${date}
    </p>`;
   }
 
   if(item.type==="redeem"){
+   const date = escapeHTML(item.date || "");
    return `
    <p class="label">
    -${Number(item.points).toFixed(2)}
    points redeemed
-   <br>${item.date}
+   <br>${date}
    </p>`;
   }
   if(item.type==="referral"){
+   const invitedUser = escapeHTML(item.invitedUser || "");
+   const date = escapeHTML(item.date || "");
    return `
    <p class="label">
    +${Number(item.bonus).toFixed(2)}
-   referral bonus · invited client ${item.invitedUser || ""}
-   <br>${item.date}
+   referral bonus - invited client ${invitedUser}
+   <br>${date}
    </p>`;
   }
+  return "";
  }).join("");
 
+}
+
+function escapeHTML(value){
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
 }
 
 async function loadUser(){
 
  setGreeting();
 
-let username = Telegram.WebApp?.initDataUnsafe?.user?.username || "";
+let username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || "";
 
-let url = API + "/user/" + currentUserId + "?username=" + username;
+const params = new URLSearchParams();
 
-if(referralId && referralId !== currentUserId){
- url += "?ref=" + referralId;
+if(username){
+ params.set("username", username);
 }
 
-const res = await fetch(url);
-const data = await res.json();
+if(referralId && referralId !== currentUserId){
+ params.set("ref", referralId);
+}
+
+let url = API + "/user/" + currentUserId;
+
+if(params.toString()){
+ url += "?" + params.toString();
+}
+
+let res;
+let data;
+
+try{
+ res = await fetch(url,{
+  headers:{
+   "x-telegram-init-data": telegramInitData
+  }
+ });
+ data = await res.json();
+} catch(error){
+ console.log("User loading error:", error);
+ return;
+}
 
 if(!res.ok || data.error){
  console.log("User loading error:", data.error || res.status);
@@ -569,11 +607,20 @@ Number(data.referralBonus || 0).toFixed(0);
  updateHistory(data);
  previousTier = data.tier.name;
 }
-loadUser()
-setInterval(loadUser,3000);
+loadUser();
+setInterval(loadUser,10000);
 async function showQR(){
- const res = await fetch(API + "/qr/" + currentUserId);
+ const res = await fetch(API + "/qr/" + currentUserId,{
+  headers:{
+   "x-telegram-init-data": telegramInitData
+  }
+ });
  const data = await res.json();
+
+ if(!res.ok || data.error){
+  console.log("QR loading error:", data.error || res.status);
+  return;
+ }
 
  savedQR = data.qr;
 
@@ -591,13 +638,13 @@ const refLink =
  "https://t.me/VsVPerfume_bot?start=ref_" + currentUserId;
 
  const text =
- "Join V&V Privilege Club ✨ " + refLink;
+ "Join V&V Privilege Club * " + refLink;
 
  const telegramShare =
  "https://t.me/share/url?url=" +
  encodeURIComponent(refLink) +
  "&text=" +
- encodeURIComponent("Join V&V Privilege Club ✨");
+ encodeURIComponent("Join V&V Privilege Club *");
 
  window.open(telegramShare, "_blank");
 }
@@ -625,10 +672,10 @@ box-shadow:0 20px 60px rgba(0,0,0,.55);
 Membership Levels
 </h2>
 
-<p class="label"><b style="color:#d6b25e;">CORE</b> — 0 MDL spent · Cashback 5%</p>
-<p class="label"><b style="color:#dfe5ef;">SILVER</b> — from 5 000 MDL · Cashback 7%</p>
-<p class="label"><b style="color:#ffd56a;">GOLD</b> — from 15 000 MDL · Cashback 8%</p>
-<p class="label"><b style="color:#c7d2e2;">BLACK</b> — from 30 000 MDL · Cashback 10%</p>
+<p class="label"><b style="color:#d6b25e;">CORE</b> - 0 MDL spent - Cashback 5%</p>
+<p class="label"><b style="color:#dfe5ef;">SILVER</b> - from 5 000 MDL - Cashback 7%</p>
+<p class="label"><b style="color:#ffd56a;">GOLD</b> - from 15 000 MDL - Cashback 8%</p>
+<p class="label"><b style="color:#c7d2e2;">BLACK</b> - from 30 000 MDL - Cashback 10%</p>
 
 <button onclick="closeLevels()">Close</button>
 </div>

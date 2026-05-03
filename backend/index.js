@@ -5,14 +5,118 @@ const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
  process.env.SUPABASE_URL,
- process.env.SUPABASE_SERVICE_KEY
+ process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY
 );
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const SECRET = "vv_secret";
+const SECRET = process.env.QR_SECRET;
+const QR_TTL_MS = 5 * 60 * 1000;
+
+if(!SECRET){
+ throw new Error("QR_SECRET is required");
+}
+
+function isCashierRequest(req){
+ const pin = req.get("x-cashier-pin") || req.body?.pin;
+ return Boolean(process.env.CASHIER_PIN && pin === process.env.CASHIER_PIN);
+}
+
+function verifyTelegramInitData(initData){
+ if(!process.env.BOT_TOKEN){
+   return null;
+ }
+
+ if(!initData){
+   return null;
+ }
+
+ const params = new URLSearchParams(initData);
+ const hash = params.get("hash");
+
+ if(!hash){
+   return null;
+ }
+
+ params.delete("hash");
+
+ const dataCheckString = [...params.entries()]
+   .sort(([a],[b]) => a.localeCompare(b))
+   .map(([key,value]) => `${key}=${value}`)
+   .join("\n");
+
+ const secretKey = crypto
+   .createHmac("sha256", "WebAppData")
+   .update(process.env.BOT_TOKEN)
+   .digest();
+
+ const expectedHash = crypto
+   .createHmac("sha256", secretKey)
+   .update(dataCheckString)
+   .digest("hex");
+
+ const validHash =
+   hash.length === expectedHash.length &&
+   crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(expectedHash));
+
+ if(!validHash){
+   return null;
+ }
+
+ const authDate = Number(params.get("auth_date") || 0) * 1000;
+
+ if(authDate && Date.now() - authDate > 24 * 60 * 60 * 1000){
+   return null;
+ }
+
+ const userRaw = params.get("user");
+
+ if(!userRaw){
+   return null;
+ }
+
+ try{
+   return JSON.parse(userRaw);
+ } catch{
+   return null;
+ }
+}
+
+function parseAndVerifyQR(qr){
+ const parts = String(qr || "").split(":");
+
+ if(parts.length !== 3){
+   return { error: "Invalid QR format" };
+ }
+
+ const [id, timestamp, receivedHash] = parts;
+
+ if(!/^\d+$/.test(id) || !/^\d+$/.test(timestamp) || !/^[a-f0-9]{64}$/i.test(receivedHash)){
+   return { error: "Invalid QR format" };
+ }
+
+ const data = `${id}:${timestamp}`;
+ const expectedHash = crypto
+   .createHmac("sha256", SECRET)
+   .update(data)
+   .digest("hex");
+
+ const validHash =
+   receivedHash.length === expectedHash.length &&
+   crypto.timingSafeEqual(Buffer.from(receivedHash), Buffer.from(expectedHash));
+
+ if(!validHash){
+   return { error: "Invalid QR signature" };
+ }
+
+ if(Date.now() - Number(timestamp) > QR_TTL_MS){
+   return { error: "QR expired" };
+ }
+
+ return { id, timestamp };
+}
 
 function getTier(totalSpent){
  if(totalSpent >= 30000){
@@ -49,7 +153,20 @@ app.get("/",(req,res)=>{
 
 app.get("/user/:id", async (req,res)=>{
  const id = String(req.params.id);
- const ref = req.query.ref ? String(req.query.ref) : null;
+ const ref = req.query.ref && /^\d+$/.test(String(req.query.ref))
+   ? String(req.query.ref)
+   : null;
+ const telegramUser = verifyTelegramInitData(req.get("x-telegram-init-data"));
+
+ if(!/^\d+$/.test(id)){
+   return res.status(400).json({ error: "Invalid user id" });
+ }
+
+ if(process.env.BOT_TOKEN && !isCashierRequest(req)){
+   if(!telegramUser || String(telegramUser.id) !== id){
+     return res.status(401).json({ error: "Invalid Telegram initData" });
+   }
+ }
 
 let { data: user, error } = await supabase
   .from("users")
@@ -60,27 +177,28 @@ let { data: user, error } = await supabase
 if(error && error.code !== "PGRST116"){
   return res.status(500).json({ error: error.message });
 }
-// если пользователя нет — создаём
+// РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ - СЃРѕР·РґР°С‘Рј
 if(!user){
-  await supabase.from("users").insert({
+  const { data: newUser, error: insertError } = await supabase.from("users").insert({
     id: id,
     balance: 0,
     total_spent: 0,
     history: [],
-    referred_by: ref || null,
-    referral_rewarded: false
-  });
-
-  const { data: newUser } = await supabase
-    .from("users")
+    referred_by: ref && ref !== id ? ref : null,
+    referral_rewarded: false,
+    username: telegramUser?.username || req.query.username || null
+  })
     .select("*")
-    .eq("id", id)
     .single();
+
+  if(insertError){
+    return res.status(500).json({ error: insertError.message });
+  }
 
   user = newUser;
 }
 else{
-  // если пользователь уже есть, но ещё без реферала — записываем
+  // РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РµСЃС‚СЊ, РЅРѕ РµС‰С‘ Р±РµР· СЂРµС„РµСЂР°Р»Р° - Р·Р°РїРёСЃС‹РІР°РµРј
 if(
  ref &&
  ref !== id &&
@@ -94,6 +212,14 @@ if(
       .eq("id", id);
 
     user.referred_by = ref;
+  }
+  if(telegramUser?.username && user.username !== telegramUser.username){
+    await supabase
+      .from("users")
+      .update({ username: telegramUser.username })
+      .eq("id", id);
+
+    user.username = telegramUser.username;
   }
 }
  const tier = getTier(Number(user.total_spent || 0));
@@ -111,8 +237,21 @@ if(
 });
 
 app.get("/qr/:id",(req,res)=>{
+ const id = String(req.params.id);
+ const telegramUser = verifyTelegramInitData(req.get("x-telegram-init-data"));
+
+ if(!/^\d+$/.test(id)){
+   return res.status(400).json({ error: "Invalid user id" });
+ }
+
+ if(process.env.BOT_TOKEN){
+   if(!telegramUser || String(telegramUser.id) !== id){
+     return res.status(401).json({ error: "Invalid Telegram initData" });
+   }
+ }
+
  const timestamp=Date.now();
- const data=`${req.params.id}:${timestamp}`;
+ const data=`${id}:${timestamp}`;
 
  const hash=crypto
  .createHmac("sha256",SECRET)
@@ -128,19 +267,27 @@ res.json({
 app.post("/scan", async (req,res)=>{
 const {qr,amount,product,pin}=req.body;
 
-if(pin !== process.env.CASHIER_PIN){
+if(!isCashierRequest(req)){
  return res.status(403).json({error:"Invalid cashier PIN"});
 }
  if(!qr){
    return res.status(400).json({error:"QR is required"});
  }
 
- if(!amount || amount<=0){
-   return res.status(400).json({error:"Enter purchase amount"});
+ const numericAmount = Number(amount);
+
+ if(!Number.isFinite(numericAmount) || numericAmount <= 0){
+   return res.status(400).json({error:"Enter valid purchase amount"});
  }
 
- const parts=qr.split(":");
- const id=String(parts[0]);
+ const verifiedQR = parseAndVerifyQR(qr);
+
+ if(verifiedQR.error){
+   return res.status(400).json({ error: verifiedQR.error });
+ }
+
+ const id=String(verifiedQR.id);
+ const qrHash = crypto.createHash("sha256").update(String(qr)).digest("hex");
 
  let { data: user, error } = await supabase
    .from("users")
@@ -172,19 +319,25 @@ if(pin !== process.env.CASHIER_PIN){
  }
 
  const oldHistory = user.history || [];
- const newTotalSpent = Number(user.total_spent || 0) + Number(amount);
+
+ if(oldHistory.some(item => item.qrHash === qrHash)){
+   return res.status(409).json({ error:"QR already used" });
+ }
+
+ const newTotalSpent = Number(user.total_spent || 0) + numericAmount;
  const tier = getTier(newTotalSpent);
- const bonus = Math.round(Number(amount) * (tier.cashback / 100) * 100) / 100;
+ const bonus = Math.round(numericAmount * (tier.cashback / 100) * 100) / 100;
  const newBalance = Number(user.balance || 0) + bonus;
 
  const newHistory = [
    {
-     type:"purchase",
-     amount:Number(amount),
-     bonus:bonus,
-     product:product || "Purchase",
-     date:new Date().toLocaleString()
-   },
+      type:"purchase",
+      amount:numericAmount,
+      bonus:bonus,
+      product:product || "Purchase",
+      qrHash:qrHash,
+      date:new Date().toLocaleString()
+    },
    ...oldHistory
  ];
 
@@ -206,10 +359,10 @@ if(
  user.referral_rewarded !== true &&
  Number(user.total_spent || 0) === 0 &&
  (user.history || []).length === 0 &&
- Number(amount) >= 500
+ numericAmount >= 500
 ){
 const referralReward =
- Math.round(Number(amount) * 0.05 * 100) / 100;
+ Math.round(numericAmount * 0.05 * 100) / 100;
  const { data: referrer, error: referrerError } = await supabase
    .from("users")
    .select("*")
@@ -217,6 +370,26 @@ const referralReward =
    .single();
 
  if(!referrerError && referrer){
+   const { data: rewardMarker, error: rewardMarkerError } = await supabase
+     .from("users")
+     .update({
+       referral_rewarded: true
+     })
+     .eq("id", id)
+     .or("referral_rewarded.is.null,referral_rewarded.eq.false")
+     .select("id")
+     .single();
+
+   if(rewardMarkerError || !rewardMarker){
+     return res.json({
+       success:true,
+       balance:newBalance,
+       totalSpent:newTotalSpent,
+       history:newHistory,
+       tier:tier
+     });
+   }
+
    const referrerHistory = referrer.history || [];
 
    await supabase
@@ -229,21 +402,14 @@ const referralReward =
          {
            type:"referral",
            bonus: referralReward,
-           invitedUser: id,
+           invitedUser: user.username || id,
            date: new Date().toLocaleString()
          },
          ...referrerHistory
        ]
-     })
-     .eq("id", user.referred_by);
-
-   await supabase
-     .from("users")
-     .update({
-       referral_rewarded: true
-     })
-     .eq("id", id);
- }
+      })
+      .eq("id", user.referred_by);
+  }
 }
 
  res.json({
@@ -257,34 +423,45 @@ const referralReward =
 app.post("/redeem", async (req,res)=>{
 const {id,points,pin}=req.body;
 
-if(pin !== process.env.CASHIER_PIN){
+if(!isCashierRequest(req)){
  return res.status(403).json({error:"Invalid cashier PIN"});
 }
- if(!points || points<=0){
-   return res.status(400).json({error:"Enter points amount"});
+ const numericPoints = Number(points);
+ const userId = String(id || "");
+
+ if(!/^\d+$/.test(userId)){
+   return res.status(400).json({error:"Invalid user id"});
+ }
+
+ if(!Number.isFinite(numericPoints) || numericPoints<=0){
+   return res.status(400).json({error:"Enter valid points amount"});
  }
 
  let { data:user, error } = await supabase
    .from("users")
    .select("*")
-   .eq("id", String(id))
+   .eq("id", userId)
    .single();
+
+ if(error && error.code === "PGRST116"){
+   return res.status(404).json({error:"User not found"});
+ }
 
  if(error){
    return res.status(500).json({error:error.message});
  }
 
- if(Number(user.balance) < Number(points)){
+ if(Number(user.balance) < numericPoints){
    return res.status(400).json({error:"Not enough points"});
  }
 
  const newBalance =
-   Number(user.balance) - Number(points);
+   Number(user.balance) - numericPoints;
 
  const newHistory = [
  {
    type:"redeem",
-   points:Number(points),
+   points:numericPoints,
    date:new Date().toLocaleString()
  },
  ...(user.history || [])
@@ -296,7 +473,7 @@ if(pin !== process.env.CASHIER_PIN){
       balance:newBalance,
       history:newHistory
    })
-   .eq("id", String(id));
+   .eq("id", userId);
 
  if(updateError){
    return res.status(500).json({error:updateError.message});
@@ -326,7 +503,10 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
  let referredBy = null;
 
  if(payload && payload.startsWith("ref_")){
-   referredBy = payload.replace("ref_", "");
+   const payloadRef = payload.replace("ref_", "");
+   referredBy = /^\d+$/.test(payloadRef) && payloadRef !== userId
+     ? payloadRef
+     : null;
  }
 
  let { data: existingUser } = await supabase
@@ -342,9 +522,9 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      total_spent: 0,
      history: [],
      referred_by: referredBy,
-     referral_rewarded: false
-     username: req.query.username || null
-   });
+     referral_rewarded: false,
+     username: msg.from.username || null
+    });
  } else {
 if(
  referredBy &&
@@ -363,7 +543,7 @@ if(
 }
    bot.sendMessage(
    chatId,
-   "Bine ai venit în V&V Privilege Club ✨"
+   "Bine ai venit in V&V Privilege Club *"
  );
 
 });

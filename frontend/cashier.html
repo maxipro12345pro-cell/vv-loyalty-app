@@ -171,7 +171,7 @@ type="text"
 placeholder="Product name">
 
 <button onclick="addPurchase()"
-pin: document.getElementById("cashierPin").value>
+>
 Add purchase bonus
 </button>
 
@@ -181,7 +181,7 @@ Add purchase bonus
 <h3>Redeem Points</h3>
 <input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
 <button class="secondary" onclick="redeemPoints()"
-pin: document.getElementById("cashierPin").value>Redeem points</button>
+>Redeem points</button>
 </div>
 
 <div id="errorMsg" class="error"></div>
@@ -197,14 +197,28 @@ pin: document.getElementById("cashierPin").value>Redeem points</button>
 
 <script>
 const API = "https://vv-loyalty-app.onrender.com";
+
+function cashierHeaders(){
+ return {
+  "x-cashier-pin": document.getElementById("cashierPin").value
+ };
+}
+
 async function loadClientResult(){
  const qr=document.getElementById("qrInput").value.trim();
  const clientId=getClientIdFromQR(qr);
 
  if(!clientId) return;
 
-const res=await fetch(API + "/user/" + clientId);
+const res=await fetch(API + "/user/" + clientId,{
+ headers:cashierHeaders()
+});
  const data=await res.json();
+
+ if(!res.ok || data.error){
+  showError(data.error || "Client loading error");
+  return;
+ }
 
  updateResult(data);
 }
@@ -214,8 +228,14 @@ function clearMessages(){
 }
 
 function getClientIdFromQR(qr){
- if(!qr) return null;
- return qr.split(":")[0];
+  if(!qr) return null;
+  const parts = qr.split(":");
+
+  if(parts.length !== 3 || !/^\d+$/.test(parts[0])){
+   return null;
+  }
+
+  return parts[0];
 }
 
 function showError(text){
@@ -231,6 +251,11 @@ function showSuccess(text){
 }
 
 function updateResult(data){
+ if(!data || !data.tier){
+  showError("Invalid client data");
+  return;
+ }
+
  document.getElementById("balance").innerText =
  Number(data.balance).toFixed(2);
 
@@ -349,11 +374,11 @@ function startScanner(){
  );
 }
 function checkPin(){
- const pin = document.getElementById("cashierPin").value;
+  const pin = document.getElementById("cashierPin").value;
 
- if(pin === "0805"){
-   document.getElementById("pinScreen").style.display = "none";
- } else {
+  if(pin.trim()){
+    document.getElementById("pinScreen").style.display = "none";
+  } else {
    document.getElementById("pinError").style.display = "block";
  }
 }
