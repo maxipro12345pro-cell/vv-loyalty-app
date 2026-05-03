@@ -185,7 +185,7 @@ button:active{
   <div class="balance"><span id="balance">0.00</span> MDL</div>
 
   <div class="badge" id="tierBadge" onclick="openLevels()">
-   CORE MEMBER - Cashback 5%
+   CORE MEMBER - Cashback 2.5%
   </div>
   <div style="margin-top:18px;">
    <div class="label" id="progressText">0 MDL to SILVER Status</div>
@@ -422,7 +422,7 @@ Object.assign(translations.ro,{
  showQR:"Arata QR",
  showQRCheckout:"Arata acest QR la casa",
  close:"Inchide",
- member:"MEMBRU",
+ member:"MEMBER",
  cashback:"Cashback",
  mdlToStatus:"MDL pana la statutul",
  status:"",
@@ -454,7 +454,7 @@ Object.assign(translations.ru,{
  showQR:"Показать QR",
  showQRCheckout:"Покажите этот QR на кассе",
  close:"Закрыть",
- member:"УЧАСТНИК",
+ member:"MEMBER",
  cashback:"Кэшбэк",
  mdlToStatus:"MDL до статуса",
  status:"",
@@ -545,7 +545,7 @@ function applyLanguage(lang){
 
  if(!latestUserData){
   document.getElementById("tierBadge").innerText =
-  "CORE " + t("member") + " · " + t("cashback") + " 5%";
+  "CORE " + t("member") + " · " + t("cashback") + " 2.5%";
 
   document.getElementById("progressText").innerText =
   "0 " + t("mdlToStatus") + " SILVER " + t("status");
@@ -695,9 +695,9 @@ document.documentElement.style.setProperty(
  document.getElementById("progressBar").style.width = data.tier.progress + "%";
 
  if(data.tier.next){
-   let target=5000;
-   if(data.tier.name==="SILVER") target=15000;
-   if(data.tier.name==="GOLD") target=30000;
+  let target=1000;
+  if(data.tier.name==="SILVER") target=5000;
+  if(data.tier.name==="GOLD") target=15000;
 
 const spent = Number(data.totalSpent) || 0;
 const left = Math.max(target - spent,0);   
@@ -884,10 +884,10 @@ box-shadow:0 20px 60px rgba(0,0,0,.55);
 Membership Levels
 </h2>
 
-<p class="label"><b style="color:#d6b25e;">CORE</b> - 0 MDL spent - Cashback 5%</p>
-<p class="label"><b style="color:#dfe5ef;">SILVER</b> - from 5 000 MDL - Cashback 7%</p>
-<p class="label"><b style="color:#ffd56a;">GOLD</b> - from 15 000 MDL - Cashback 8%</p>
-<p class="label"><b style="color:#c7d2e2;">BLACK</b> - from 30 000 MDL - Cashback 10%</p>
+<p class="label"><b style="color:#d6b25e;">CORE</b> - 0 MDL spent - Cashback 2.5%</p>
+<p class="label"><b style="color:#dfe5ef;">SILVER</b> - from 1 000 MDL - Cashback 5%</p>
+<p class="label"><b style="color:#ffd56a;">GOLD</b> - from 5 000 MDL - Cashback 7%</p>
+<p class="label"><b style="color:#c7d2e2;">BLACK</b> - from 15 000 MDL - Cashback 10%</p>
 
 <button onclick="closeLevels()" data-i18n="close">Close</button>
 </div>

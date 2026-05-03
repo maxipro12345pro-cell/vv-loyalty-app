@@ -119,31 +119,31 @@ function parseAndVerifyQR(qr){
 }
 
 function getTier(totalSpent){
- if(totalSpent >= 30000){
-   return {name:"BLACK", cashback:10, next:null, progress:100};
- }
  if(totalSpent >= 15000){
-   return {
-     name:"GOLD",
-     cashback:8,
-     next:"BLACK",
-     progress:Math.round((totalSpent/30000)*100)
-   };
+   return {name:"BLACK", cashback:10, next:null, progress:100};
  }
  if(totalSpent >= 5000){
    return {
-     name:"SILVER",
+     name:"GOLD",
      cashback:7,
-     next:"GOLD",
+     next:"BLACK",
      progress:Math.round((totalSpent/15000)*100)
+   };
+ }
+ if(totalSpent >= 1000){
+   return {
+     name:"SILVER",
+     cashback:5,
+     next:"GOLD",
+     progress:Math.round((totalSpent/5000)*100)
    };
  }
 
  return {
    name:"CORE",
-   cashback:5,
+   cashback:2.5,
    next:"SILVER",
-   progress:Math.round((totalSpent/5000)*100)
+   progress:Math.round((totalSpent/1000)*100)
  };
 }
 
