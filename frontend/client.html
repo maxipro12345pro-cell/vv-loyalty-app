@@ -173,7 +173,7 @@ button:active{
  <div class="header">
 <div>
  <div class="logo" onclick="goHome()">V&V</div>
- <div class="label" id="greeting" style="margin-top:6px;">
+  <div class="label" id="greeting" data-i18n-prefix="greeting" style="margin-top:6px;">
   Welcome back
  </div>
 </div>
@@ -181,7 +181,7 @@ button:active{
  </div>
 
  <div class="balance-card">
-  <div class="label">Your bonus balance</div>
+  <div class="label" data-i18n="bonusBalance">Your bonus balance</div>
   <div class="balance"><span id="balance">0.00</span> MDL</div>
 
   <div class="badge" id="tierBadge" onclick="openLevels()">
@@ -201,7 +201,7 @@ button:active{
    </div>
   </div>
 
-  <button onclick="showQR()">Show QR</button>
+  <button onclick="showQR()" data-i18n="showQR">Show QR</button>
  </div>
 
  </div>
@@ -225,11 +225,12 @@ box-shadow:0 25px 70px rgba(0,0,0,.55);">
 <canvas id="qrCanvas"></canvas>
 
 <p class="label"
+data-i18n="showQRCheckout"
 style="margin-top:18px;">
 Show this QR at checkout
 </p>
 
-<button onclick="closeQR()">
+<button onclick="closeQR()" data-i18n="close">
 Close
 </button>
 
@@ -239,20 +240,20 @@ Close
 <div id="homeTab">
 
 <div class="offer">
- <h3>Recent Activity</h3>
+ <h3 data-i18n="recentActivity">Recent Activity</h3>
  <div id="historyList">
-  <p class="label">No activity yet</p>
+  <p class="label" data-i18n="noActivity">No activity yet</p>
  </div>
 </div>
 
 <div class="offer">
- <h3>Bonus Visit</h3>
- <p>Earn extra rewards after your next purchase.</p>
+ <h3 data-i18n="bonusVisit">Bonus Visit</h3>
+ <p data-i18n="bonusVisitText">Earn extra rewards after your next purchase.</p>
 </div>
 
 <div class="offer">
- <h3>New Arrivals</h3>
- <p>Luxury fragrances selected for V&V clients.</p>
+ <h3 data-i18n="newArrivals">New Arrivals</h3>
+ <p data-i18n="newArrivalsText">Luxury fragrances selected for V&V clients.</p>
 </div>
 
 </div>
@@ -260,8 +261,8 @@ Close
 
 <div id="shopTab" style="display:none;">
  <div class="offer">
-  <h3>V&V Boutique</h3>
-  <p>Private fragrance collection coming soon.</p>
+  <h3 data-i18n="vvBoutique">V&V Boutique</h3>
+  <p data-i18n="boutiqueText">Private fragrance collection coming soon.</p>
  </div>
 </div>
 
@@ -328,16 +329,16 @@ Close
 
 
 <div class="nav">
- <div id="navHome" class="active" onclick="showTab('home')">Home</div>
- <div id="navShop" onclick="showTab('shop')">Boutique</div>
- <div id="navClub" onclick="showTab('Club')">Club</div>
+ <div id="navHome" class="active" onclick="showTab('home')" data-i18n="home">Home</div>
+ <div id="navShop" onclick="showTab('shop')" data-i18n="boutique">Boutique</div>
+ <div id="navClub" onclick="showTab('Club')" data-i18n="club">Club</div>
 </div>
 
 <div id="tierPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);justify-content:center;align-items:center;z-index:999;">
  <div class="modal-content" style="background:#15151d;padding:35px;border-radius:30px;width:320px;text-align:center;border:1px solid var(--tierBorder,rgba(214,178,94,.35));box-shadow:0 20px 60px rgba(0,0,0,.5);">
-  <h2 style="color:var(--tierColor,#d6b25e);margin-top:0;">Congratulations</h2>
+  <h2 style="color:var(--tierColor,#d6b25e);margin-top:0;" data-i18n="congratulations">Congratulations</h2>
   <p id="tierMessage" style="line-height:1.7;"></p>
-  <button onclick="closePopup()">Continue</button>
+  <button onclick="closePopup()" data-i18n="continue">Continue</button>
  </div>
 </div>
 
@@ -354,7 +355,7 @@ function setGreeting(){
  }
 
  document.getElementById("greeting").innerText =
- "Good evening, " + name;
+ t("greeting") + ", " + name;
 }
 
 let savedQR = "";
@@ -413,6 +414,114 @@ const translations = {
 };
 
 let currentLang = localStorage.getItem("lang") || "ro";
+let latestUserData = null;
+
+Object.assign(translations.ro,{
+ greeting:"Buna seara",
+ bonusBalance:"Balanta bonusurilor tale",
+ showQR:"Arata QR",
+ showQRCheckout:"Arata acest QR la casa",
+ close:"Inchide",
+ member:"MEMBRU",
+ cashback:"Cashback",
+ mdlToStatus:"MDL pana la statutul",
+ status:"",
+ highestLevel:"Cel mai inalt nivel",
+ recentActivity:"Activitate recenta",
+ noActivity:"Nu exista activitate",
+ historyBonus:"bonus",
+ pointsRedeemed:"puncte utilizate",
+ historyReferralBonus:"bonus de recomandare",
+ invitedClient:"client invitat",
+ bonusVisit:"Vizita bonus",
+ bonusVisitText:"Primeste recompense extra dupa urmatoarea achizitie.",
+ newArrivals:"Noutati",
+ newArrivalsText:"Parfumuri de lux selectate pentru clientii V&V.",
+ home:"Acasa",
+ boutique:"Boutique",
+ vvBoutique:"V&V Boutique",
+ boutiqueText:"Colectie privata de parfumuri in curand.",
+ membershipLevels:"Niveluri de membru",
+ congratulations:"Felicitari",
+ continue:"Continua",
+ tierUnlocked:"Ai deblocat",
+ cashbackIncreased:"Cashback-ul a crescut la"
+});
+
+Object.assign(translations.ru,{
+ greeting:"Добрый вечер",
+ bonusBalance:"Ваш бонусный баланс",
+ showQR:"Показать QR",
+ showQRCheckout:"Покажите этот QR на кассе",
+ close:"Закрыть",
+ member:"УЧАСТНИК",
+ cashback:"Кэшбэк",
+ mdlToStatus:"MDL до статуса",
+ status:"",
+ highestLevel:"Максимальный уровень",
+ recentActivity:"Недавняя активность",
+ noActivity:"Пока нет активности",
+ historyBonus:"бонус",
+ pointsRedeemed:"баллы списаны",
+ historyReferralBonus:"реферальный бонус",
+ invitedClient:"приглашенный клиент",
+ bonusVisit:"Бонусный визит",
+ bonusVisitText:"Получите дополнительные бонусы после следующей покупки.",
+ newArrivals:"Новинки",
+ newArrivalsText:"Люксовые ароматы, выбранные для клиентов V&V.",
+ home:"Главная",
+ boutique:"Бутик",
+ vvBoutique:"V&V Boutique",
+ boutiqueText:"Скоро появится приватная коллекция ароматов.",
+ privateInvitation:"Приватное приглашение",
+ inviteText:"Пригласите друга в V&V Privilege Club и получите эксклюзивные бонусы.",
+ invitedFriends:"Приглашенные друзья",
+ referralBonus:"Реферальный бонус",
+ sendInvitation:"Отправить приглашение",
+ club:"Клуб",
+ clubText:"Эксклюзивные запуски и закрытые события.",
+ membershipLevels:"Уровни клуба",
+ congratulations:"Поздравляем",
+ continue:"Продолжить",
+ tierUnlocked:"Вы открыли",
+ cashbackIncreased:"Кэшбэк увеличен до"
+});
+
+Object.assign(translations.en,{
+ greeting:"Good evening",
+ bonusBalance:"Your bonus balance",
+ showQR:"Show QR",
+ showQRCheckout:"Show this QR at checkout",
+ close:"Close",
+ member:"MEMBER",
+ cashback:"Cashback",
+ mdlToStatus:"MDL to",
+ status:"Status",
+ highestLevel:"Highest level",
+ recentActivity:"Recent Activity",
+ noActivity:"No activity yet",
+ historyBonus:"bonus",
+ pointsRedeemed:"points redeemed",
+ historyReferralBonus:"referral bonus",
+ invitedClient:"invited client",
+ bonusVisit:"Bonus Visit",
+ bonusVisitText:"Earn extra rewards after your next purchase.",
+ newArrivals:"New Arrivals",
+ newArrivalsText:"Luxury fragrances selected for V&V clients.",
+ home:"Home",
+ boutique:"Boutique",
+ vvBoutique:"V&V Boutique",
+ boutiqueText:"Private fragrance collection coming soon.",
+ membershipLevels:"Membership Levels",
+ congratulations:"Congratulations",
+ continue:"Continue",
+ tierUnlocked:"You unlocked",
+ cashbackIncreased:"Cashback increased to"
+});
+
+function t(key){
+ return (translations[currentLang] || translations.ro)[key] || translations.ro[key] || key;
+}
 
 function applyLanguage(lang){
  const dictionary = translations[lang] || translations.ro;
@@ -431,12 +540,27 @@ function applyLanguage(lang){
    button.innerText.toLowerCase() === lang
   );
  });
+
+ setGreeting();
+
+ if(!latestUserData){
+  document.getElementById("tierBadge").innerText =
+  "CORE " + t("member") + " · " + t("cashback") + " 5%";
+
+  document.getElementById("progressText").innerText =
+  "0 " + t("mdlToStatus") + " SILVER " + t("status");
+ }
 }
 
 function setLanguage(lang){
  currentLang = translations[lang] ? lang : "ro";
  localStorage.setItem("lang", currentLang);
  applyLanguage(currentLang);
+
+ if(latestUserData){
+  updateTier(latestUserData);
+  updateHistory(latestUserData);
+ }
 }
 
 let referralId = null;
@@ -514,8 +638,9 @@ function checkTierUpgrade(newTier,cashback){
  }
 
  if(newTier!==previousTier){
-   document.getElementById("tierMessage").innerHTML =
-   "You unlocked <b>"+newTier+"</b> Member<br>Cashback increased to "+cashback+"%";
+    document.getElementById("tierMessage").innerHTML =
+    t("tierUnlocked") + " <b>" + newTier + "</b> " + t("member") +
+    "<br>" + t("cashbackIncreased") + " " + cashback + "%";
 
    document.getElementById("tierPopup").style.display="flex";
 
@@ -543,7 +668,7 @@ function updateTier(data){
  document.getElementById("balance").innerText = Number(data.balance).toFixed(2);
 
  document.getElementById("tierBadge").innerText =
- data.tier.name + " MEMBER - Cashback " + data.tier.cashback + "%";
+ data.tier.name + " " + t("member") + " · " + t("cashback") + " " + data.tier.cashback + "%";
 document.getElementById("memberIcon").innerText =
 data.tier.name;
 let tierColor="#b57a4b"; // bronze
@@ -577,11 +702,11 @@ document.documentElement.style.setProperty(
 const spent = Number(data.totalSpent) || 0;
 const left = Math.max(target - spent,0);   
 document.getElementById("progressText").innerText =
-   left + " MDL to " + data.tier.next + " Status";
+   left + " " + t("mdlToStatus") + " " + data.tier.next + " " + t("status");
  } else {
-   document.getElementById("progressText").innerText =
-   "Highest level";
- }
+    document.getElementById("progressText").innerText =
+    t("highestLevel");
+  }
 
 checkTierUpgrade(data.tier.name,data.tier.cashback);
 }
@@ -591,7 +716,7 @@ function updateHistory(data){
  const box = document.getElementById("historyList");
 
  if(!data.history || data.history.length===0){
-   box.innerHTML = '<p class="label">No activity yet</p>';
+   box.innerHTML = '<p class="label">' + t("noActivity") + '</p>';
    return;
  }
 
@@ -603,7 +728,7 @@ function updateHistory(data){
    return `
    <p class="label">
    +${Number(item.bonus).toFixed(2)}
-   bonus - ${product} - ${Number(item.amount || 0)} MDL
+   ${t("historyBonus")} - ${product} - ${Number(item.amount || 0)} MDL
    <br>${date}
    </p>`;
   }
@@ -613,7 +738,7 @@ function updateHistory(data){
    return `
    <p class="label">
    -${Number(item.points).toFixed(2)}
-   points redeemed
+   ${t("pointsRedeemed")}
    <br>${date}
    </p>`;
   }
@@ -623,7 +748,7 @@ function updateHistory(data){
    return `
    <p class="label">
    +${Number(item.bonus).toFixed(2)}
-   referral bonus - invited client ${invitedUser}
+   ${t("historyReferralBonus")} - ${t("invitedClient")} ${invitedUser}
    <br>${date}
    </p>`;
   }
@@ -688,6 +813,7 @@ Number(data.referralCount || 0);
 document.getElementById("referralBonus").innerText =
 Number(data.referralBonus || 0).toFixed(0);
 
+ latestUserData = data;
  updateTier(data);
  updateHistory(data);
  previousTier = data.tier.name;
@@ -754,7 +880,7 @@ border:1px solid var(--tierBorder,rgba(214,178,94,.35));
 box-shadow:0 20px 60px rgba(0,0,0,.55);
 ">
 
-<h2 style="color:var(--tierColor,#d6b25e);margin-top:0;text-align:center;">
+<h2 style="color:var(--tierColor,#d6b25e);margin-top:0;text-align:center;" data-i18n="membershipLevels">
 Membership Levels
 </h2>
 
@@ -763,7 +889,7 @@ Membership Levels
 <p class="label"><b style="color:#ffd56a;">GOLD</b> - from 15 000 MDL - Cashback 8%</p>
 <p class="label"><b style="color:#c7d2e2;">BLACK</b> - from 30 000 MDL - Cashback 10%</p>
 
-<button onclick="closeLevels()">Close</button>
+<button onclick="closeLevels()" data-i18n="close">Close</button>
 </div>
 </div>
 </body>
