@@ -73,6 +73,29 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
 .offer{background:#15151d;border-radius:22px;padding:18px;margin-top:18px;border:1px solid rgba(255,255,255,.06)}
 .offer h3{margin:0 0 8px;color:#d6b25e}
 .offer p{margin:0;color:#aaa;font-size:14px}
+.lang-switcher{
+ display:flex;
+ gap:8px;
+ margin:0 0 14px;
+}
+.lang-switcher button{
+ width:auto;
+ flex:1;
+ margin-top:0;
+ padding:10px 0;
+ border-radius:999px;
+ background:#1f1f2a;
+ border:1px solid rgba(214,178,94,.24);
+ color:#aaa;
+ font-size:13px;
+ letter-spacing:0;
+}
+.lang-switcher button.active{
+ background:var(--tierColor,#d6b25e);
+ color:#111;
+ border-color:var(--tierColor,#d6b25e);
+ box-shadow:0 10px 24px rgba(214,178,94,.18);
+}
 .nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:auto;background:#111119;border-top:1px solid rgba(214,178,94,.2);display:flex;justify-content:space-around;padding:14px 0}
 .nav div{
  color:#aaa;
@@ -245,9 +268,15 @@ Close
 
 <div id="ClubTab" style="display:none;">
 
+ <div class="lang-switcher">
+  <button id="langRo" onclick="setLanguage('ro')">RO</button>
+  <button id="langRu" onclick="setLanguage('ru')">RU</button>
+  <button id="langEn" onclick="setLanguage('en')">EN</button>
+ </div>
+
  <div class="offer">
-  <h3>Private Invitation</h3>
-  <p>
+  <h3 data-i18n="privateInvitation">Private Invitation</h3>
+  <p data-i18n="inviteText">
    Invite a friend to V&V Privilege Club
    and both receive exclusive rewards.
   </p>
@@ -264,7 +293,7 @@ Close
   border-radius:18px;
   padding:14px;
  ">
-  <div class="label">Invited friends</div>
+  <div class="label" data-i18n="invitedFriends">Invited friends</div>
   <div style="font-size:24px;font-weight:bold;margin-top:6px;">
  <span id="referralCount">0</span>
 </div> </div>
@@ -275,21 +304,21 @@ Close
   border-radius:18px;
   padding:14px;
  ">
-  <div class="label">Referral bonus</div>
+  <div class="label" data-i18n="referralBonus">Referral bonus</div>
  <div style="font-size:24px;font-weight:bold;margin-top:6px;">
  <span id="referralBonus">0</span> MDL
  </div>
  </div>
 
 </div>
-  <button onclick="shareReferral()">
+  <button onclick="shareReferral()" data-i18n="sendInvitation">
    Send Invitation
   </button>
  </div>
 
  <div class="offer">
-  <h3>Club</h3>
-  <p>Exclusive launches and private events.</p>
+  <h3 data-i18n="club">Club</h3>
+  <p data-i18n="clubText">Exclusive launches and private events.</p>
  </div>
 
 </div>
@@ -353,6 +382,62 @@ if(window.Telegram &&
 }
 const API = "https://vv-loyalty-app.onrender.com";
 const telegramInitData = window.Telegram?.WebApp?.initData || "";
+const translations = {
+ ro:{
+  privateInvitation:"Invitatie privata",
+  inviteText:"Invita un prieten in V&V Privilege Club si primiti amandoi recompense exclusive.",
+  invitedFriends:"Prieteni invitati",
+  referralBonus:"Bonus de recomandare",
+  sendInvitation:"Trimite invitatie",
+  club:"Club",
+  clubText:"Lansari exclusive si evenimente private."
+ },
+ ru:{
+  privateInvitation:"Приватное приглашение",
+  inviteText:"Пригласите друга в V&V Privilege Club и получите эксклюзивные бонусы.",
+  invitedFriends:"Приглашенные друзья",
+  referralBonus:"Реферальный бонус",
+  sendInvitation:"Отправить приглашение",
+  club:"Клуб",
+  clubText:"Эксклюзивные запуски и закрытые события."
+ },
+ en:{
+  privateInvitation:"Private Invitation",
+  inviteText:"Invite a friend to V&V Privilege Club and both receive exclusive rewards.",
+  invitedFriends:"Invited friends",
+  referralBonus:"Referral bonus",
+  sendInvitation:"Send Invitation",
+  club:"Club",
+  clubText:"Exclusive launches and private events."
+ }
+};
+
+let currentLang = localStorage.getItem("lang") || "ro";
+
+function applyLanguage(lang){
+ const dictionary = translations[lang] || translations.ro;
+
+ document.querySelectorAll("[data-i18n]").forEach(element=>{
+  const key = element.dataset.i18n;
+
+  if(dictionary[key]){
+   element.innerText = dictionary[key];
+  }
+ });
+
+ document.querySelectorAll(".lang-switcher button").forEach(button=>{
+  button.classList.toggle(
+   "active",
+   button.innerText.toLowerCase() === lang
+  );
+ });
+}
+
+function setLanguage(lang){
+ currentLang = translations[lang] ? lang : "ro";
+ localStorage.setItem("lang", currentLang);
+ applyLanguage(currentLang);
+}
 
 let referralId = null;
 
@@ -607,6 +692,7 @@ Number(data.referralBonus || 0).toFixed(0);
  updateHistory(data);
  previousTier = data.tier.name;
 }
+applyLanguage(currentLang);
 loadUser();
 setInterval(loadUser,10000);
 async function showQR(){
