@@ -73,10 +73,20 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
 .offer{background:#15151d;border-radius:22px;padding:18px;margin-top:18px;border:1px solid rgba(255,255,255,.06)}
 .offer h3{margin:0 0 8px;color:#d6b25e}
 .offer p{margin:0;color:#aaa;font-size:14px}
+#shopTab,
+#ClubTab{
+ margin-top:0;
+ padding-top:0;
+}
+#shopTab > .offer:first-child,
+#ClubTab > .offer:first-of-type{
+ margin-top:0;
+}
 .lang-switcher{
  display:flex;
  gap:8px;
  margin:0 0 14px;
+ padding-top:0;
 }
 .lang-switcher button{
  width:auto;
