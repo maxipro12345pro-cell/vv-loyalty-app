@@ -394,15 +394,22 @@ button:active{
 }
 
 .social-icon.youtube {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/1384/1384060.png");
+  background-image: url("assets/youtube-icon.png");
 }
 
 .social-icon.instagram {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/2111/2111463.png");
+  background-image: url("assets/instagram-icon.jpg");
 }
 
 .social-icon.tiktok {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/3046/3046126.png");
+  background-image: url("assets/tiktok-icon.png");
+}
+
+.social-icon.youtube::before,
+.social-icon.youtube::after,
+.social-icon.instagram::before,
+.social-icon.instagram::after {
+  content: none;
 }
 
 .social-name {

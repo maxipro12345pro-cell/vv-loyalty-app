@@ -177,7 +177,7 @@ let { data: user, error } = await supabase
 if(error && error.code !== "PGRST116"){
   return res.status(500).json({ error: error.message });
 }
-// РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ - СЃРѕР·РґР°С‘Рј
+// Create user if missing.
 if(!user){
   const { data: newUser, error: insertError } = await supabase.from("users").insert({
     id: id,
@@ -198,7 +198,7 @@ if(!user){
   user = newUser;
 }
 else{
-  // РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РµСЃС‚СЊ, РЅРѕ РµС‰С‘ Р±РµР· СЂРµС„РµСЂР°Р»Р° - Р·Р°РїРёСЃС‹РІР°РµРј
+  // Bind referral only before the first purchase.
 if(
  ref &&
  ref !== id &&
@@ -541,11 +541,23 @@ if(
     .eq("id", userId);
  }
 }
+   const welcomeOptions = process.env.WEBAPP_URL
+     ? {
+       reply_markup: {
+         keyboard: [[{
+           text: "Deschide V&V Privilege Club",
+           web_app: { url: process.env.WEBAPP_URL }
+         }]],
+         resize_keyboard: true
+       }
+     }
+     : {};
+
    bot.sendMessage(
-   chatId,
-   "Bine ai venit in V&V Privilege Club ✨
-Apasa butonul de jos👇"
- );
+     chatId,
+     "Bine ai venit \u00een V&V Privilege Club \u2728\nApas\u0103 butonul de jos pentru a deschide clubul.",
+     welcomeOptions
+   );
 
 });
 
