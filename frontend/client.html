@@ -367,6 +367,48 @@ button:active{
 .modal-content{
  animation:modalIn .25s ease;
 }
+.social-grid {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.social-card {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(214,178,94,.22);
+  border-radius: 18px;
+  padding: 16px 8px;
+  text-align: center;
+  text-decoration: none;
+  color: white;
+}
+
+.social-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 10px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+}
+
+.social-icon.youtube {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/1384/1384060.png");
+}
+
+.social-icon.instagram {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/2111/2111463.png");
+}
+
+.social-icon.tiktok {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/3046/3046126.png");
+}
+
+.social-name {
+  font-size: 14px;
+  font-weight: 700;
+}
 </style>
 </head>
 
@@ -537,32 +579,26 @@ Close
   </button>
  </div>
 
- <div class="offer">
+<div class="offer">
   <h3 data-i18n="socialTitle">Our social media</h3>
+
   <div class="social-grid">
-   <a class="social-card"
-      href="https://www.youtube.com/@VsVPerfume/shorts"
-      target="_blank"
-      rel="noopener">
-    <div class="social-icon youtube"></div>
-    <div class="social-name">YouTube</div>
-   </a>
-   <a class="social-card"
-      href="https://instagram.com/"
-      target="_blank"
-      rel="noopener">
-    <div class="social-icon instagram"></div>
-    <div class="social-name">Instagram</div>
-   </a>
-   <a class="social-card"
-      href="https://tiktok.com/"
-      target="_blank"
-      rel="noopener">
-    <div class="social-icon tiktok">&#9834;</div>
-    <div class="social-name">TikTok</div>
-   </a>
+    <a class="social-card" href="https://www.youtube.com/@VsVPerfume/shorts" target="_blank" rel="noopener">
+      <div class="social-icon youtube"></div>
+      <div class="social-name">YouTube</div>
+    </a>
+
+    <a class="social-card" href="https://instagram.com/" target="_blank" rel="noopener">
+      <div class="social-icon instagram"></div>
+      <div class="social-name">Instagram</div>
+    </a>
+
+    <a class="social-card" href="https://tiktok.com/@vsv.perfume" target="_blank" rel="noopener">
+      <div class="social-icon tiktok"></div>
+      <div class="social-name">TikTok</div>
+    </a>
   </div>
- </div>
+</div>
 
  <div class="offer" id="reviewsSection">
   <h3 data-i18n="reviewsTitle">Reviews</h3>

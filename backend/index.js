@@ -543,7 +543,8 @@ if(
 }
    bot.sendMessage(
    chatId,
-   "Bine ai venit in V&V Privilege Club *"
+   "Bine ai venit in V&V Privilege Club ✨
+Apasa butonul de jos👇"
  );
 
 });
