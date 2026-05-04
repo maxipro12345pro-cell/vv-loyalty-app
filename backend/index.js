@@ -38,7 +38,7 @@ async function fetchAllUsers(){
  while(true){
    const { data, error } = await supabase
      .from("users")
-     .select("id,username,balance,total_spent,history,referral_count,referral_bonus,referred_by")
+     .select("id,balance,total_spent,history,referral_count,referral_bonus,referred_by")
      .range(from, from + pageSize - 1);
 
    if(error){
