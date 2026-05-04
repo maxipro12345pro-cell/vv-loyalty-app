@@ -111,24 +111,55 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
 }
 .social-grid{
  display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
  gap:10px;
  margin-top:12px;
 }
 .social-card{
  display:flex;
+ flex-direction:column;
  align-items:center;
- justify-content:space-between;
- padding:14px 16px;
+ justify-content:center;
+ aspect-ratio:1/1;
+ gap:8px;
+ padding:12px 8px;
  border-radius:18px;
  background:rgba(255,255,255,.05);
  border:1px solid rgba(214,178,94,.22);
  color:#fff;
  text-decoration:none;
  font-weight:bold;
+ text-align:center;
 }
-.social-card span{
- color:#aaa;
+.social-icon{
+ width:44px;
+ height:44px;
+ border-radius:14px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:#fff;
+ font-size:18px;
+ font-weight:900;
+ line-height:1;
+}
+.social-icon.youtube{
+ background:#ff0033;
+}
+.social-icon.instagram{
+ background:radial-gradient(circle at 30% 110%,#feda75 0,#fa7e1e 28%,#d62976 55%,#962fbf 76%,#4f5bd5 100%);
+}
+.social-icon.tiktok{
+ background:#050505;
+ border:1px solid rgba(255,255,255,.18);
+ text-shadow:2px 0 #25f4ee,-2px 0 #fe2c55;
+}
+.social-name{
  font-size:13px;
+}
+.social-status{
+ color:#aaa;
+ font-size:11px;
  font-weight:normal;
 }
 .social-card.disabled{
@@ -458,22 +489,23 @@ Close
   <h3 data-i18n="socialTitle">Наши соцсети</h3>
   <div class="social-grid">
    <div class="social-card disabled">
-    Instagram
-    <span data-i18n="willBeSoon">will be soon</span>
+    <div class="social-icon youtube">▶</div>
+    <div class="social-name">YouTube</div>
+    <div class="social-status" data-i18n="willBeSoon">will be soon</div>
    </div>
    <a class="social-card"
-      href="https://www.tiktok.com/@vsv.perfume?_r=1&_t=ZS-964XKbdLbmv"
+      href="https://instagram.com/"
       target="_blank"
       rel="noopener">
-    TikTok
-    <span>@vsv.perfume</span>
+    <div class="social-icon instagram">◎</div>
+    <div class="social-name">Instagram</div>
    </a>
    <a class="social-card"
-      href="https://www.youtube.com/@VsVPerfume"
+      href="https://tiktok.com/"
       target="_blank"
       rel="noopener">
-    YouTube
-    <span>@VsVPerfume</span>
+    <div class="social-icon tiktok">♪</div>
+    <div class="social-name">TikTok</div>
    </a>
   </div>
  </div>
@@ -660,7 +692,7 @@ Object.assign(translations.ro,{
  continue:"Continua",
  tierUnlocked:"Ai deblocat",
  cashbackIncreased:"Cashback-ul a crescut la",
- socialTitle:"Retelele noastre",
+ socialTitle:"Rețelele noastre sociale",
  willBeSoon:"in curand",
  reviewsTitle:"Recenzii",
  viewReviews:"Vezi recenziile"
@@ -739,7 +771,7 @@ Object.assign(translations.en,{
  continue:"Continue",
  tierUnlocked:"You unlocked",
  cashbackIncreased:"Cashback increased to",
- socialTitle:"Our socials",
+ socialTitle:"Our social media",
  willBeSoon:"will be soon",
  reviewsTitle:"Reviews",
  viewReviews:"View reviews"
