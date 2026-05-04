@@ -109,6 +109,101 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
  border-color:var(--tierColor,#d6b25e);
  box-shadow:0 10px 24px rgba(214,178,94,.18);
 }
+.social-grid{
+ display:grid;
+ gap:10px;
+ margin-top:12px;
+}
+.social-card{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:14px 16px;
+ border-radius:18px;
+ background:rgba(255,255,255,.05);
+ border:1px solid rgba(214,178,94,.22);
+ color:#fff;
+ text-decoration:none;
+ font-weight:bold;
+}
+.social-card span{
+ color:#aaa;
+ font-size:13px;
+ font-weight:normal;
+}
+.social-card.disabled{
+ opacity:.55;
+ cursor:not-allowed;
+}
+.catalog-filters{
+ display:grid;
+ gap:12px;
+ margin-bottom:14px;
+}
+.filter-row{
+ display:flex;
+ gap:8px;
+ overflow-x:auto;
+ padding-bottom:2px;
+}
+.filter-row button{
+ width:auto;
+ flex:0 0 auto;
+ margin-top:0;
+ padding:10px 14px;
+ border-radius:999px;
+ background:#1f1f2a;
+ border:1px solid rgba(214,178,94,.24);
+ color:#aaa;
+ font-size:13px;
+ white-space:nowrap;
+}
+.filter-row button.active{
+ background:var(--tierColor,#d6b25e);
+ border-color:var(--tierColor,#d6b25e);
+ color:#111;
+}
+.product-grid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+}
+.product-card{
+ background:#15151d;
+ border:1px solid rgba(214,178,94,.22);
+ border-radius:18px;
+ overflow:hidden;
+ min-width:0;
+}
+.product-image{
+ aspect-ratio:1/1;
+ background:linear-gradient(135deg,#24242e,#0f0f14);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:#d6b25e;
+ font-size:22px;
+ font-weight:bold;
+}
+.product-info{
+ padding:12px;
+}
+.product-code{
+ color:#d6b25e;
+ font-size:12px;
+ font-weight:bold;
+}
+.product-name{
+ margin-top:5px;
+ color:#fff;
+ font-weight:bold;
+ line-height:1.25;
+}
+.product-price{
+ margin-top:8px;
+ color:#aaa;
+ font-size:14px;
+}
 .nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:auto;background:#111119;border-top:1px solid rgba(214,178,94,.2);display:flex;justify-content:space-around;padding:14px 0}
 .nav div{
  color:#aaa;
@@ -273,10 +368,27 @@ Close
 
 
 <div id="shopTab" style="display:none;">
+ <div class="catalog-filters">
+  <div class="filter-row" id="typeFilters">
+   <button class="active" onclick="setCatalogFilter('type','all')">All</button>
+   <button onclick="setCatalogFilter('type','tims')">Tims</button>
+   <button onclick="setCatalogFilter('type','ulei')">Ulei</button>
+   <button onclick="setCatalogFilter('type','arabic')">Parfumuri arabești</button>
+  </div>
+  <div class="filter-row" id="genderFilters">
+   <button class="active" onclick="setCatalogFilter('gender','all')">All</button>
+   <button onclick="setCatalogFilter('gender','men')">Bărbați</button>
+   <button onclick="setCatalogFilter('gender','women')">Femei</button>
+   <button onclick="setCatalogFilter('gender','unisex')">Unisex</button>
+  </div>
+ </div>
+
  <div class="offer">
   <h3 data-i18n="vvBoutique">V&V Boutique</h3>
   <p data-i18n="boutiqueText">Private fragrance collection coming soon.</p>
  </div>
+
+ <div class="product-grid" id="productGrid"></div>
 </div>
 
 
@@ -331,6 +443,33 @@ Close
  </div>
 
  <div class="offer">
+  <h3 data-i18n="socialTitle">Наши соцсети</h3>
+  <div class="social-grid">
+   <a class="social-card"
+      href="https://www.instagram.com/v_v_perfume?igsh=MXFqdGVhdW5ha2djdw=="
+      target="_blank"
+      rel="noopener">
+    Instagram
+    <span>@v_v_perfume</span>
+   </a>
+   <a class="social-card"
+      href="https://www.tiktok.com/@vsv.perfume?_r=1&_t=ZS-964XKbdLbmv"
+      target="_blank"
+      rel="noopener">
+    TikTok
+    <span>@vsv.perfume</span>
+   </a>
+   <a class="social-card"
+      href="https://www.youtube.com/@VsVPerfume"
+      target="_blank"
+      rel="noopener">
+    YouTube
+    <span>@VsVPerfume</span>
+   </a>
+  </div>
+ </div>
+
+ <div class="offer">
   <h3 data-i18n="club">Club</h3>
   <p data-i18n="clubText">Exclusive launches and private events.</p>
  </div>
@@ -373,6 +512,44 @@ function setGreeting(){
 
 let savedQR = "";
 let currentUserId = "1";
+const products = [
+ {
+  code:"W309",
+  name:"Scandal",
+  price:300,
+  type:"tims",
+  gender:"women",
+  image:""
+ },
+ {
+  code:"M101",
+  name:"Blue Legend",
+  price:280,
+  type:"tims",
+  gender:"men",
+  image:""
+ },
+ {
+  code:"U205",
+  name:"Amber Musk",
+  price:320,
+  type:"ulei",
+  gender:"unisex",
+  image:""
+ },
+ {
+  code:"W410",
+  name:"Rose Oud",
+  price:350,
+  type:"arabic",
+  gender:"women",
+  image:""
+ }
+];
+let catalogFilters = {
+ type:"all",
+ gender:"all"
+};
 
 if (
  window.Telegram &&
@@ -458,7 +635,9 @@ Object.assign(translations.ro,{
  congratulations:"Felicitari",
  continue:"Continua",
  tierUnlocked:"Ai deblocat",
- cashbackIncreased:"Cashback-ul a crescut la"
+ cashbackIncreased:"Cashback-ul a crescut la",
+ socialTitle:"Retelele noastre",
+ willBeSoon:"in curand"
 });
 
 Object.assign(translations.ru,{
@@ -497,7 +676,9 @@ Object.assign(translations.ru,{
  congratulations:"Поздравляем",
  continue:"Продолжить",
  tierUnlocked:"Вы открыли",
- cashbackIncreased:"Кэшбэк увеличен до"
+ cashbackIncreased:"Кэшбэк увеличен до",
+ socialTitle:"Наши соцсети",
+ willBeSoon:"скоро"
 });
 
 Object.assign(translations.en,{
@@ -529,7 +710,9 @@ Object.assign(translations.en,{
  congratulations:"Congratulations",
  continue:"Continue",
  tierUnlocked:"You unlocked",
- cashbackIncreased:"Cashback increased to"
+ cashbackIncreased:"Cashback increased to",
+ socialTitle:"Our socials",
+ willBeSoon:"will be soon"
 });
 
 function t(key){
@@ -574,6 +757,86 @@ function setLanguage(lang){
   updateTier(latestUserData);
   updateHistory(latestUserData);
  }
+}
+
+function getGenderFromCode(code){
+ const firstLetter = String(code || "").charAt(0).toUpperCase();
+
+ if(firstLetter === "W") return "women";
+ if(firstLetter === "M") return "men";
+ if(firstLetter === "U") return "unisex";
+
+ return null;
+}
+
+function setCatalogFilter(group,value){
+ catalogFilters[group] = value;
+
+ const container = document.getElementById(
+  group === "type" ? "typeFilters" : "genderFilters"
+ );
+
+ container.querySelectorAll("button").forEach(button=>{
+  button.classList.toggle(
+   "active",
+   button.getAttribute("onclick").includes("'" + value + "'")
+  );
+ });
+
+ renderProducts();
+}
+
+function renderProducts(){
+ const grid = document.getElementById("productGrid");
+
+ if(!grid) return;
+
+ const filteredProducts = products.filter(product=>{
+  const productGender = product.gender || getGenderFromCode(product.code);
+  const typeMatch =
+   catalogFilters.type === "all" || product.type === catalogFilters.type;
+  const genderMatch =
+   catalogFilters.gender === "all" || productGender === catalogFilters.gender;
+
+  return typeMatch && genderMatch;
+ });
+
+ grid.innerHTML = "";
+
+ filteredProducts.forEach(product=>{
+  const card = document.createElement("div");
+  card.className = "product-card";
+
+  const image = document.createElement("div");
+  image.className = "product-image";
+
+  if(product.image){
+   image.style.backgroundImage = "url('" + product.image + "')";
+   image.style.backgroundSize = "cover";
+   image.style.backgroundPosition = "center";
+  } else {
+   image.innerText = product.code;
+  }
+
+  const info = document.createElement("div");
+  info.className = "product-info";
+
+  const code = document.createElement("div");
+  code.className = "product-code";
+  code.innerText = product.code;
+
+  const name = document.createElement("div");
+  name.className = "product-name";
+  name.innerText = product.name;
+
+  const price = document.createElement("div");
+  price.className = "product-price";
+  price.innerText = product.price + " lei";
+
+  info.append(code,name,price);
+  card.append(image,info);
+  grid.appendChild(card);
+ });
 }
 
 let referralId = null;
@@ -832,6 +1095,7 @@ Number(data.referralBonus || 0).toFixed(0);
  previousTier = data.tier.name;
 }
 applyLanguage(currentLang);
+renderProducts();
 loadUser();
 setInterval(loadUser,10000);
 async function showQR(){
