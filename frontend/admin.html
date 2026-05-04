@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>V&V Admin Panel</title>
+
+<style>
+body{
+ margin:0;
+ background:#0b0b0f;
+ color:white;
+ font-family:Arial, sans-serif;
+ padding:22px;
+ user-select:none;
+ -webkit-user-select:none;
+ -webkit-touch-callout:none;
+}
+
+.panel{
+ max-width:980px;
+ margin:auto;
+}
+
+.header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ margin-bottom:18px;
+}
+
+h1{
+ margin:0;
+ color:#d6b25e;
+ letter-spacing:1px;
+}
+
+.muted{
+ color:#aaa;
+ font-size:13px;
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px;
+}
+
+.card{
+ background:#15151d;
+ border:1px solid rgba(214,178,94,.22);
+ border-radius:20px;
+ padding:16px;
+ min-width:0;
+}
+
+.label{
+ color:#aaa;
+ font-size:13px;
+ line-height:1.35;
+}
+
+.value{
+ margin-top:8px;
+ font-size:24px;
+ font-weight:bold;
+ color:#fff;
+ word-break:break-word;
+}
+
+.accent{
+ color:#d6b25e;
+}
+
+.toolbar{
+ display:flex;
+ gap:10px;
+ margin:16px 0;
+}
+
+button{
+ border:none;
+ border-radius:16px;
+ padding:13px 16px;
+ font-weight:bold;
+ background:#d6b25e;
+ color:#111;
+ cursor:pointer;
+}
+
+button.secondary{
+ background:#1f1f2a;
+ color:#d6b25e;
+ border:1px solid rgba(214,178,94,.3);
+}
+
+input{
+ width:100%;
+ box-sizing:border-box;
+ padding:14px;
+ border-radius:14px;
+ border:none;
+ margin-top:10px;
+ outline:none;
+ user-select:text;
+ -webkit-user-select:text;
+ -webkit-touch-callout:default;
+}
+
+.section{
+ margin-top:16px;
+}
+
+.table-wrap{
+ overflow-x:auto;
+ border-radius:18px;
+ border:1px solid rgba(214,178,94,.18);
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ min-width:720px;
+ background:#111119;
+}
+
+th,
+td{
+ padding:12px;
+ border-bottom:1px solid rgba(255,255,255,.06);
+ text-align:left;
+ font-size:13px;
+ white-space:nowrap;
+}
+
+th{
+ color:#d6b25e;
+ font-weight:bold;
+ background:rgba(214,178,94,.06);
+}
+
+.error{
+ display:none;
+ color:#ff6b6b;
+ font-size:13px;
+ margin-top:10px;
+}
+
+.success{
+ display:none;
+ color:#6ee7b7;
+ font-size:13px;
+ margin-top:10px;
+}
+
+#pinScreen{
+ position:fixed;
+ inset:0;
+ background:#0b0b0f;
+ z-index:9999;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:24px;
+ box-sizing:border-box;
+}
+
+.pin-card{
+ max-width:360px;
+ width:100%;
+ background:#111119;
+ padding:28px;
+ border-radius:28px;
+ border:1px solid rgba(214,178,94,.35);
+ text-align:center;
+}
+
+@media(max-width:760px){
+ body{
+  padding:16px;
+ }
+
+ .header{
+  align-items:flex-start;
+  flex-direction:column;
+ }
+
+ .grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+
+ .toolbar{
+  flex-direction:column;
+ }
+
+ button{
+  width:100%;
+ }
+}
+</style>
+</head>
+
+<body>
+<div id="pinScreen">
+ <div class="pin-card">
+  <h1>V&V Admin</h1>
+  <p class="muted">Enter admin PIN</p>
+  <input id="adminPin" type="password" placeholder="ADMIN PIN">
+  <button onclick="unlockAdmin()">Enter</button>
+  <div id="pinError" class="error">Wrong admin PIN</div>
+ </div>
+</div>
+
+<div class="panel">
+ <div class="header">
+  <div>
+   <h1>V&V Admin</h1>
+   <div class="muted">System totals, rewards, redemptions and referrals</div>
+  </div>
+  <div class="muted" id="updatedAt">Not loaded yet</div>
+ </div>
+
+ <div class="toolbar">
+  <button onclick="loadStats()">Refresh</button>
+  <button class="secondary" onclick="exportRecentCsv()">Export recent CSV</button>
+  <button class="secondary" onclick="lockAdmin()">Lock</button>
+ </div>
+
+ <div id="errorMsg" class="error"></div>
+ <div id="successMsg" class="success"></div>
+
+ <div class="grid">
+  <div class="card">
+   <div class="label">Total purchase amount</div>
+   <div class="value"><span id="purchaseAmount">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Cashback awarded</div>
+   <div class="value"><span id="cashbackAwarded">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Redeemed points</div>
+   <div class="value"><span id="redeemedPoints">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Referral bonuses paid</div>
+   <div class="value"><span id="referralBonusPaid">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Outstanding user balance</div>
+   <div class="value accent"><span id="outstandingBalance">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Net bonus issued</div>
+   <div class="value"><span id="netBonusIssued">0.00</span> MDL</div>
+  </div>
+  <div class="card">
+   <div class="label">Users / active users</div>
+   <div class="value"><span id="usersCount">0</span> / <span id="activeUsers">0</span></div>
+  </div>
+  <div class="card">
+   <div class="label">Operations</div>
+   <div class="value"><span id="operationCount">0</span></div>
+  </div>
+ </div>
+
+ <div class="section card">
+  <h2 class="accent">Recent operations</h2>
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>Date</th>
+      <th>Type</th>
+      <th>User</th>
+      <th>Amount</th>
+      <th>Bonus / Points</th>
+      <th>Details</th>
+     </tr>
+    </thead>
+    <tbody id="operationsBody"></tbody>
+   </table>
+  </div>
+ </div>
+
+ <div class="section card">
+  <h2 class="accent">Top clients</h2>
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>User ID</th>
+      <th>Username</th>
+      <th>Total spent</th>
+      <th>Balance</th>
+      <th>Referrals</th>
+      <th>Referral bonus</th>
+     </tr>
+    </thead>
+    <tbody id="usersBody"></tbody>
+   </table>
+  </div>
+ </div>
+</div>
+
+<script>
+const API = "https://vv-loyalty-app.onrender.com";
+let latestStats = null;
+
+function getPin(){
+ return localStorage.getItem("adminPin") || document.getElementById("adminPin").value;
+}
+
+function money(value){
+ return Number(value || 0).toFixed(2);
+}
+
+function escapeHTML(value){
+ return String(value || "")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+function showError(text){
+ const box = document.getElementById("errorMsg");
+ box.innerText = text;
+ box.style.display = "block";
+ document.getElementById("successMsg").style.display = "none";
+}
+
+function showSuccess(text){
+ const box = document.getElementById("successMsg");
+ box.innerText = text;
+ box.style.display = "block";
+ document.getElementById("errorMsg").style.display = "none";
+}
+
+function unlockAdmin(){
+ const pin = document.getElementById("adminPin").value.trim();
+
+ if(!pin){
+  document.getElementById("pinError").style.display = "block";
+  return;
+ }
+
+ localStorage.setItem("adminPin", pin);
+ document.getElementById("pinScreen").style.display = "none";
+ loadStats();
+}
+
+function lockAdmin(){
+ localStorage.removeItem("adminPin");
+ document.getElementById("adminPin").value = "";
+ document.getElementById("pinScreen").style.display = "flex";
+}
+
+async function loadStats(){
+ try{
+  const res = await fetch(API + "/admin/stats",{
+   headers:{
+    "x-admin-pin": getPin()
+   }
+  });
+
+  const data = await res.json();
+
+  if(!res.ok || data.error){
+   if(res.status === 403){
+    lockAdmin();
+    document.getElementById("pinError").style.display = "block";
+   }
+
+   showError(data.error || "Admin loading error");
+   return;
+  }
+
+  latestStats = data;
+  renderStats(data);
+  showSuccess("Admin data loaded");
+ } catch(error){
+  showError("Network error: " + error.message);
+ }
+}
+
+function renderStats(data){
+ const totals = data.totals || {};
+
+ document.getElementById("purchaseAmount").innerText = money(totals.purchaseAmount);
+ document.getElementById("cashbackAwarded").innerText = money(totals.cashbackAwarded);
+ document.getElementById("redeemedPoints").innerText = money(totals.redeemedPoints);
+ document.getElementById("referralBonusPaid").innerText = money(totals.referralBonusPaid);
+ document.getElementById("outstandingBalance").innerText = money(totals.outstandingBalance);
+ document.getElementById("netBonusIssued").innerText = money(totals.netBonusIssued);
+ document.getElementById("usersCount").innerText = Number(totals.users || 0);
+ document.getElementById("activeUsers").innerText = Number(totals.activeUsers || 0);
+ document.getElementById("operationCount").innerText = Number(totals.operationCount || 0);
+ document.getElementById("updatedAt").innerText =
+  "Updated: " + new Date(data.generatedAt).toLocaleString();
+
+ renderOperations(data.recentOperations || []);
+ renderUsers(data.topUsers || []);
+}
+
+function renderOperations(operations){
+ const body = document.getElementById("operationsBody");
+
+ if(!operations.length){
+  body.innerHTML = '<tr><td colspan="6">No operations yet</td></tr>';
+  return;
+ }
+
+ body.innerHTML = operations.map(item=>{
+  const user = item.username ? "@" + item.username : item.userId;
+  const details = item.product || item.invitedUser || "";
+  const bonusOrPoints = item.type === "redeem"
+   ? "-" + money(item.points)
+   : "+" + money(item.bonus);
+
+  return `
+   <tr>
+    <td>${escapeHTML(item.date)}</td>
+    <td>${escapeHTML(item.type)}</td>
+    <td>${escapeHTML(user)}</td>
+    <td>${money(item.amount)}</td>
+    <td>${bonusOrPoints}</td>
+    <td>${escapeHTML(details)}</td>
+   </tr>`;
+ }).join("");
+}
+
+function renderUsers(users){
+ const body = document.getElementById("usersBody");
+
+ if(!users.length){
+  body.innerHTML = '<tr><td colspan="6">No users yet</td></tr>';
+  return;
+ }
+
+ body.innerHTML = users.map(user=>`
+  <tr>
+   <td>${escapeHTML(user.id)}</td>
+   <td>${escapeHTML(user.username ? "@" + user.username : "")}</td>
+   <td>${money(user.totalSpent)} MDL</td>
+   <td>${money(user.balance)} MDL</td>
+   <td>${Number(user.referralCount || 0)}</td>
+   <td>${money(user.referralBonus)} MDL</td>
+  </tr>
+ `).join("");
+}
+
+function exportRecentCsv(){
+ if(!latestStats){
+  showError("Load admin data first");
+  return;
+ }
+
+ const rows = [
+  ["date","type","userId","username","amount","bonus","points","product","invitedUser"],
+  ...(latestStats.recentOperations || []).map(item=>[
+   item.date,
+   item.type,
+   item.userId,
+   item.username,
+   item.amount,
+   item.bonus,
+   item.points,
+   item.product,
+   item.invitedUser
+  ])
+ ];
+
+ const csv = rows
+  .map(row=>row.map(value=>`"${String(value || "").replaceAll('"','""')}"`).join(","))
+  .join("\n");
+
+ const blob = new Blob([csv],{ type:"text/csv;charset=utf-8" });
+ const url = URL.createObjectURL(blob);
+ const link = document.createElement("a");
+ link.href = url;
+ link.download = "vv-admin-recent-operations.csv";
+ link.click();
+ URL.revokeObjectURL(url);
+}
+
+if(localStorage.getItem("adminPin")){
+ document.getElementById("pinScreen").style.display = "none";
+ loadStats();
+}
+</script>
+</body>
+</html>

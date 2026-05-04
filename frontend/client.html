@@ -24,7 +24,21 @@ button{
  width:100%;
  margin-top:18px;
 }
-body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
+body{
+ margin:0;
+ background:#0b0b0f;
+ color:white;
+ font-family:Arial,sans-serif;
+ user-select:none;
+ -webkit-user-select:none;
+ -webkit-touch-callout:none;
+}
+input,
+textarea{
+ user-select:text;
+ -webkit-user-select:text;
+ -webkit-touch-callout:default;
+}
 .app{
  max-width:430px;
  margin:auto;

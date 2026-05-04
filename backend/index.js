@@ -24,6 +24,44 @@ function isCashierRequest(req){
  return Boolean(process.env.CASHIER_PIN && pin === process.env.CASHIER_PIN);
 }
 
+function isAdminRequest(req){
+ const pin = req.get("x-admin-pin") || req.body?.pin;
+ const adminPin = process.env.ADMIN_PIN || process.env.CASHIER_PIN;
+ return Boolean(adminPin && pin === adminPin);
+}
+
+async function fetchAllUsers(){
+ const pageSize = 1000;
+ let from = 0;
+ let allUsers = [];
+
+ while(true){
+   const { data, error } = await supabase
+     .from("users")
+     .select("id,username,balance,total_spent,history,referral_count,referral_bonus,referred_by")
+     .range(from, from + pageSize - 1);
+
+   if(error){
+     throw error;
+   }
+
+   allUsers = allUsers.concat(data || []);
+
+   if(!data || data.length < pageSize){
+     break;
+   }
+
+   from += pageSize;
+ }
+
+ return allUsers;
+}
+
+function parseHistoryTime(value){
+ const timestamp = Date.parse(value || "");
+ return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
 function verifyTelegramInitData(initData){
  if(!process.env.BOT_TOKEN){
    return null;
@@ -489,6 +527,108 @@ if(!isCashierRequest(req)){
    tier:tier
  });
 });
+
+app.get("/admin/stats", async (req,res)=>{
+ if(!isAdminRequest(req)){
+   return res.status(403).json({ error:"Invalid admin PIN" });
+ }
+
+ try{
+   const users = await fetchAllUsers();
+   const operations = [];
+
+   const totals = users.reduce((acc,user)=>{
+     const history = Array.isArray(user.history) ? user.history : [];
+
+     acc.users += 1;
+     acc.activeUsers += history.length > 0 ? 1 : 0;
+     acc.totalSpent += Number(user.total_spent || 0);
+     acc.outstandingBalance += Number(user.balance || 0);
+     acc.referralCount += Number(user.referral_count || 0);
+     acc.referralBonusRecorded += Number(user.referral_bonus || 0);
+
+     history.forEach(item=>{
+       const operation = {
+         userId:String(user.id),
+         username:user.username || "",
+         type:item.type || "unknown",
+         amount:Number(item.amount || 0),
+         bonus:Number(item.bonus || 0),
+         points:Number(item.points || 0),
+         product:item.product || "",
+         invitedUser:item.invitedUser || "",
+         date:item.date || "",
+         timestamp:parseHistoryTime(item.date)
+       };
+
+       operations.push(operation);
+
+       if(item.type === "purchase"){
+         acc.purchaseCount += 1;
+         acc.purchaseAmount += Number(item.amount || 0);
+         acc.cashbackAwarded += Number(item.bonus || 0);
+       }
+
+       if(item.type === "redeem"){
+         acc.redeemCount += 1;
+         acc.redeemedPoints += Number(item.points || 0);
+       }
+
+       if(item.type === "referral"){
+         acc.referralRewardCount += 1;
+         acc.referralBonusPaid += Number(item.bonus || 0);
+       }
+     });
+
+     return acc;
+   }, {
+     users:0,
+     activeUsers:0,
+     totalSpent:0,
+     outstandingBalance:0,
+     purchaseCount:0,
+     purchaseAmount:0,
+     cashbackAwarded:0,
+     redeemCount:0,
+     redeemedPoints:0,
+     referralCount:0,
+     referralRewardCount:0,
+     referralBonusPaid:0,
+     referralBonusRecorded:0
+   });
+
+   totals.netBonusIssued =
+     totals.cashbackAwarded + totals.referralBonusPaid - totals.redeemedPoints;
+   totals.operationCount = operations.length;
+
+   const recentOperations = operations
+     .sort((a,b)=>b.timestamp - a.timestamp)
+     .slice(0,50);
+
+   const topUsers = users
+     .map(user=>({
+       id:String(user.id),
+       username:user.username || "",
+       balance:Number(user.balance || 0),
+       totalSpent:Number(user.total_spent || 0),
+       referralCount:Number(user.referral_count || 0),
+       referralBonus:Number(user.referral_bonus || 0)
+     }))
+     .sort((a,b)=>b.totalSpent - a.totalSpent)
+     .slice(0,30);
+
+   res.json({
+     success:true,
+     generatedAt:new Date().toISOString(),
+     totals,
+     recentOperations,
+     topUsers
+   });
+ } catch(error){
+   res.status(500).json({ error:error.message });
+ }
+});
+
 const TelegramBot = require("node-telegram-bot-api");
 
 if(process.env.BOT_TOKEN){
@@ -555,7 +695,7 @@ if(
 
    bot.sendMessage(
      chatId,
-     "Bine ai venit \u00een V&V Privilege Club \u2728\nApas\u0103 butonul de jos pentru a deschide clubul.",
+     "Bine ai venit \u00een V&V Privilege Club \u2728\nApas\u0103 butonul Mini App de jos pentru a deschide clubul.",
      welcomeOptions
    );
 
