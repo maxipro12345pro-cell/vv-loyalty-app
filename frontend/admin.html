@@ -79,6 +79,28 @@ h1{
  margin:16px 0;
 }
 
+.lang-switcher{
+ display:flex;
+ gap:8px;
+ margin:0 0 16px;
+ max-width:360px;
+}
+
+.lang-switcher button{
+ flex:1;
+ border-radius:999px;
+ padding:10px 0;
+ background:#1f1f2a;
+ color:#aaa;
+ border:1px solid rgba(214,178,94,.24);
+}
+
+.lang-switcher button.active{
+ background:#d6b25e;
+ color:#111;
+ border-color:#d6b25e;
+}
+
 button{
  border:none;
  border-radius:16px;
@@ -197,6 +219,10 @@ th{
  button{
   width:100%;
  }
+
+ .lang-switcher{
+  max-width:none;
+ }
 }
 </style>
 </head>
@@ -204,11 +230,11 @@ th{
 <body>
 <div id="pinScreen">
  <div class="pin-card">
-  <h1>V&V Admin</h1>
-  <p class="muted">Enter admin PIN</p>
+ <h1>V&V Admin</h1>
+  <p class="muted" data-i18n="enterAdminPin">Enter admin PIN</p>
   <input id="adminPin" type="password" placeholder="ADMIN PIN">
-  <button onclick="unlockAdmin()">Enter</button>
-  <div id="pinError" class="error">Wrong admin PIN</div>
+  <button onclick="unlockAdmin()" data-i18n="enter">Enter</button>
+  <div id="pinError" class="error" data-i18n="wrongAdminPin">Wrong admin PIN</div>
  </div>
 </div>
 
@@ -216,15 +242,21 @@ th{
  <div class="header">
   <div>
    <h1>V&V Admin</h1>
-   <div class="muted">System totals, rewards, redemptions and referrals</div>
+   <div class="muted" data-i18n="subtitle">System totals, rewards, redemptions and referrals</div>
   </div>
-  <div class="muted" id="updatedAt">Not loaded yet</div>
+  <div class="muted" id="updatedAt" data-i18n="notLoaded">Not loaded yet</div>
+ </div>
+
+ <div class="lang-switcher">
+  <button onclick="setLanguage('ro')">RO</button>
+  <button onclick="setLanguage('ru')">RU</button>
+  <button onclick="setLanguage('en')">EN</button>
  </div>
 
  <div class="toolbar">
-  <button onclick="loadStats()">Refresh</button>
-  <button class="secondary" onclick="exportRecentCsv()">Export recent CSV</button>
-  <button class="secondary" onclick="lockAdmin()">Lock</button>
+  <button onclick="loadStats()" data-i18n="refresh">Refresh</button>
+  <button class="secondary" onclick="exportRecentCsv()" data-i18n="exportCsv">Export recent CSV</button>
+  <button class="secondary" onclick="lockAdmin()" data-i18n="lock">Lock</button>
  </div>
 
  <div id="errorMsg" class="error"></div>
@@ -232,51 +264,51 @@ th{
 
  <div class="grid">
   <div class="card">
-   <div class="label">Total purchase amount</div>
+   <div class="label" data-i18n="totalPurchaseAmount">Total purchase amount</div>
    <div class="value"><span id="purchaseAmount">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Cashback awarded</div>
+   <div class="label" data-i18n="cashbackAwarded">Cashback awarded</div>
    <div class="value"><span id="cashbackAwarded">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Redeemed points</div>
+   <div class="label" data-i18n="redeemedPoints">Redeemed points</div>
    <div class="value"><span id="redeemedPoints">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Referral bonuses paid</div>
+   <div class="label" data-i18n="referralBonusesPaid">Referral bonuses paid</div>
    <div class="value"><span id="referralBonusPaid">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Outstanding user balance</div>
+   <div class="label" data-i18n="outstandingBalance">Outstanding user balance</div>
    <div class="value accent"><span id="outstandingBalance">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Net bonus issued</div>
+   <div class="label" data-i18n="netBonusIssued">Net bonus issued</div>
    <div class="value"><span id="netBonusIssued">0.00</span> MDL</div>
   </div>
   <div class="card">
-   <div class="label">Users / active users</div>
+   <div class="label" data-i18n="usersActiveUsers">Users / active users</div>
    <div class="value"><span id="usersCount">0</span> / <span id="activeUsers">0</span></div>
   </div>
   <div class="card">
-   <div class="label">Operations</div>
+   <div class="label" data-i18n="operations">Operations</div>
    <div class="value"><span id="operationCount">0</span></div>
   </div>
  </div>
 
  <div class="section card">
-  <h2 class="accent">Recent operations</h2>
+  <h2 class="accent" data-i18n="recentOperations">Recent operations</h2>
   <div class="table-wrap">
    <table>
     <thead>
      <tr>
-      <th>Date</th>
-      <th>Type</th>
-      <th>User</th>
-      <th>Amount</th>
-      <th>Bonus / Points</th>
-      <th>Details</th>
+      <th data-i18n="date">Date</th>
+      <th data-i18n="type">Type</th>
+      <th data-i18n="user">User</th>
+      <th data-i18n="amount">Amount</th>
+      <th data-i18n="bonusPoints">Bonus / Points</th>
+      <th data-i18n="details">Details</th>
      </tr>
     </thead>
     <tbody id="operationsBody"></tbody>
@@ -285,17 +317,17 @@ th{
  </div>
 
  <div class="section card">
-  <h2 class="accent">Top clients</h2>
+  <h2 class="accent" data-i18n="topClients">Top clients</h2>
   <div class="table-wrap">
    <table>
     <thead>
      <tr>
-      <th>User ID</th>
-      <th>Username</th>
-      <th>Total spent</th>
-      <th>Balance</th>
-      <th>Referrals</th>
-      <th>Referral bonus</th>
+      <th data-i18n="userId">User ID</th>
+      <th data-i18n="username">Username</th>
+      <th data-i18n="totalSpent">Total spent</th>
+      <th data-i18n="balance">Balance</th>
+      <th data-i18n="referrals">Referrals</th>
+      <th data-i18n="referralBonus">Referral bonus</th>
      </tr>
     </thead>
     <tbody id="usersBody"></tbody>
@@ -307,6 +339,157 @@ th{
 <script>
 const API = "https://vv-loyalty-app.onrender.com";
 let latestStats = null;
+let currentLang = localStorage.getItem("adminLang") || "ro";
+
+const translations = {
+ ro:{
+  enterAdminPin:"Introdu PIN admin",
+  enter:"Intra",
+  wrongAdminPin:"PIN admin gresit",
+  subtitle:"Totaluri sistem, recompense, utilizari si recomandari",
+  notLoaded:"Nu este incarcat inca",
+  refresh:"Actualizeaza",
+  exportCsv:"Export CSV recent",
+  lock:"Blocheaza",
+  totalPurchaseAmount:"Total cumparaturi",
+  cashbackAwarded:"Cashback acordat",
+  redeemedPoints:"Puncte utilizate",
+  referralBonusesPaid:"Bonusuri recomandare platite",
+  outstandingBalance:"Balanta totala clienti",
+  netBonusIssued:"Bonus net emis",
+  usersActiveUsers:"Utilizatori / activi",
+  operations:"Operatiuni",
+  recentOperations:"Operatiuni recente",
+  date:"Data",
+  type:"Tip",
+  user:"Utilizator",
+  amount:"Suma",
+  bonusPoints:"Bonus / Puncte",
+  details:"Detalii",
+  topClients:"Top clienti",
+  userId:"User ID",
+  username:"Username",
+  totalSpent:"Total cheltuit",
+  balance:"Balanta",
+  referrals:"Recomandari",
+  referralBonus:"Bonus recomandare",
+  updated:"Actualizat",
+  adminLoadingError:"Eroare incarcare admin",
+  adminDataLoaded:"Date admin incarcate",
+  networkError:"Eroare retea",
+  noOperations:"Nu exista operatiuni",
+  noUsers:"Nu exista utilizatori",
+  loadAdminFirst:"Incarca datele admin mai intai"
+ },
+ ru:{
+  enterAdminPin:"\u0412\u0432\u0435\u0434\u0438\u0442\u0435 admin PIN",
+  enter:"\u0412\u043e\u0439\u0442\u0438",
+  wrongAdminPin:"\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 admin PIN",
+  subtitle:"\u041e\u0431\u0449\u0438\u0435 \u0438\u0442\u043e\u0433\u0438, \u0431\u043e\u043d\u0443\u0441\u044b, \u0441\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u0438 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044b",
+  notLoaded:"\u0415\u0449\u0435 \u043d\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u043e",
+  refresh:"\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c",
+  exportCsv:"\u042d\u043a\u0441\u043f\u043e\u0440\u0442 CSV",
+  lock:"\u0417\u0430\u043a\u0440\u044b\u0442\u044c",
+  totalPurchaseAmount:"\u041e\u0431\u0449\u0430\u044f \u0441\u0443\u043c\u043c\u0430 \u043f\u043e\u043a\u0443\u043f\u043e\u043a",
+  cashbackAwarded:"\u041d\u0430\u0447\u0438\u0441\u043b\u0435\u043d\u043e cashback",
+  redeemedPoints:"\u0421\u043f\u0438\u0441\u0430\u043d\u043e \u0431\u043e\u043d\u0443\u0441\u043e\u0432",
+  referralBonusesPaid:"\u0412\u044b\u043f\u043b\u0430\u0447\u0435\u043d\u043e \u0440\u0435\u0444. \u0431\u043e\u043d\u0443\u0441\u043e\u0432",
+  outstandingBalance:"\u041e\u0431\u0449\u0438\u0439 \u0431\u0430\u043b\u0430\u043d\u0441 \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u0432",
+  netBonusIssued:"\u0427\u0438\u0441\u0442\u044b\u0439 \u0432\u044b\u0434\u0430\u043d\u043d\u044b\u0439 \u0431\u043e\u043d\u0443\u0441",
+  usersActiveUsers:"\u041a\u043b\u0438\u0435\u043d\u0442\u044b / \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0435",
+  operations:"\u041e\u043f\u0435\u0440\u0430\u0446\u0438\u0438",
+  recentOperations:"\u041f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0438",
+  date:"\u0414\u0430\u0442\u0430",
+  type:"\u0422\u0438\u043f",
+  user:"\u041a\u043b\u0438\u0435\u043d\u0442",
+  amount:"\u0421\u0443\u043c\u043c\u0430",
+  bonusPoints:"\u0411\u043e\u043d\u0443\u0441 / \u0411\u0430\u043b\u043b\u044b",
+  details:"\u0414\u0435\u0442\u0430\u043b\u0438",
+  topClients:"\u0422\u043e\u043f \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u0432",
+  userId:"User ID",
+  username:"Username",
+  totalSpent:"\u0412\u0441\u0435\u0433\u043e \u043f\u043e\u0442\u0440\u0430\u0447\u0435\u043d\u043e",
+  balance:"\u0411\u0430\u043b\u0430\u043d\u0441",
+  referrals:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",
+  referralBonus:"\u0420\u0435\u0444. \u0431\u043e\u043d\u0443\u0441",
+  updated:"\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u043e",
+  adminLoadingError:"\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438 admin",
+  adminDataLoaded:"\u0414\u0430\u043d\u043d\u044b\u0435 admin \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u044b",
+  networkError:"\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0442\u0438",
+  noOperations:"\u041e\u043f\u0435\u0440\u0430\u0446\u0438\u0439 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442",
+  noUsers:"\u041a\u043b\u0438\u0435\u043d\u0442\u043e\u0432 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442",
+  loadAdminFirst:"\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 admin \u0434\u0430\u043d\u043d\u044b\u0435"
+ },
+ en:{
+  enterAdminPin:"Enter admin PIN",
+  enter:"Enter",
+  wrongAdminPin:"Wrong admin PIN",
+  subtitle:"System totals, rewards, redemptions and referrals",
+  notLoaded:"Not loaded yet",
+  refresh:"Refresh",
+  exportCsv:"Export recent CSV",
+  lock:"Lock",
+  totalPurchaseAmount:"Total purchase amount",
+  cashbackAwarded:"Cashback awarded",
+  redeemedPoints:"Redeemed points",
+  referralBonusesPaid:"Referral bonuses paid",
+  outstandingBalance:"Outstanding user balance",
+  netBonusIssued:"Net bonus issued",
+  usersActiveUsers:"Users / active users",
+  operations:"Operations",
+  recentOperations:"Recent operations",
+  date:"Date",
+  type:"Type",
+  user:"User",
+  amount:"Amount",
+  bonusPoints:"Bonus / Points",
+  details:"Details",
+  topClients:"Top clients",
+  userId:"User ID",
+  username:"Username",
+  totalSpent:"Total spent",
+  balance:"Balance",
+  referrals:"Referrals",
+  referralBonus:"Referral bonus",
+  updated:"Updated",
+  adminLoadingError:"Admin loading error",
+  adminDataLoaded:"Admin data loaded",
+  networkError:"Network error",
+  noOperations:"No operations yet",
+  noUsers:"No users yet",
+  loadAdminFirst:"Load admin data first"
+ }
+};
+
+function t(key){
+ return (translations[currentLang] || translations.ro)[key] || translations.ro[key] || key;
+}
+
+function applyLanguage(){
+ document.querySelectorAll("[data-i18n]").forEach(element=>{
+  const key = element.dataset.i18n;
+  element.innerText = t(key);
+ });
+
+ document.querySelectorAll(".lang-switcher button").forEach(button=>{
+  button.classList.toggle(
+   "active",
+   button.innerText.toLowerCase() === currentLang
+  );
+ });
+
+ if(latestStats){
+  renderStats(latestStats);
+ } else {
+  document.getElementById("updatedAt").innerText = t("notLoaded");
+ }
+}
+
+function setLanguage(lang){
+ currentLang = translations[lang] ? lang : "ro";
+ localStorage.setItem("adminLang", currentLang);
+ applyLanguage();
+}
 
 function getPin(){
  return localStorage.getItem("adminPin") || document.getElementById("adminPin").value;
@@ -374,15 +557,15 @@ async function loadStats(){
     document.getElementById("pinError").style.display = "block";
    }
 
-   showError(data.error || "Admin loading error");
+   showError(data.error || t("adminLoadingError"));
    return;
   }
 
   latestStats = data;
   renderStats(data);
-  showSuccess("Admin data loaded");
+  showSuccess(t("adminDataLoaded"));
  } catch(error){
-  showError("Network error: " + error.message);
+  showError(t("networkError") + ": " + error.message);
  }
 }
 
@@ -399,7 +582,7 @@ function renderStats(data){
  document.getElementById("activeUsers").innerText = Number(totals.activeUsers || 0);
  document.getElementById("operationCount").innerText = Number(totals.operationCount || 0);
  document.getElementById("updatedAt").innerText =
-  "Updated: " + new Date(data.generatedAt).toLocaleString();
+  t("updated") + ": " + new Date(data.generatedAt).toLocaleString();
 
  renderOperations(data.recentOperations || []);
  renderUsers(data.topUsers || []);
@@ -409,7 +592,7 @@ function renderOperations(operations){
  const body = document.getElementById("operationsBody");
 
  if(!operations.length){
-  body.innerHTML = '<tr><td colspan="6">No operations yet</td></tr>';
+  body.innerHTML = '<tr><td colspan="6">' + t("noOperations") + '</td></tr>';
   return;
  }
 
@@ -436,7 +619,7 @@ function renderUsers(users){
  const body = document.getElementById("usersBody");
 
  if(!users.length){
-  body.innerHTML = '<tr><td colspan="6">No users yet</td></tr>';
+  body.innerHTML = '<tr><td colspan="6">' + t("noUsers") + '</td></tr>';
   return;
  }
 
@@ -454,7 +637,7 @@ function renderUsers(users){
 
 function exportRecentCsv(){
  if(!latestStats){
-  showError("Load admin data first");
+  showError(t("loadAdminFirst"));
   return;
  }
 
@@ -485,6 +668,8 @@ function exportRecentCsv(){
  link.click();
  URL.revokeObjectURL(url);
 }
+
+applyLanguage();
 
 if(localStorage.getItem("adminPin")){
  document.getElementById("pinScreen").style.display = "none";
