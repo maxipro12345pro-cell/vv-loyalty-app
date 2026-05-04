@@ -132,27 +132,61 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
  text-align:center;
 }
 .social-icon{
- width:44px;
- height:44px;
- border-radius:14px;
+ width:54px;
+ height:54px;
+ border-radius:16px;
  display:flex;
  align-items:center;
  justify-content:center;
  color:#fff;
- font-size:18px;
  font-weight:900;
  line-height:1;
+ position:relative;
 }
 .social-icon.youtube{
+ background:#fff;
+ box-shadow:0 8px 20px rgba(255,255,255,.12);
+}
+.social-icon.youtube::before{
+ content:"";
+ width:34px;
+ height:24px;
+ border-radius:8px;
  background:#ff0033;
+}
+.social-icon.youtube::after{
+ content:"";
+ position:absolute;
+ border-left:10px solid #fff;
+ border-top:7px solid transparent;
+ border-bottom:7px solid transparent;
+ margin-left:4px;
 }
 .social-icon.instagram{
  background:radial-gradient(circle at 30% 110%,#feda75 0,#fa7e1e 28%,#d62976 55%,#962fbf 76%,#4f5bd5 100%);
 }
+.social-icon.instagram::before{
+ content:"";
+ width:27px;
+ height:27px;
+ border:4px solid #fff;
+ border-radius:10px;
+}
+.social-icon.instagram::after{
+ content:"";
+ position:absolute;
+ width:7px;
+ height:7px;
+ border-radius:50%;
+ background:#fff;
+ transform:translate(13px,-13px);
+}
 .social-icon.tiktok{
  background:#050505;
  border:1px solid rgba(255,255,255,.18);
- text-shadow:2px 0 #25f4ee,-2px 0 #fe2c55;
+ font-size:30px;
+ color:#fff;
+ text-shadow:3px 0 #25f4ee,-3px 0 #fe2c55;
 }
 .social-name{
  font-size:13px;
@@ -434,11 +468,11 @@ Close
    <button class="active" onclick="setCatalogFilter('type','all')">All</button>
    <button onclick="setCatalogFilter('type','tims')">Tims</button>
    <button onclick="setCatalogFilter('type','ulei')">Ulei</button>
-   <button onclick="setCatalogFilter('type','arabic')">Parfumuri arabești</button>
+   <button onclick="setCatalogFilter('type','arabic')">Parfumuri arabeИ™ti</button>
   </div>
   <div class="filter-row" id="genderFilters">
    <button class="active" onclick="setCatalogFilter('gender','all')">All</button>
-   <button onclick="setCatalogFilter('gender','men')">Bărbați</button>
+   <button onclick="setCatalogFilter('gender','men')">BДѓrbaИ›i</button>
    <button onclick="setCatalogFilter('gender','women')">Femei</button>
    <button onclick="setCatalogFilter('gender','unisex')">Unisex</button>
   </div>
@@ -504,18 +538,20 @@ Close
  </div>
 
  <div class="offer">
-  <h3 data-i18n="socialTitle">Наши соцсети</h3>
+  <h3 data-i18n="socialTitle">РќР°С€Рё СЃРѕС†СЃРµС‚Рё</h3>
   <div class="social-grid">
-   <div class="social-card disabled">
-    <div class="social-icon youtube">▶</div>
+   <a class="social-card"
+      href="https://www.youtube.com/@VsVPerfume/shorts"
+      target="_blank"
+      rel="noopener">
+    <div class="social-icon youtube"></div>
     <div class="social-name">YouTube</div>
-    <div class="social-status" data-i18n="willBeSoon">will be soon</div>
-   </div>
+   </a>
    <a class="social-card"
       href="https://instagram.com/"
       target="_blank"
       rel="noopener">
-    <div class="social-icon instagram">◎</div>
+    <div class="social-icon instagram"></div>
     <div class="social-name">Instagram</div>
    </a>
    <a class="social-card"
@@ -529,9 +565,9 @@ Close
  </div>
 
  <div class="offer" id="reviewsSection">
-  <h3 data-i18n="reviewsTitle">Отзывы</h3>
+  <h3 data-i18n="reviewsTitle">РћС‚Р·С‹РІС‹</h3>
   <div class="reviews-card">
-   <div class="reviews-rating">5.0 ★★★★★</div>
+   <div class="reviews-rating">5.0 в…в…в…в…в…</div>
    <div class="reviews-count" data-i18n="reviewsCount">7 reviews</div>
   </div>
   <a class="reviews-button"
@@ -658,13 +694,13 @@ const translations = {
   clubText:"Lansari exclusive si evenimente private."
  },
  ru:{
-  privateInvitation:"Приватное приглашение",
-  inviteText:"Пригласите друга в V&V Privilege Club и получите эксклюзивные бонусы.",
-  invitedFriends:"Приглашенные друзья",
-  referralBonus:"Реферальный бонус",
-  sendInvitation:"Отправить приглашение",
-  club:"Клуб",
-  clubText:"Эксклюзивные запуски и закрытые события."
+  privateInvitation:"РџСЂРёРІР°С‚РЅРѕРµ РїСЂРёРіР»Р°С€РµРЅРёРµ",
+  inviteText:"РџСЂРёРіР»Р°СЃРёС‚Рµ РґСЂСѓРіР° РІ V&V Privilege Club Рё РїРѕР»СѓС‡РёС‚Рµ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рµ Р±РѕРЅСѓСЃС‹.",
+  invitedFriends:"РџСЂРёРіР»Р°С€РµРЅРЅС‹Рµ РґСЂСѓР·СЊСЏ",
+  referralBonus:"Р РµС„РµСЂР°Р»СЊРЅС‹Р№ Р±РѕРЅСѓСЃ",
+  sendInvitation:"РћС‚РїСЂР°РІРёС‚СЊ РїСЂРёРіР»Р°С€РµРЅРёРµ",
+  club:"РљР»СѓР±",
+  clubText:"Р­РєСЃРєР»СЋР·РёРІРЅС‹Рµ Р·Р°РїСѓСЃРєРё Рё Р·Р°РєСЂС‹С‚С‹Рµ СЃРѕР±С‹С‚РёСЏ."
  },
  en:{
   privateInvitation:"Private Invitation",
@@ -710,7 +746,7 @@ Object.assign(translations.ro,{
  continue:"Continua",
  tierUnlocked:"Ai deblocat",
  cashbackIncreased:"Cashback-ul a crescut la",
- socialTitle:"Rețelele noastre sociale",
+ socialTitle:"ReИ›elele noastre sociale",
  willBeSoon:"in curand",
   reviewsTitle:"Recenzii",
   reviewsCount:"7 recenzii",
@@ -718,47 +754,47 @@ Object.assign(translations.ro,{
 });
 
 Object.assign(translations.ru,{
- greeting:"Добрый вечер",
- bonusBalance:"Ваш бонусный баланс",
- showQR:"Показать QR",
- showQRCheckout:"Покажите этот QR на кассе",
- close:"Закрыть",
+ greeting:"Р”РѕР±СЂС‹Р№ РІРµС‡РµСЂ",
+ bonusBalance:"Р’Р°С€ Р±РѕРЅСѓСЃРЅС‹Р№ Р±Р°Р»Р°РЅСЃ",
+ showQR:"РџРѕРєР°Р·Р°С‚СЊ QR",
+ showQRCheckout:"РџРѕРєР°Р¶РёС‚Рµ СЌС‚РѕС‚ QR РЅР° РєР°СЃСЃРµ",
+ close:"Р—Р°РєСЂС‹С‚СЊ",
  member:"MEMBER",
- cashback:"Кэшбэк",
- mdlToStatus:"MDL до статуса",
+ cashback:"РљСЌС€Р±СЌРє",
+ mdlToStatus:"MDL РґРѕ СЃС‚Р°С‚СѓСЃР°",
  status:"",
- highestLevel:"Максимальный уровень",
- recentActivity:"Недавняя активность",
- noActivity:"Пока нет активности",
- historyBonus:"бонус",
- pointsRedeemed:"баллы списаны",
- historyReferralBonus:"реферальный бонус",
- invitedClient:"приглашенный клиент",
- bonusVisit:"Бонусный визит",
- bonusVisitText:"Получите дополнительные бонусы после следующей покупки.",
- newArrivals:"Новинки",
- newArrivalsText:"Люксовые ароматы, выбранные для клиентов V&V.",
- home:"Главная",
- boutique:"Бутик",
+ highestLevel:"РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СѓСЂРѕРІРµРЅСЊ",
+ recentActivity:"РќРµРґР°РІРЅСЏСЏ Р°РєС‚РёРІРЅРѕСЃС‚СЊ",
+ noActivity:"РџРѕРєР° РЅРµС‚ Р°РєС‚РёРІРЅРѕСЃС‚Рё",
+ historyBonus:"Р±РѕРЅСѓСЃ",
+ pointsRedeemed:"Р±Р°Р»Р»С‹ СЃРїРёСЃР°РЅС‹",
+ historyReferralBonus:"СЂРµС„РµСЂР°Р»СЊРЅС‹Р№ Р±РѕРЅСѓСЃ",
+ invitedClient:"РїСЂРёРіР»Р°С€РµРЅРЅС‹Р№ РєР»РёРµРЅС‚",
+ bonusVisit:"Р‘РѕРЅСѓСЃРЅС‹Р№ РІРёР·РёС‚",
+ bonusVisitText:"РџРѕР»СѓС‡РёС‚Рµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ Р±РѕРЅСѓСЃС‹ РїРѕСЃР»Рµ СЃР»РµРґСѓСЋС‰РµР№ РїРѕРєСѓРїРєРё.",
+ newArrivals:"РќРѕРІРёРЅРєРё",
+ newArrivalsText:"Р›СЋРєСЃРѕРІС‹Рµ Р°СЂРѕРјР°С‚С‹, РІС‹Р±СЂР°РЅРЅС‹Рµ РґР»СЏ РєР»РёРµРЅС‚РѕРІ V&V.",
+ home:"Р“Р»Р°РІРЅР°СЏ",
+ boutique:"Р‘СѓС‚РёРє",
  vvBoutique:"V&V Boutique",
- boutiqueText:"Скоро появится приватная коллекция ароматов.",
- privateInvitation:"Приватное приглашение",
- inviteText:"Пригласите друга в V&V Privilege Club и получите эксклюзивные бонусы.",
- invitedFriends:"Приглашенные друзья",
- referralBonus:"Реферальный бонус",
- sendInvitation:"Отправить приглашение",
- club:"Клуб",
- clubText:"Эксклюзивные запуски и закрытые события.",
- membershipLevels:"Уровни клуба",
- congratulations:"Поздравляем",
- continue:"Продолжить",
- tierUnlocked:"Вы открыли",
- cashbackIncreased:"Кэшбэк увеличен до",
- socialTitle:"Наши соцсети",
- willBeSoon:"скоро",
-  reviewsTitle:"Отзывы",
-  reviewsCount:"7 отзывов",
-  viewReviews:"Смотреть отзывы"
+ boutiqueText:"РЎРєРѕСЂРѕ РїРѕСЏРІРёС‚СЃСЏ РїСЂРёРІР°С‚РЅР°СЏ РєРѕР»Р»РµРєС†РёСЏ Р°СЂРѕРјР°С‚РѕРІ.",
+ privateInvitation:"РџСЂРёРІР°С‚РЅРѕРµ РїСЂРёРіР»Р°С€РµРЅРёРµ",
+ inviteText:"РџСЂРёРіР»Р°СЃРёС‚Рµ РґСЂСѓРіР° РІ V&V Privilege Club Рё РїРѕР»СѓС‡РёС‚Рµ СЌРєСЃРєР»СЋР·РёРІРЅС‹Рµ Р±РѕРЅСѓСЃС‹.",
+ invitedFriends:"РџСЂРёРіР»Р°С€РµРЅРЅС‹Рµ РґСЂСѓР·СЊСЏ",
+ referralBonus:"Р РµС„РµСЂР°Р»СЊРЅС‹Р№ Р±РѕРЅСѓСЃ",
+ sendInvitation:"РћС‚РїСЂР°РІРёС‚СЊ РїСЂРёРіР»Р°С€РµРЅРёРµ",
+ club:"РљР»СѓР±",
+ clubText:"Р­РєСЃРєР»СЋР·РёРІРЅС‹Рµ Р·Р°РїСѓСЃРєРё Рё Р·Р°РєСЂС‹С‚С‹Рµ СЃРѕР±С‹С‚РёСЏ.",
+ membershipLevels:"РЈСЂРѕРІРЅРё РєР»СѓР±Р°",
+ congratulations:"РџРѕР·РґСЂР°РІР»СЏРµРј",
+ continue:"РџСЂРѕРґРѕР»Р¶РёС‚СЊ",
+ tierUnlocked:"Р’С‹ РѕС‚РєСЂС‹Р»Рё",
+ cashbackIncreased:"РљСЌС€Р±СЌРє СѓРІРµР»РёС‡РµРЅ РґРѕ",
+ socialTitle:"РќР°С€Рё СЃРѕС†СЃРµС‚Рё",
+ willBeSoon:"СЃРєРѕСЂРѕ",
+  reviewsTitle:"РћС‚Р·С‹РІС‹",
+  reviewsCount:"7 РѕС‚Р·С‹РІРѕРІ",
+  viewReviews:"РЎРјРѕС‚СЂРµС‚СЊ РѕС‚Р·С‹РІС‹"
 });
 
 Object.assign(translations.en,{
@@ -824,7 +860,7 @@ function applyLanguage(lang){
 
  if(!latestUserData){
   document.getElementById("tierBadge").innerText =
-  "CORE " + t("member") + " · " + t("cashback") + " 2.5%";
+  "CORE " + t("member") + " В· " + t("cashback") + " 2.5%";
 
   document.getElementById("progressText").innerText =
   "0 " + t("mdlToStatus") + " SILVER " + t("status");
@@ -1027,7 +1063,7 @@ function updateTier(data){
  document.getElementById("balance").innerText = Number(data.balance).toFixed(2);
 
  document.getElementById("tierBadge").innerText =
- data.tier.name + " " + t("member") + " · " + t("cashback") + " " + data.tier.cashback + "%";
+ data.tier.name + " " + t("member") + " В· " + t("cashback") + " " + data.tier.cashback + "%";
 document.getElementById("memberIcon").innerText =
 data.tier.name;
 let tierColor="#b57a4b"; // bronze
