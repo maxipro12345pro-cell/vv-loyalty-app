@@ -14,6 +14,7 @@ app.use(express.json());
 
 const SECRET = process.env.QR_SECRET;
 const QR_TTL_MS = 5 * 60 * 1000;
+const BOT_CONNECT_BONUS = 50;
 
 if(!SECRET){
  throw new Error("QR_SECRET is required");
@@ -223,8 +224,7 @@ if(!user){
     total_spent: 0,
     history: [],
     referred_by: ref && ref !== id ? ref : null,
-    referral_rewarded: false,
-    username: telegramUser?.username || req.query.username || null
+    referral_rewarded: false
   })
     .select("*")
     .single();
@@ -250,14 +250,6 @@ if(
       .eq("id", id);
 
     user.referred_by = ref;
-  }
-  if(telegramUser?.username && user.username !== telegramUser.username){
-    await supabase
-      .from("users")
-      .update({ username: telegramUser.username })
-      .eq("id", id);
-
-    user.username = telegramUser.username;
   }
 }
  const tier = getTier(Number(user.total_spent || 0));
@@ -440,7 +432,7 @@ const referralReward =
          {
            type:"referral",
            bonus: referralReward,
-           invitedUser: user.username || id,
+           invitedUser: id,
            date: new Date().toLocaleString()
          },
          ...referrerHistory
@@ -578,7 +570,12 @@ app.get("/admin/stats", async (req,res)=>{
          acc.referralRewardCount += 1;
          acc.referralBonusPaid += Number(item.bonus || 0);
        }
-     });
+
+       if(item.type === "bot_bonus"){
+         acc.botBonusCount += 1;
+         acc.botBonusPaid += Number(item.bonus || 0);
+       }
+      });
 
      return acc;
    }, {
@@ -594,11 +591,13 @@ app.get("/admin/stats", async (req,res)=>{
      referralCount:0,
      referralRewardCount:0,
      referralBonusPaid:0,
-     referralBonusRecorded:0
+     referralBonusRecorded:0,
+     botBonusCount:0,
+     botBonusPaid:0
    });
 
    totals.netBonusIssued =
-     totals.cashbackAwarded + totals.referralBonusPaid - totals.redeemedPoints;
+     totals.cashbackAwarded + totals.referralBonusPaid + totals.botBonusPaid - totals.redeemedPoints;
    totals.operationCount = operations.length;
 
    const recentOperations = operations
@@ -658,12 +657,15 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
  if(!existingUser){
    await supabase.from("users").insert({
      id: userId,
-     balance: 0,
+     balance: BOT_CONNECT_BONUS,
      total_spent: 0,
-     history: [],
+     history: [{
+       type:"bot_bonus",
+       bonus:BOT_CONNECT_BONUS,
+       date:new Date().toLocaleString()
+     }],
      referred_by: referredBy,
-     referral_rewarded: false,
-     username: msg.from.username || null
+     referral_rewarded: false
     });
  } else {
 if(
@@ -677,6 +679,29 @@ if(
     .from("users")
     .update({
       referred_by: referredBy
+    })
+    .eq("id", userId);
+ }
+
+ const existingHistory = Array.isArray(existingUser.history)
+   ? existingUser.history
+   : [];
+ const botBonusAlreadyPaid =
+   existingHistory.some(item => item.type === "bot_bonus");
+
+ if(!botBonusAlreadyPaid){
+  await supabase
+    .from("users")
+    .update({
+      balance:Number(existingUser.balance || 0) + BOT_CONNECT_BONUS,
+      history:[
+        {
+          type:"bot_bonus",
+          bonus:BOT_CONNECT_BONUS,
+          date:new Date().toLocaleString()
+        },
+        ...existingHistory
+      ]
     })
     .eq("id", userId);
  }

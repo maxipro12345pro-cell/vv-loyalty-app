@@ -661,6 +661,14 @@ Close
  </div>
 </div>
 
+<div id="welcomeBonusPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);justify-content:center;align-items:center;z-index:999;">
+ <div class="modal-content" style="background:#15151d;padding:35px;border-radius:30px;width:320px;text-align:center;border:1px solid var(--tierBorder,rgba(214,178,94,.35));box-shadow:0 20px 60px rgba(0,0,0,.5);">
+  <h2 style="color:var(--tierColor,#d6b25e);margin-top:0;" data-i18n="welcomeBonusTitle">Welcome bonus</h2>
+  <p id="welcomeBonusMessage" style="line-height:1.7;"></p>
+  <button onclick="closeWelcomeBonusPopup()" data-i18n="continue">Continue</button>
+ </div>
+</div>
+
 <script>
 function setGreeting(){
 
@@ -764,6 +772,7 @@ const translations = {
   historyBonus:"bonus",
   pointsRedeemed:"puncte utilizate",
   historyReferralBonus:"bonus de recomandare",
+  historyBotBonus:"bonus conectare bot",
   invitedClient:"client invitat",
   bonusVisit:"Vizita bonus",
   bonusVisitText:"Primeste recompense extra dupa urmatoarea achizitie.",
@@ -782,7 +791,9 @@ const translations = {
   willBeSoon:"in curand",
   reviewsTitle:"Recenzii",
   reviewsCount:"7 recenzii",
-  viewReviews:"Vezi recenziile"
+  viewReviews:"Vezi recenziile",
+  welcomeBonusTitle:"Bonus de bun venit",
+  welcomeBonusText:"Ai primit 50 MDL bonus pentru conectarea botului."
  },
  ru:{
   privateInvitation:"\u041f\u0440\u0438\u0432\u0430\u0442\u043d\u043e\u0435 \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435",
@@ -807,6 +818,7 @@ const translations = {
   historyBonus:"\u0431\u043e\u043d\u0443\u0441",
   pointsRedeemed:"\u0431\u0430\u043b\u043b\u044b \u0441\u043f\u0438\u0441\u0430\u043d\u044b",
   historyReferralBonus:"\u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0431\u043e\u043d\u0443\u0441",
+  historyBotBonus:"\u0431\u043e\u043d\u0443\u0441 \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430",
   invitedClient:"\u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u043d\u044b\u0439 \u043a\u043b\u0438\u0435\u043d\u0442",
   bonusVisit:"\u0411\u043e\u043d\u0443\u0441\u043d\u044b\u0439 \u0432\u0438\u0437\u0438\u0442",
   bonusVisitText:"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u0435 \u0434\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0431\u043e\u043d\u0443\u0441\u044b \u043f\u043e\u0441\u043b\u0435 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0439 \u043f\u043e\u043a\u0443\u043f\u043a\u0438.",
@@ -825,7 +837,9 @@ const translations = {
   willBeSoon:"\u0441\u043a\u043e\u0440\u043e",
   reviewsTitle:"\u041e\u0442\u0437\u044b\u0432\u044b",
   reviewsCount:"7 \u043e\u0442\u0437\u044b\u0432\u043e\u0432",
-  viewReviews:"\u0421\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043e\u0442\u0437\u044b\u0432\u044b"
+  viewReviews:"\u0421\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043e\u0442\u0437\u044b\u0432\u044b",
+  welcomeBonusTitle:"\u041f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439 \u0431\u043e\u043d\u0443\u0441",
+  welcomeBonusText:"\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 50 MDL \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430."
  },
  en:{
   privateInvitation:"Private Invitation",
@@ -850,6 +864,7 @@ const translations = {
   historyBonus:"bonus",
   pointsRedeemed:"points redeemed",
   historyReferralBonus:"referral bonus",
+  historyBotBonus:"bot connection bonus",
   invitedClient:"invited client",
   bonusVisit:"Bonus Visit",
   bonusVisitText:"Earn extra rewards after your next purchase.",
@@ -868,7 +883,9 @@ const translations = {
   willBeSoon:"will be soon",
   reviewsTitle:"Reviews",
   reviewsCount:"7 reviews",
-  viewReviews:"View reviews"
+  viewReviews:"View reviews",
+  welcomeBonusTitle:"Welcome bonus",
+  welcomeBonusText:"You received 50 MDL for connecting the bot."
  }
 };
 
@@ -1018,6 +1035,10 @@ if(!referralId && window.Telegram?.WebApp?.initDataUnsafe?.start_param){
  ).style.display="none";
 }
 
+function closeWelcomeBonusPopup(){
+ document.getElementById("welcomeBonusPopup").style.display="none";
+}
+
 function closeQR(){
  document.getElementById(
  "qrBox"
@@ -1097,6 +1118,42 @@ function checkTierUpgrade(newTier,cashback){
 
    previousTier=newTier;
  }
+}
+
+function checkWelcomeBonus(data){
+ const history = Array.isArray(data.history) ? data.history : [];
+ const bonusItem = history.find(item => item.type === "bot_bonus");
+
+ if(!bonusItem){
+  return;
+ }
+
+ const storageKey = "botBonusSeen_" + currentUserId;
+
+ if(localStorage.getItem(storageKey)){
+  return;
+ }
+
+ localStorage.setItem(storageKey, "1");
+
+ document.getElementById("welcomeBonusMessage").innerText = t("welcomeBonusText");
+ document.getElementById("welcomeBonusPopup").style.display = "flex";
+
+ confetti({
+  particleCount:120,
+  spread:80,
+  origin:{y:0.6},
+  colors:["#d6b25e","#f5d67b","#ffffff"]
+ });
+
+ setTimeout(()=>{
+  confetti({
+   particleCount:80,
+   spread:100,
+   origin:{y:0.5},
+   colors:["#d6b25e","#f5d67b","#ffffff"]
+  });
+ },400);
 }
 
 function updateTier(data){
@@ -1187,6 +1244,15 @@ function updateHistory(data){
    <br>${date}
    </p>`;
   }
+  if(item.type==="bot_bonus"){
+   const date = escapeHTML(item.date || "");
+   return `
+   <p class="label">
+   +${Number(item.bonus).toFixed(2)}
+   ${t("historyBotBonus")}
+   <br>${date}
+   </p>`;
+  }
   return "";
  }).join("");
 
@@ -1251,6 +1317,7 @@ Number(data.referralBonus || 0).toFixed(0);
  latestUserData = data;
  updateTier(data);
  updateHistory(data);
+ checkWelcomeBonus(data);
  previousTier = data.tier.name;
 }
 applyLanguage(currentLang);
