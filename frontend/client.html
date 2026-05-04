@@ -166,14 +166,32 @@ body{margin:0;background:#0b0b0f;color:white;font-family:Arial,sans-serif}
  opacity:.55;
  cursor:not-allowed;
 }
-.reviews-fallback{
- display:none;
+.reviews-card{
  margin-top:12px;
- padding:14px 16px;
+ padding:16px;
  border-radius:18px;
  background:rgba(255,255,255,.05);
  border:1px solid rgba(214,178,94,.22);
+ text-align:center;
+}
+.reviews-rating{
  color:#d6b25e;
+ font-size:24px;
+ font-weight:bold;
+}
+.reviews-count{
+ margin-top:6px;
+ color:#aaa;
+ font-size:14px;
+}
+.reviews-button{
+ display:block;
+ margin-top:12px;
+ padding:14px 16px;
+ border-radius:18px;
+ background:#d6b25e;
+ color:#d6b25e;
+ color:#111;
  text-decoration:none;
  font-weight:bold;
  text-align:center;
@@ -512,9 +530,11 @@ Close
 
  <div class="offer" id="reviewsSection">
   <h3 data-i18n="reviewsTitle">Отзывы</h3>
-  <div id="myReviewsWidgetSlot"></div>
-  <a id="reviewsFallback"
-     class="reviews-fallback"
+  <div class="reviews-card">
+   <div class="reviews-rating">5.0 ★★★★★</div>
+   <div class="reviews-count" data-i18n="reviewsCount">7 reviews</div>
+  </div>
+  <a class="reviews-button"
      href="https://myreviews.dev/firm/57201/view?tab=menu"
      target="_blank"
      rel="noopener"
@@ -604,8 +624,6 @@ let catalogFilters = {
  type:"all",
  gender:"all"
 };
-let reviewsWidgetLoaded = false;
-let reviewsWidgetStarted = false;
 
 if (
  window.Telegram &&
@@ -694,8 +712,9 @@ Object.assign(translations.ro,{
  cashbackIncreased:"Cashback-ul a crescut la",
  socialTitle:"Rețelele noastre sociale",
  willBeSoon:"in curand",
- reviewsTitle:"Recenzii",
- viewReviews:"Vezi recenziile"
+  reviewsTitle:"Recenzii",
+  reviewsCount:"7 recenzii",
+  viewReviews:"Vezi recenziile"
 });
 
 Object.assign(translations.ru,{
@@ -737,8 +756,9 @@ Object.assign(translations.ru,{
  cashbackIncreased:"Кэшбэк увеличен до",
  socialTitle:"Наши соцсети",
  willBeSoon:"скоро",
- reviewsTitle:"Отзывы",
- viewReviews:"Смотреть отзывы"
+  reviewsTitle:"Отзывы",
+  reviewsCount:"7 отзывов",
+  viewReviews:"Смотреть отзывы"
 });
 
 Object.assign(translations.en,{
@@ -773,8 +793,9 @@ Object.assign(translations.en,{
  cashbackIncreased:"Cashback increased to",
  socialTitle:"Our social media",
  willBeSoon:"will be soon",
- reviewsTitle:"Reviews",
- viewReviews:"View reviews"
+  reviewsTitle:"Reviews",
+  reviewsCount:"7 reviews",
+  viewReviews:"View reviews"
 });
 
 function t(key){
@@ -901,62 +922,6 @@ function renderProducts(){
  });
 }
 
-function showReviewsFallback(){
- const fallback = document.getElementById("reviewsFallback");
-
- if(fallback){
-  fallback.style.display = "block";
- }
-}
-
-function initMyReviewsWidget(){
- if(reviewsWidgetStarted || !window.myReviews?.VerticalWidgetNew){
-  if(!window.myReviews?.VerticalWidgetNew){
-   showReviewsFallback();
-  }
-  return;
- }
-
- reviewsWidgetStarted = true;
-
- try{
-  new window.myReviews.VerticalWidgetNew({
-   uuid:"9d51bee0-59a6-4a4e-a681-0c635b384793",
-   name:"g4343335",
-   additionalFrame:"button",
-   variant:"default",
-   lang:"ru",
-   widgetId:"1"
-  }).init();
- } catch(error){
-  console.log("Reviews widget error:", error);
-  showReviewsFallback();
- }
-}
-
-function loadMyReviewsWidget(){
- if(reviewsWidgetLoaded){
-  initMyReviewsWidget();
-  return;
- }
-
- reviewsWidgetLoaded = true;
-
- const script = document.createElement("script");
- script.src = "https://myreviews.dev/widget/dist/verticalWidgetNew.js";
- script.defer = true;
- script.onload = initMyReviewsWidget;
- script.onerror = showReviewsFallback;
-
- document.body.appendChild(script);
-
- setTimeout(()=>{
-  if(!reviewsWidgetStarted){
-   showReviewsFallback();
-  }
- },5000);
-}
-
 let referralId = null;
 
 if(window.location.search){
@@ -1021,7 +986,6 @@ function showTab(tab){
  if(tab==="Club"){
    document.getElementById("ClubTab").style.display="block";
    document.getElementById("navClub").classList.add("active");
-   loadMyReviewsWidget();
  }
 
  window.scrollTo({top:0,behavior:"smooth"});
