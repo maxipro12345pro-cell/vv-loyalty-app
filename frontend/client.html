@@ -145,63 +145,6 @@ textarea{
  font-weight:bold;
  text-align:center;
 }
-.social-icon{
- width:54px;
- height:54px;
- border-radius:16px;
- display:flex;
- align-items:center;
- justify-content:center;
- color:#fff;
- font-weight:900;
- line-height:1;
- position:relative;
-}
-.social-icon.youtube{
- background:#fff;
- box-shadow:0 8px 20px rgba(255,255,255,.12);
-}
-.social-icon.youtube::before{
- content:"";
- width:34px;
- height:24px;
- border-radius:8px;
- background:#ff0033;
-}
-.social-icon.youtube::after{
- content:"";
- position:absolute;
- border-left:10px solid #fff;
- border-top:7px solid transparent;
- border-bottom:7px solid transparent;
- margin-left:4px;
-}
-.social-icon.instagram{
- background:radial-gradient(circle at 30% 110%,#feda75 0,#fa7e1e 28%,#d62976 55%,#962fbf 76%,#4f5bd5 100%);
-}
-.social-icon.instagram::before{
- content:"";
- width:27px;
- height:27px;
- border:4px solid #fff;
- border-radius:10px;
-}
-.social-icon.instagram::after{
- content:"";
- position:absolute;
- width:7px;
- height:7px;
- border-radius:50%;
- background:#fff;
- transform:translate(13px,-13px);
-}
-.social-icon.tiktok{
- background:#050505;
- border:1px solid rgba(255,255,255,.18);
- font-size:30px;
- color:#fff;
- text-shadow:3px 0 #25f4ee,-3px 0 #fe2c55;
-}
 .social-name{
  font-size:13px;
 }
@@ -578,28 +521,10 @@ button:active{
   width: 56px;
   height: 56px;
   margin: 0 auto 10px;
-  background-size: cover;
-  background-position: center;
   border-radius: 16px;
-}
-
-.social-icon.youtube {
-  background-image: url("assets/youtube-icon.png");
-}
-
-.social-icon.instagram {
-  background-image: url("assets/instagram-icon.jpg");
-}
-
-.social-icon.tiktok {
-  background-image: url("assets/tiktok-icon.png");
-}
-
-.social-icon.youtube::before,
-.social-icon.youtube::after,
-.social-icon.instagram::before,
-.social-icon.instagram::after {
-  content: none;
+  display:block;
+  object-fit:cover;
+  box-shadow:0 8px 22px rgba(0,0,0,.25);
 }
 
 .social-name {
@@ -796,17 +721,17 @@ Close
 
   <div class="social-grid">
     <a class="social-card" href="https://www.youtube.com/@VsVPerfume/shorts" target="_blank" rel="noopener">
-      <div class="social-icon youtube"></div>
+      <img class="social-icon" src="assets/youtube-icon.png" alt="YouTube" loading="lazy">
       <div class="social-name">YouTube</div>
     </a>
 
     <a class="social-card" href="https://instagram.com/" target="_blank" rel="noopener">
-      <div class="social-icon instagram"></div>
+      <img class="social-icon" src="assets/instagram-icon.jpg" alt="Instagram" loading="lazy">
       <div class="social-name">Instagram</div>
     </a>
 
     <a class="social-card" href="https://tiktok.com/@vsv.perfume" target="_blank" rel="noopener">
-      <div class="social-icon tiktok"></div>
+      <img class="social-icon" src="assets/tiktok-icon.png" alt="TikTok" loading="lazy">
       <div class="social-name">TikTok</div>
     </a>
   </div>
