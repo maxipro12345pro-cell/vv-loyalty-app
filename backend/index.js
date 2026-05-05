@@ -537,12 +537,13 @@ if(
  });
 });
 app.post("/redeem", async (req,res)=>{
-const {id,points,pin}=req.body;
+const {id,points,pin,purchaseAmount}=req.body;
 
 if(!isCashierRequest(req)){
  return res.status(403).json({error:"Invalid cashier PIN"});
 }
  const numericPoints = Number(points);
+ const numericPurchaseAmount = Number(purchaseAmount || 0);
  const userId = String(id || "");
 
  if(!/^\d+$/.test(userId)){
@@ -551,6 +552,10 @@ if(!isCashierRequest(req)){
 
  if(!Number.isFinite(numericPoints) || numericPoints<=0){
    return res.status(400).json({error:"Enter valid points amount"});
+ }
+
+ if(!Number.isFinite(numericPurchaseAmount) || numericPurchaseAmount < 0){
+   return res.status(400).json({error:"Enter valid purchase amount"});
  }
 
  let { data:user, error } = await supabase
@@ -571,17 +576,33 @@ if(!isCashierRequest(req)){
    return res.status(400).json({error:"Not enough points"});
  }
 
+ const history = Array.isArray(user.history) ? user.history : [];
+ const hasWelcomeBonus = history.some(item => item.type === "bot_bonus");
+ const alreadyRedeemed = history
+   .filter(item => item.type === "redeem")
+   .reduce((sum,item)=>sum + Number(item.points || 0), 0);
+ const welcomePointsRemaining = hasWelcomeBonus
+   ? Math.max(0, BOT_CONNECT_BONUS - alreadyRedeemed)
+   : 0;
+
+ if(welcomePointsRemaining > 0 && numericPoints > 0 && numericPurchaseAmount < 200){
+   return res.status(400).json({
+     error:"First 50 welcome points can be redeemed only with purchase amount from 200 MDL"
+   });
+ }
+
  const newBalance =
    Number(user.balance) - numericPoints;
 
  const newHistory = [
- {
-   type:"redeem",
-   points:numericPoints,
-   date:new Date().toLocaleString()
- },
- ...(user.history || [])
- ];
+{
+  type:"redeem",
+  points:numericPoints,
+  amount:numericPurchaseAmount,
+  date:new Date().toLocaleString()
+},
+...history
+];
 
  const { error:updateError } = await supabase
    .from("users")

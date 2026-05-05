@@ -182,6 +182,7 @@ Add purchase bonus
 
 <div class="card">
 <h3>Redeem Points</h3>
+<input id="redeemPurchaseAmount" type="number" min="0" placeholder="Purchase amount">
 <input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
 <button class="secondary" onclick="redeemPoints()"
 >Redeem points</button>
@@ -311,6 +312,7 @@ async function redeemPoints(){
  clearMessages();
 
  const qr=document.getElementById("qrInput").value.trim();
+ const purchaseAmount=document.getElementById("redeemPurchaseAmount").value;
  const points=document.getElementById("redeemAmount").value;
 
  const clientId=getClientIdFromQR(qr);
@@ -325,12 +327,18 @@ async function redeemPoints(){
    return;
  }
 
+ if(purchaseAmount === "" || Number(purchaseAmount)<0){
+   showError("Enter purchase amount");
+   return;
+ }
+
  const res=await fetch(API + "/redeem",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
  id:clientId,
  points:Number(points),
+ purchaseAmount:Number(purchaseAmount),
  pin:document.getElementById("cashierPin").value
 })
  });
@@ -343,7 +351,8 @@ body:JSON.stringify({
  }
 
  updateResult(data);
- showSuccess("Points redeemed successfully");
+showSuccess("Points redeemed successfully");
+ document.getElementById("redeemPurchaseAmount").value="";
  document.getElementById("redeemAmount").value="";
 }
 let qrScanner = null;
