@@ -225,6 +225,21 @@ textarea{
  border-radius:18px;
  padding:14px;
 }
+.branch-item.branch-link{
+ display:block;
+ text-decoration:none;
+ color:inherit;
+ cursor:pointer;
+ transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.branch-item.branch-link:active{
+ transform:scale(.98);
+}
+.branch-item.branch-link:hover{
+ border-color:rgba(214,178,94,.7);
+ background:rgba(214,178,94,.1);
+ box-shadow:0 10px 24px rgba(214,178,94,.12);
+}
 .branch-title{
  color:#d6b25e;
  font-weight:bold;
@@ -234,6 +249,17 @@ textarea{
  color:#aaa;
  font-size:14px;
  line-height:1.45;
+}
+.branch-action{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ margin-top:10px;
+ color:#f0c85a;
+ font-size:12px;
+ font-weight:bold;
+ letter-spacing:.04em;
+ text-transform:uppercase;
 }
 .reviews-card{
  margin-top:12px;
@@ -646,18 +672,21 @@ Close
   <h3 data-i18n="branchesTitle">Our boutiques</h3>
   <p data-i18n="branchesIntro">We are closer to you in the main districts of Chisinau.</p>
   <div class="branch-grid">
-   <div class="branch-item">
+   <a class="branch-item branch-link" href="https://maps.app.goo.gl/Wv4WLYvKPsbupJq96?g_st=ic" target="_blank" rel="noopener">
     <div class="branch-title" data-i18n="branchCenterTitle">Center</div>
     <div class="branch-text">Bulevardul Stefan cel Mare si Sfant 62, Chisinau, Moldova</div>
-   </div>
-   <div class="branch-item">
+    <div class="branch-action">Maps</div>
+   </a>
+   <a class="branch-item branch-link" href="https://maps.app.goo.gl/Z9bk1WAjdXRdtpC27?g_st=ipc" target="_blank" rel="noopener">
     <div class="branch-title" data-i18n="branchRiscaniTitle">Riscani</div>
     <div class="branch-text" data-i18n="branchRiscaniText">Strada Kiev 16/1, Chisinau</div>
-   </div>
-   <div class="branch-item">
+    <div class="branch-action">Maps</div>
+   </a>
+   <a class="branch-item branch-link" href="https://maps.app.goo.gl/Nd63CkEezrMCwkaQ8?g_st=ipc" target="_blank" rel="noopener">
     <div class="branch-title" data-i18n="branchBotanicaTitle">Botanica</div>
     <div class="branch-text" data-i18n="branchBotanicaText">Bulevardul Dacia 44, Chisinau</div>
-   </div>
+    <div class="branch-action">Maps</div>
+   </a>
    <div class="branch-item">
     <div class="branch-title" data-i18n="branchBuiucaniTitle">Buiucani</div>
     <div class="branch-text" data-i18n="branchBuiucaniText">Opening soon in the Buiucani sector.</div>
