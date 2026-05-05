@@ -1506,7 +1506,7 @@ function renderProducts(){
 
   const code = document.createElement("div");
   code.className = "product-code";
-  code.innerText = product.code;
+  code.innerText = product.type === "ulei" ? "Ulei" : product.code;
 
   const name = document.createElement("div");
   name.className = "product-name";
