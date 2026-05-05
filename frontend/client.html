@@ -627,6 +627,7 @@ Close
   <div class="filter-row" id="typeFilters">
    <button class="active" onclick="setCatalogFilter('type','all')">All</button>
    <button onclick="setCatalogFilter('type','tims')">Tims</button>
+   <button onclick="setCatalogFilter('type','aroma')">Aromatizatoare</button>
    <button onclick="setCatalogFilter('type','ulei')">Ulei</button>
    <button onclick="setCatalogFilter('type','arabic')">Parfumuri arabesti</button>
   </div>
@@ -812,6 +813,15 @@ function setGreeting(){
 let savedQR = "";
 let currentUserId = "1";
 const products = [
+ { code:"A001", name:"Peach", price:null, type:"aroma", gender:"unisex", image:"assets/products/a001.jpg" },
+ { code:"A002", name:"Melone", price:null, type:"aroma", gender:"unisex", image:"assets/products/a002.jpg" },
+ { code:"A003", name:"Ocean Fresh", price:null, type:"aroma", gender:"unisex", image:"assets/products/a003.jpg" },
+ { code:"A004", name:"Patchouli Bergamot", price:null, type:"aroma", gender:"unisex", image:"assets/products/a004.jpg" },
+ { code:"A005", name:"Tobacco Vanille", price:null, type:"aroma", gender:"unisex", image:"assets/products/a005.jpg" },
+ { code:"A006", name:"Vanille Blend", price:null, type:"aroma", gender:"unisex", image:"assets/products/a006.jpg" },
+ { code:"A007", name:"Coffee", price:null, type:"aroma", gender:"unisex", image:"assets/products/a007.jpg" },
+ { code:"A008", name:"Lost Cherry", price:null, type:"aroma", gender:"unisex", image:"assets/products/a008.jpg" },
+ { code:"A009", name:"Pudra", price:null, type:"aroma", gender:"unisex", image:"assets/products/a009.jpg" },
  { code:"M104", name:"Chanel Bleu de Chanel", price:300, type:"tims", gender:"men", image:"assets/products/m104.jpg" },
  { code:"M105", name:"Dolce & Gabbana K", price:300, type:"tims", gender:"men", image:"assets/products/m105.jpg" },
  { code:"M106", name:"Emporio Armani Stronger With You", price:300, type:"tims", gender:"men", image:"assets/products/m106.jpg" },
@@ -1225,6 +1235,11 @@ function getCatalogMessage(key){
    ru:"\u0412\u043f\u0435\u0440\u0435\u0434",
    en:"Next"
   },
+  storePrice:{
+   ro:"Pret in magazin",
+   ru:"\u0426\u0435\u043d\u0430 \u0432 \u043c\u0430\u0433\u0430\u0437\u0438\u043d\u0435",
+   en:"Store price"
+  },
   searchPlaceholder:{
    ro:"Cauta dupa cod sau nume",
    ru:"\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043a\u043e\u0434\u0443 \u0438\u043b\u0438 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e",
@@ -1308,7 +1323,9 @@ function renderProducts(){
 
   const price = document.createElement("div");
   price.className = "product-price";
-  price.innerText = product.price + " lei";
+  price.innerText = Number(product.price) > 0
+   ? product.price + " lei"
+   : getCatalogMessage("storePrice");
 
   info.append(code,name,price);
   card.append(image,info);
