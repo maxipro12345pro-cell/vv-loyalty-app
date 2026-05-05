@@ -244,6 +244,16 @@ function getTier(totalSpent){
  };
 }
 
+function getReferralLevel(referralCount){
+ const count = Number(referralCount || 0);
+
+ if(count >= 10) return { name:"DIAMOND", rewardPercent:9 };
+ if(count >= 5) return { name:"GOLD", rewardPercent:8 };
+ if(count >= 3) return { name:"SILVER", rewardPercent:7 };
+ if(count >= 1) return { name:"BRONZE", rewardPercent:6 };
+ return { name:"STARTER", rewardPercent:5 };
+}
+
 app.get("/",(req,res)=>{
  res.send("Bot backend works");
 });
@@ -464,8 +474,6 @@ if(
  (user.history || []).length === 0 &&
  numericAmount >= 500
 ){
-const referralReward =
- Math.round(numericAmount * 0.05 * 100) / 100;
  const { data: referrer, error: referrerError } = await supabase
    .from("users")
    .select("*")
@@ -473,6 +481,9 @@ const referralReward =
    .single();
 
  if(!referrerError && referrer){
+   const referralLevel = getReferralLevel(referrer.referral_count);
+   const referralReward =
+     Math.round(numericAmount * (referralLevel.rewardPercent / 100) * 100) / 100;
    const { data: rewardMarker, error: rewardMarkerError } = await supabase
      .from("users")
      .update({
@@ -505,6 +516,8 @@ const referralReward =
          {
            type:"referral",
            bonus: referralReward,
+           referralLevel: referralLevel.name,
+           referralPercent: referralLevel.rewardPercent,
            invitedUser: id,
            date: new Date().toLocaleString()
          },
