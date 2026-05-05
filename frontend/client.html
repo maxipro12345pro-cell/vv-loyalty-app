@@ -374,6 +374,12 @@ textarea{
  font-weight:bold;
  line-height:1.25;
 }
+.product-inspired{
+ margin-top:6px;
+ color:#8f8f9a;
+ font-size:12px;
+ line-height:1.35;
+}
 .product-price{
  margin-top:8px;
  color:#aaa;
@@ -822,6 +828,38 @@ const products = [
  { code:"A007", name:"Coffee", price:null, type:"aroma", gender:"unisex", image:"assets/products/a007.jpg" },
  { code:"A008", name:"Lost Cherry", price:null, type:"aroma", gender:"unisex", image:"assets/products/a008.jpg" },
  { code:"A009", name:"Pudra", price:null, type:"aroma", gender:"unisex", image:"assets/products/a009.jpg" },
+ { code:"OU500", name:"V&V Royal Cedar", inspiredBy:"Quentin Bisch Bois Imperial", price:null, type:"ulei", gender:"unisex", image:"assets/products/u500.jpg" },
+ { code:"OU512", name:"V&V Tobacco", inspiredBy:"Tom Ford Tobacco Vanille", price:null, type:"ulei", gender:"unisex", image:"assets/products/u512.jpg" },
+ { code:"OU514", name:"V&V Mystic Bloom", inspiredBy:"Ex Nihilo Fleur Narcotique", price:null, type:"ulei", gender:"unisex", image:"assets/products/u514.jpg" },
+ { code:"OU515", name:"V&V Red Crystal", inspiredBy:"M.F.K. Baccarat Rouge 540", price:null, type:"ulei", gender:"unisex", image:"assets/products/u515.jpg" },
+ { code:"OU516", name:"V&V Cherry Desire", inspiredBy:"Tom Ford Lost Cherry", price:null, type:"ulei", gender:"unisex", image:"assets/products/u516.jpg" },
+ { code:"OU517", name:"V&V Savanna", inspiredBy:"Byredo Africa", price:null, type:"ulei", gender:"unisex", image:"assets/products/u517.jpg" },
+ { code:"OU518", name:"V&V Exotic Elixir", inspiredBy:"Tiziana Terenzi Kirke", price:null, type:"ulei", gender:"unisex", image:"assets/products/u518.jpg" },
+ { code:"OU519", name:"V&V Pure Herbs Elixir", inspiredBy:"Sospiro Erba Pura", price:null, type:"ulei", gender:"unisex", image:"assets/products/u519.jpg" },
+ { code:"OU520", name:"V&V Midnight Coffee", inspiredBy:"Montale Intense Cafe", price:null, type:"ulei", gender:"unisex", image:"assets/products/u520.jpg" },
+ { code:"OU534", name:"V&V Golden Spirit", inspiredBy:"Kilian Angels' Share", price:null, type:"ulei", gender:"unisex", image:"assets/products/u534.jpg" },
+ { code:"OU535", name:"V&V Dark Oud", inspiredBy:"Nasomatto Black Afgano", price:null, type:"ulei", gender:"unisex", image:"assets/products/u535.jpg" },
+ { code:"OU547", name:"V&V Blue Charm", inspiredBy:"Ex Nihilo Blue Talisman", price:null, type:"ulei", gender:"unisex", image:"assets/products/u547.jpg" },
+ { code:"OU549", name:"V&V Spring Linden", inspiredBy:"Marc Antoine Barrois Tilia", price:null, type:"ulei", gender:"unisex", image:"assets/products/u549.jpg" },
+ { code:"OU553", name:"V&V Dream Voyage", inspiredBy:"Louis Vuitton Imagination", price:null, type:"ulei", gender:"unisex", image:"assets/products/u553.jpg" },
+ { code:"OU554", name:"V&V Intense Velvet", inspiredBy:"Giorgio Armani Intense", price:null, type:"ulei", gender:"unisex", image:"https://fimgs.net/mdimg/perfume-thumbs/375x500.25947.jpg" },
+ { code:"OM100", name:"V&V Wild Instinct", inspiredBy:"Christian Dior Sauvage", price:null, type:"ulei", gender:"men", image:"https://fimgs.net/mdimg/perfume-thumbs/375x500.31861.jpg" },
+ { code:"OM104", name:"V&V Deep Blue", inspiredBy:"Chanel Bleu de Chanel", price:null, type:"ulei", gender:"men", image:"assets/products/m104.jpg" },
+ { code:"OM105", name:"V&V Night", inspiredBy:"J.P.G. Scandal Pour Homme", price:null, type:"ulei", gender:"men", image:"assets/products/m105.jpg" },
+ { code:"OM106", name:"V&V Power", inspiredBy:"Emporio Armani Stronger With You", price:null, type:"ulei", gender:"men", image:"assets/products/m106.jpg" },
+ { code:"OM109", name:"V&V Empire", inspiredBy:"Paco Rabanne 1 Million", price:null, type:"ulei", gender:"men", image:"assets/products/m109.jpg" },
+ { code:"OM110", name:"V&V Triumph Essence", inspiredBy:"Paco Rabanne Invictus Victory", price:null, type:"ulei", gender:"men", image:"assets/products/m110.jpg" },
+ { code:"OM111", name:"V&V Desert Nomad", inspiredBy:"Louis Vuitton Ombre Nomade", price:null, type:"ulei", gender:"men", image:"assets/products/m111.jpg" },
+ { code:"OM117", name:"V&V Ocean Spirit", inspiredBy:"Giorgio Armani Acqua di Gio", price:null, type:"ulei", gender:"men", image:"assets/products/m117.jpg" },
+ { code:"OM173", name:"V&V Royal Elixir", inspiredBy:"Jean Paul Gaultier Le Male Elixir", price:null, type:"ulei", gender:"men", image:"assets/products/m173.jpg" },
+ { code:"OF303", name:"V&V Modern Muse", inspiredBy:"Burberry Her", price:null, type:"ulei", gender:"women", image:"assets/products/w303.jpg" },
+ { code:"OF311", name:"V&V Paris Chic", inspiredBy:"Chanel Coco Mademoiselle", price:null, type:"ulei", gender:"women", image:"assets/products/w311.jpg" },
+ { code:"OF320", name:"V&V Velvet Lady", inspiredBy:"Carolina Herrera Good Girl", price:null, type:"ulei", gender:"women", image:"assets/products/w320.jpg" },
+ { code:"OF338", name:"V&V Happy Bloom", inspiredBy:"Moschino Funny", price:null, type:"ulei", gender:"women", image:"assets/products/w338.jpg" },
+ { code:"OF345", name:"V&V Secret Temptation", inspiredBy:"Jean Paul Gaultier Scandal", price:null, type:"ulei", gender:"women", image:"assets/products/w345.jpg" },
+ { code:"OF402", name:"V&V Dark Intrigue", inspiredBy:"HFC Devil's Intrigue", price:null, type:"ulei", gender:"women", image:"assets/products/w402.jpg" },
+ { code:"OF403", name:"V&V Golden Lady", inspiredBy:"Paco Rabanne Lady Million", price:null, type:"ulei", gender:"women", image:"https://fimgs.net/mdimg/perfume-thumbs/375x500.9045.jpg" },
+ { code:"OF404", name:"V&V Pure Aqua", inspiredBy:"Giorgio Armani Acqua di Gioia", price:null, type:"ulei", gender:"women", image:"https://fimgs.net/mdimg/perfume-thumbs/375x500.8442.jpg" },
  { code:"M104", name:"Chanel Bleu de Chanel", price:300, type:"tims", gender:"men", image:"assets/products/m104.jpg" },
  { code:"M105", name:"Dolce & Gabbana K", price:300, type:"tims", gender:"men", image:"assets/products/m105.jpg" },
  { code:"M106", name:"Emporio Armani Stronger With You", price:300, type:"tims", gender:"men", image:"assets/products/m106.jpg" },
@@ -930,6 +968,7 @@ let catalogFilters = {
  search:"",
  page:1
 };
+let catalogFeaturedProducts = [];
 
 if (
  window.Telegram &&
@@ -1213,6 +1252,12 @@ function setCatalogPage(page){
  renderProducts();
 }
 
+function refreshCatalogFeatured(){
+ catalogFeaturedProducts = [...products]
+  .sort(()=>Math.random() - 0.5)
+  .slice(0,10);
+}
+
 function getCatalogMessage(key){
  const messages = {
   arabicSoon:{
@@ -1269,7 +1314,18 @@ function renderProducts(){
   return;
  }
 
- const filteredProducts = products.filter(product=>{
+ const showFeatured =
+  catalogFilters.type === "all" &&
+  catalogFilters.gender === "all" &&
+  !catalogFilters.search;
+
+ if(showFeatured && catalogFeaturedProducts.length === 0){
+  refreshCatalogFeatured();
+ }
+
+ const sourceProducts = showFeatured ? catalogFeaturedProducts : products;
+
+ const filteredProducts = sourceProducts.filter(product=>{
   const productGender = product.gender || getGenderFromCode(product.code);
   const typeMatch =
    catalogFilters.type === "all" || product.type === catalogFilters.type;
@@ -1279,7 +1335,7 @@ function renderProducts(){
   const searchMatch =
    !catalogFilters.search || searchText.includes(catalogFilters.search);
 
-  return typeMatch && genderMatch && searchMatch;
+ return typeMatch && genderMatch && searchMatch;
  });
 
  if(filteredProducts.length === 0){
@@ -1290,10 +1346,14 @@ function renderProducts(){
   return;
  }
 
- const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+ const totalPages = showFeatured
+  ? 1
+  : Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
  catalogFilters.page = Math.min(catalogFilters.page, totalPages);
  const pageStart = (catalogFilters.page - 1) * PRODUCTS_PER_PAGE;
- const pageProducts = filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
+ const pageProducts = showFeatured
+  ? filteredProducts
+  : filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
 
  pageProducts.forEach(product=>{
   const card = document.createElement("div");
@@ -1321,13 +1381,21 @@ function renderProducts(){
   name.className = "product-name";
   name.innerText = product.name;
 
+  const inspired = document.createElement("div");
+  inspired.className = "product-inspired";
+  inspired.innerText = product.inspiredBy ? "Inspired by " + product.inspiredBy : "";
+
   const price = document.createElement("div");
   price.className = "product-price";
   price.innerText = Number(product.price) > 0
    ? product.price + " lei"
    : getCatalogMessage("storePrice");
 
-  info.append(code,name,price);
+  info.append(code,name);
+  if(product.inspiredBy){
+   info.appendChild(inspired);
+  }
+  info.appendChild(price);
   card.append(image,info);
   grid.appendChild(card);
  });
@@ -1412,6 +1480,8 @@ function showTab(tab){
  }
 
  if(tab==="shop"){
+   refreshCatalogFeatured();
+   renderProducts();
    document.getElementById("shopTab").style.display="block";
    document.getElementById("navShop").classList.add("active");
  }
