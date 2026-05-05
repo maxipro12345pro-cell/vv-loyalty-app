@@ -35,14 +35,23 @@ async function fetchAllUsers(){
  const pageSize = 1000;
  let from = 0;
  let allUsers = [];
+ let includeUsername = true;
 
  while(true){
+   const columns = includeUsername
+     ? "id,username,balance,total_spent,history,referral_count,referral_bonus,referred_by"
+     : "id,balance,total_spent,history,referral_count,referral_bonus,referred_by";
    const { data, error } = await supabase
      .from("users")
-     .select("id,balance,total_spent,history,referral_count,referral_bonus,referred_by")
+     .select(columns)
      .range(from, from + pageSize - 1);
 
    if(error){
+     if(includeUsername && String(error.message || "").includes("username")){
+       includeUsername = false;
+       continue;
+     }
+
      throw error;
    }
 
@@ -56,6 +65,21 @@ async function fetchAllUsers(){
  }
 
  return allUsers;
+}
+
+async function updateUsernameIfSupported(userId, username){
+ if(!username){
+   return;
+ }
+
+ const { error } = await supabase
+   .from("users")
+   .update({ username })
+   .eq("id", userId);
+
+ if(error && !String(error.message || "").includes("username")){
+   throw error;
+ }
 }
 
 function parseHistoryTime(value){
@@ -234,6 +258,13 @@ if(!user){
   }
 
   user = newUser;
+
+  try{
+    await updateUsernameIfSupported(id, telegramUser?.username || req.query.username);
+    user.username = telegramUser?.username || req.query.username || user.username;
+  } catch(usernameError){
+    return res.status(500).json({ error: usernameError.message });
+  }
 }
 else{
   // Bind referral only before the first purchase.
@@ -250,6 +281,12 @@ if(
       .eq("id", id);
 
     user.referred_by = ref;
+  }
+  try{
+    await updateUsernameIfSupported(id, telegramUser?.username || req.query.username);
+    user.username = telegramUser?.username || req.query.username || user.username;
+  } catch(usernameError){
+    return res.status(500).json({ error: usernameError.message });
   }
 }
  const tier = getTier(Number(user.total_spent || 0));
@@ -667,6 +704,7 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      referred_by: referredBy,
      referral_rewarded: false
     });
+   await updateUsernameIfSupported(userId, msg.from.username);
  } else {
 if(
  referredBy &&
@@ -705,6 +743,8 @@ if(
     })
     .eq("id", userId);
  }
+
+ await updateUsernameIfSupported(userId, msg.from.username);
 }
    const welcomeOptions = process.env.WEBAPP_URL
      ? {
