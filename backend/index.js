@@ -82,6 +82,40 @@ async function updateUsernameIfSupported(userId, username){
  }
 }
 
+function normalizeUsername(username){
+ if(!username){
+   return "";
+ }
+
+ return String(username).replace(/^@+/, "").trim();
+}
+
+function getUserDisplayUsername(user){
+ const directUsername = normalizeUsername(user?.username);
+
+ if(directUsername){
+   return directUsername;
+ }
+
+ const history = Array.isArray(user?.history) ? user.history : [];
+ const historyItem = history.find(item => normalizeUsername(item?.username));
+
+ return historyItem ? normalizeUsername(historyItem.username) : "";
+}
+
+function historyWithUsername(history, username){
+ const cleanUsername = normalizeUsername(username);
+
+ if(!cleanUsername){
+   return history;
+ }
+
+ return history.map(item=>({
+   ...item,
+   username:normalizeUsername(item?.username) || cleanUsername
+ }));
+}
+
 function parseHistoryTime(value){
  const timestamp = Date.parse(value || "");
  return Number.isFinite(timestamp) ? timestamp : 0;
@@ -260,8 +294,9 @@ if(!user){
   user = newUser;
 
   try{
-    await updateUsernameIfSupported(id, telegramUser?.username || req.query.username);
-    user.username = telegramUser?.username || req.query.username || user.username;
+    const username = normalizeUsername(telegramUser?.username || req.query.username);
+    await updateUsernameIfSupported(id, username);
+    user.username = username || user.username;
   } catch(usernameError){
     return res.status(500).json({ error: usernameError.message });
   }
@@ -283,8 +318,9 @@ if(
     user.referred_by = ref;
   }
   try{
-    await updateUsernameIfSupported(id, telegramUser?.username || req.query.username);
-    user.username = telegramUser?.username || req.query.username || user.username;
+    const username = normalizeUsername(telegramUser?.username || req.query.username);
+    await updateUsernameIfSupported(id, username);
+    user.username = username || user.username;
   } catch(usernameError){
     return res.status(500).json({ error: usernameError.message });
   }
@@ -576,10 +612,11 @@ app.get("/admin/stats", async (req,res)=>{
      acc.referralCount += Number(user.referral_count || 0);
      acc.referralBonusRecorded += Number(user.referral_bonus || 0);
 
-     history.forEach(item=>{
+   history.forEach(item=>{
+       const username = getUserDisplayUsername(user) || normalizeUsername(item.username);
        const operation = {
          userId:String(user.id),
-         username:user.username || "",
+         username,
          type:item.type || "unknown",
          amount:Number(item.amount || 0),
          bonus:Number(item.bonus || 0),
@@ -644,7 +681,7 @@ app.get("/admin/stats", async (req,res)=>{
    const topUsers = users
      .map(user=>({
        id:String(user.id),
-       username:user.username || "",
+       username:getUserDisplayUsername(user),
        balance:Number(user.balance || 0),
        totalSpent:Number(user.total_spent || 0),
        referralCount:Number(user.referral_count || 0),
@@ -674,6 +711,7 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
 
  const chatId = msg.chat.id;
  const userId = String(msg.from.id);
+ const telegramUsername = normalizeUsername(msg.from.username);
  const payload = match[1];
 
  let referredBy = null;
@@ -699,12 +737,13 @@ bot.onText(/^\/start(?:\s(.*))?$/, async (msg, match)=>{
      history: [{
        type:"bot_bonus",
        bonus:BOT_CONNECT_BONUS,
+       username:telegramUsername,
        date:new Date().toLocaleString()
      }],
      referred_by: referredBy,
      referral_rewarded: false
     });
-   await updateUsernameIfSupported(userId, msg.from.username);
+   await updateUsernameIfSupported(userId, telegramUsername);
  } else {
 if(
  referredBy &&
@@ -726,6 +765,9 @@ if(
    : [];
  const botBonusAlreadyPaid =
    existingHistory.some(item => item.type === "bot_bonus");
+ const existingHistoryWithUsername = historyWithUsername(existingHistory, telegramUsername);
+ const shouldRefreshHistoryUsername =
+   telegramUsername && JSON.stringify(existingHistoryWithUsername) !== JSON.stringify(existingHistory);
 
  if(!botBonusAlreadyPaid){
   await supabase
@@ -736,15 +778,23 @@ if(
         {
           type:"bot_bonus",
           bonus:BOT_CONNECT_BONUS,
+          username:telegramUsername,
           date:new Date().toLocaleString()
         },
-        ...existingHistory
+        ...existingHistoryWithUsername
       ]
+    })
+    .eq("id", userId);
+ } else if(shouldRefreshHistoryUsername){
+  await supabase
+    .from("users")
+    .update({
+      history:existingHistoryWithUsername
     })
     .eq("id", userId);
  }
 
- await updateUsernameIfSupported(userId, msg.from.username);
+ await updateUsernameIfSupported(userId, telegramUsername);
 }
    const welcomeOptions = {
      reply_markup: {
