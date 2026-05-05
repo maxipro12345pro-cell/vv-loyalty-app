@@ -401,6 +401,24 @@ textarea{
  margin-top:8px;
  color:#aaa;
  font-size:14px;
+ display:flex;
+ flex-direction:column;
+ gap:3px;
+ line-height:1.25;
+}
+.old-price{
+ color:#777;
+ font-size:12px;
+ text-decoration:line-through;
+}
+.current-price{
+ color:#d6b25e;
+ font-weight:bold;
+}
+.product-promo{
+ color:#f5d67b;
+ font-size:12px;
+ font-weight:bold;
 }
 .catalog-empty{
  grid-column:1/-1;
@@ -1416,10 +1434,15 @@ function getCatalogMessage(key){
    ru:"\u0426\u0435\u043d\u0430 \u0432 \u043c\u0430\u0433\u0430\u0437\u0438\u043d\u0435",
    en:"Store price"
   },
+  aromaPromo:{
+   ro:"2 bucati = 150 lei/buc.",
+   ru:"2 \u0448\u0442. = 150 lei/\u0448\u0442",
+   en:"2 pcs = 150 lei/pc"
+  },
   searchPlaceholder:{
-   ro:"Cauta dupa cod sau nume",
-   ru:"\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043a\u043e\u0434\u0443 \u0438\u043b\u0438 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e",
-   en:"Search by code or name"
+   ro:"Cauta dupa cod, nume sau descriere",
+   ru:"\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043a\u043e\u0434\u0443, \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e \u0438\u043b\u0438 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044e",
+   en:"Search by code, name or description"
   }
  };
 
@@ -1462,7 +1485,11 @@ function renderProducts(){
    catalogFilters.type === "all" || product.type === catalogFilters.type;
   const genderMatch =
    catalogFilters.gender === "all" || productGender === catalogFilters.gender;
-  const searchText = (product.code + " " + product.name).toLowerCase();
+  const searchText = (
+   product.code + " " +
+   product.name + " " +
+   (product.inspiredBy || "")
+  ).toLowerCase();
   const searchMatch =
    !catalogFilters.search || searchText.includes(catalogFilters.search);
 
@@ -1518,9 +1545,36 @@ function renderProducts(){
 
   const price = document.createElement("div");
   price.className = "product-price";
-  price.innerText = Number(product.price) > 0
-   ? product.price + " " + (product.unit || "lei")
-   : getCatalogMessage("storePrice");
+  const currentPrice = document.createElement("div");
+  currentPrice.className = "current-price";
+
+  if(Number(product.price) > 0){
+   const oldPrice = document.createElement("div");
+   oldPrice.className = "old-price";
+
+   if(product.type === "tims"){
+    oldPrice.innerText = "350 lei";
+    price.appendChild(oldPrice);
+   }
+
+   if(product.type === "ulei"){
+    oldPrice.innerText = "60 lei/ml";
+    price.appendChild(oldPrice);
+   }
+
+   currentPrice.innerText = product.price + " " + (product.unit || "lei");
+   price.appendChild(currentPrice);
+
+   if(product.type === "aroma"){
+    const promo = document.createElement("div");
+    promo.className = "product-promo";
+    promo.innerText = getCatalogMessage("aromaPromo");
+    price.appendChild(promo);
+   }
+  } else {
+   currentPrice.innerText = getCatalogMessage("storePrice");
+   price.appendChild(currentPrice);
+  }
 
   info.append(code,name);
   if(product.inspiredBy){
