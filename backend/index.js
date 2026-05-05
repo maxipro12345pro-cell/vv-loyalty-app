@@ -746,17 +746,11 @@ if(
 
  await updateUsernameIfSupported(userId, msg.from.username);
 }
-   const welcomeOptions = process.env.WEBAPP_URL
-     ? {
-       reply_markup: {
-         keyboard: [[{
-           text: "Deschide V&V Privilege Club",
-           web_app: { url: process.env.WEBAPP_URL }
-         }]],
-         resize_keyboard: true
-       }
+   const welcomeOptions = {
+     reply_markup: {
+       remove_keyboard: true
      }
-     : {};
+   };
 
    bot.sendMessage(
      chatId,
