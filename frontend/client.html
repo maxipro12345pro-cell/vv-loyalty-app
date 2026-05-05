@@ -1666,12 +1666,13 @@ function checkWelcomeBonus(data){
  }
 
  const storageKey = "botBonusSeen_" + currentUserId;
+ const storageValue = String(bonusItem.date || "") + "_" + String(bonusItem.bonus || "");
 
- if(localStorage.getItem(storageKey)){
+ if(localStorage.getItem(storageKey) === storageValue){
   return;
  }
 
- localStorage.setItem(storageKey, "1");
+ localStorage.setItem(storageKey, storageValue);
 
  document.getElementById("welcomeBonusMessage").innerText = t("welcomeBonusText");
  document.getElementById("welcomeBonusPopup").style.display = "flex";
