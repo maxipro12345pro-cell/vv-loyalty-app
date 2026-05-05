@@ -296,6 +296,25 @@ textarea{
  gap:12px;
  margin-bottom:14px;
 }
+.catalog-search{
+ width:100%;
+ margin:0;
+ padding:13px 16px;
+ border-radius:16px;
+ border:1px solid rgba(214,178,94,.24);
+ background:#15151d;
+ color:#fff;
+ font-size:15px;
+ outline:none;
+ box-sizing:border-box;
+}
+.catalog-search::placeholder{
+ color:#777;
+}
+.catalog-search:focus{
+ border-color:rgba(214,178,94,.7);
+ box-shadow:0 0 0 3px rgba(214,178,94,.1);
+}
 .filter-row{
  display:flex;
  gap:8px;
@@ -359,6 +378,36 @@ textarea{
  margin-top:8px;
  color:#aaa;
  font-size:14px;
+}
+.catalog-empty{
+ grid-column:1/-1;
+ padding:22px 16px;
+ border-radius:18px;
+ border:1px solid rgba(214,178,94,.22);
+ background:rgba(255,255,255,.05);
+ color:#aaa;
+ text-align:center;
+ line-height:1.45;
+}
+.catalog-pagination{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:10px;
+ margin-top:14px;
+}
+.catalog-pagination button{
+ width:auto;
+ margin-top:0;
+ padding:10px 14px;
+ border-radius:999px;
+}
+.catalog-page{
+ color:#d6b25e;
+ font-size:13px;
+ font-weight:bold;
+ min-width:70px;
+ text-align:center;
 }
 .nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:auto;background:#111119;border-top:1px solid rgba(214,178,94,.2);display:flex;justify-content:space-around;padding:14px 0}
 .nav div{
@@ -574,6 +623,7 @@ Close
 
 <div id="shopTab" style="display:none;">
  <div class="catalog-filters">
+  <input class="catalog-search" id="catalogSearch" type="search" placeholder="Search by code or name" oninput="setCatalogSearch(this.value)">
   <div class="filter-row" id="typeFilters">
    <button class="active" onclick="setCatalogFilter('type','all')">All</button>
    <button onclick="setCatalogFilter('type','tims')">Tims</button>
@@ -594,6 +644,7 @@ Close
  </div>
 
  <div class="product-grid" id="productGrid"></div>
+ <div class="catalog-pagination" id="catalogPagination"></div>
 </div>
 
 
@@ -761,42 +812,113 @@ function setGreeting(){
 let savedQR = "";
 let currentUserId = "1";
 const products = [
- {
-  code:"W309",
-  name:"Scandal",
-  price:300,
-  type:"tims",
-  gender:"women",
-  image:""
- },
- {
-  code:"M101",
-  name:"Blue Legend",
-  price:280,
-  type:"tims",
-  gender:"men",
-  image:""
- },
- {
-  code:"U205",
-  name:"Amber Musk",
-  price:320,
-  type:"ulei",
-  gender:"unisex",
-  image:""
- },
- {
-  code:"W410",
-  name:"Rose Oud",
-  price:350,
-  type:"arabic",
-  gender:"women",
-  image:""
- }
+ { code:"M104", name:"Chanel Bleu de Chanel", price:300, type:"tims", gender:"men", image:"assets/products/m104.jpg" },
+ { code:"M105", name:"Dolce & Gabbana K", price:300, type:"tims", gender:"men", image:"assets/products/m105.jpg" },
+ { code:"M106", name:"Emporio Armani Stronger With You", price:300, type:"tims", gender:"men", image:"assets/products/m106.jpg" },
+ { code:"M109", name:"Paco Rabanne 1 Million", price:300, type:"tims", gender:"men", image:"assets/products/m109.jpg" },
+ { code:"M110", name:"Paco Rabanne Invictus", price:300, type:"tims", gender:"men", image:"assets/products/m110.jpg" },
+ { code:"M111", name:"Chanel Egoiste Platinum", price:300, type:"tims", gender:"men", image:"assets/products/m111.jpg" },
+ { code:"M114", name:"Lacoste L.12.12 White / Eau de Lacoste Blanc", price:300, type:"tims", gender:"men", image:"assets/products/m114.jpg" },
+ { code:"M117", name:"Giorgio Armani Acqua di Gio Parfum", price:300, type:"tims", gender:"men", image:"assets/products/m117.jpg" },
+ { code:"M119", name:"Creed Aventus", price:300, type:"tims", gender:"men", image:"assets/products/m119.jpg" },
+ { code:"M121", name:"Carolina Herrera Bad Boy", price:300, type:"tims", gender:"men", image:"assets/products/m121.jpg" },
+ { code:"M129", name:"Christian Dior Sauvage Elixir", price:300, type:"tims", gender:"men", image:"assets/products/m129.jpg" },
+ { code:"M133", name:"Paco Rabanne 1 Million Elixir", price:300, type:"tims", gender:"men", image:"assets/products/m133.jpg" },
+ { code:"M135", name:"Yves Saint Laurent Y Eau de Parfum", price:300, type:"tims", gender:"men", image:"assets/products/m135.jpg" },
+ { code:"M136", name:"Creed Absolu Aventus", price:300, type:"tims", gender:"men", image:"assets/products/m136.jpg" },
+ { code:"M137", name:"Paco Rabanne Phantom", price:300, type:"tims", gender:"men", image:"assets/products/m137.jpg" },
+ { code:"M139", name:"Versace Pour Homme Dylan Blue", price:300, type:"tims", gender:"men", image:"assets/products/m139.jpg" },
+ { code:"M142", name:"Yves Saint Laurent L'Homme", price:300, type:"tims", gender:"men", image:"assets/products/m142.jpg" },
+ { code:"M144", name:"Roja Elysium", price:300, type:"tims", gender:"men", image:"assets/products/m144.jpg" },
+ { code:"M152", name:"Paco Rabanne Invictus Victory Elixir", price:300, type:"tims", gender:"men", image:"assets/products/m152.jpg" },
+ { code:"M154", name:"Bvlgari Tygar", price:300, type:"tims", gender:"men", image:"assets/products/m154.jpg" },
+ { code:"M157", name:"Creed Silver Mountain Water", price:300, type:"tims", gender:"men", image:"assets/products/m157.jpg" },
+ { code:"M160", name:"Versace Eros", price:300, type:"tims", gender:"men", image:"assets/products/m160.jpg" },
+ { code:"M161", name:"Paco Rabanne Invictus Platinum", price:300, type:"tims", gender:"men", image:"assets/products/m161.jpg" },
+ { code:"M162", name:"Dior Homme Intense", price:300, type:"tims", gender:"men", image:"assets/products/m162.jpg" },
+ { code:"M173", name:"Jean Paul Gaultier Le Male Elixir", price:300, type:"tims", gender:"men", image:"assets/products/m173.jpg" },
+ { code:"M176", name:"Louis Vuitton L'Immensite", price:300, type:"tims", gender:"men", image:"assets/products/m176.jpg" },
+ { code:"U500", name:"Zielinski & Rozen Black Pepper, Amber, Neroli", price:300, type:"tims", gender:"unisex", image:"assets/products/u500.jpg" },
+ { code:"U501", name:"Christian Richard White", price:300, type:"tims", gender:"unisex", image:"assets/products/u501.jpg" },
+ { code:"U506", name:"Yves Saint Laurent Supreme Bouquet", price:300, type:"tims", gender:"unisex", image:"assets/products/u506.jpg" },
+ { code:"U510", name:"Vilhelm Parfumerie Mango Skin", price:300, type:"tims", gender:"unisex", image:"assets/products/u510.jpg" },
+ { code:"U512", name:"Tom Ford Tobacco Vanille", price:300, type:"tims", gender:"unisex", image:"assets/products/u512.jpg" },
+ { code:"U514", name:"Ex Nihilo Fleur Narcotique", price:300, type:"tims", gender:"unisex", image:"assets/products/u514.jpg" },
+ { code:"U515", name:"Maison Francis Kurkdjian Baccarat Rouge 540", price:300, type:"tims", gender:"unisex", image:"assets/products/u515.jpg" },
+ { code:"U516", name:"Tom Ford Lost Cherry", price:300, type:"tims", gender:"unisex", image:"assets/products/u516.jpg" },
+ { code:"U517", name:"Byredo Bal d'Afrique", price:300, type:"tims", gender:"unisex", image:"assets/products/u517.jpg" },
+ { code:"U518", name:"Tiziana Terenzi Kirke", price:300, type:"tims", gender:"unisex", image:"assets/products/u518.jpg" },
+ { code:"U519", name:"Sospiro Erba Pura", price:300, type:"tims", gender:"unisex", image:"assets/products/u519.jpg" },
+ { code:"U520", name:"Montale Intense Cafe", price:300, type:"tims", gender:"unisex", image:"assets/products/u520.jpg" },
+ { code:"U521", name:"Escentric Molecules Molecule 02", price:300, type:"tims", gender:"unisex", image:"assets/products/u521.jpg" },
+ { code:"U523", name:"Tom Ford Cherry Smoke", price:300, type:"tims", gender:"unisex", image:"assets/products/u523.jpg" },
+ { code:"U524", name:"Kilian Black Phantom", price:300, type:"tims", gender:"unisex", image:"assets/products/u524.jpg" },
+ { code:"U525", name:"Hormone Paris Gaba", price:300, type:"tims", gender:"unisex", image:"assets/products/u525.jpg" },
+ { code:"U526", name:"Le Labo Santal 33", price:300, type:"tims", gender:"unisex", image:"assets/products/u526.jpg" },
+ { code:"U528", name:"Marc-Antoine Barrois Ganymede", price:300, type:"tims", gender:"unisex", image:"assets/products/u528.jpg" },
+ { code:"U530", name:"Attar Collection Hayati", price:300, type:"tims", gender:"unisex", image:"assets/products/u530.jpg" },
+ { code:"U531", name:"Vertus Narcos'is", price:300, type:"tims", gender:"unisex", image:"assets/products/u531.jpg" },
+ { code:"U534", name:"Kilian Angels' Share", price:300, type:"tims", gender:"unisex", image:"assets/products/u534.jpg" },
+ { code:"U535", name:"Nasomatto Black Afgano", price:300, type:"tims", gender:"unisex", image:"assets/products/u535.jpg" },
+ { code:"U537", name:"Tiziana Terenzi Casanova", price:300, type:"tims", gender:"unisex", image:"assets/products/u537.jpg" },
+ { code:"U540", name:"Maison Francis Kurkdjian Oud Satin Mood", price:300, type:"tims", gender:"unisex", image:"assets/products/u540.jpg" },
+ { code:"U541", name:"Initio Rehab", price:300, type:"tims", gender:"unisex", image:"assets/products/u541.jpg" },
+ { code:"U545", name:"Orto Parisi Megamare", price:300, type:"tims", gender:"unisex", image:"assets/products/u545.jpg" },
+ { code:"U546", name:"Tom Ford Bitter Peach", price:300, type:"tims", gender:"unisex", image:"assets/products/u546.jpg" },
+ { code:"U547", name:"Ex Nihilo Blue Talisman", price:300, type:"tims", gender:"unisex", image:"assets/products/u547.jpg" },
+ { code:"U549", name:"Marc-Antoine Barrois Tilia", price:300, type:"tims", gender:"unisex", image:"assets/products/u549.jpg" },
+ { code:"U550", name:"Kilian Intoxicated", price:300, type:"tims", gender:"unisex", image:"assets/products/u550.jpg" },
+ { code:"U552", name:"Initio Oud for Greatness", price:300, type:"tims", gender:"unisex", image:"assets/products/u552.jpg" },
+ { code:"U553", name:"Louis Vuitton Imagination", price:300, type:"tims", gender:"unisex", image:"assets/products/u553.jpg" },
+ { code:"U555", name:"Maison Crivelli Oud Maracuja", price:300, type:"tims", gender:"unisex", image:"assets/products/u555.jpg" },
+ { code:"U556", name:"Nishane Hacivat", price:300, type:"tims", gender:"unisex", image:"assets/products/u556.jpg" },
+ { code:"U559", name:"Versace Figue Blanche", price:300, type:"tims", gender:"unisex", image:"assets/products/u559.jpg" },
+ { code:"U560", name:"Arabian Oud Sultani Amberwood", price:300, type:"tims", gender:"unisex", image:"assets/products/u560.jpg" },
+ { code:"U561", name:"Tom Ford Oud Voyager", price:300, type:"tims", gender:"unisex", image:"assets/products/u561.jpg" },
+ { code:"W301", name:"Lancome La Vie Est Belle", price:300, type:"tims", gender:"women", image:"assets/products/w301.jpg" },
+ { code:"W303", name:"Yves Saint Laurent Black Opium", price:300, type:"tims", gender:"women", image:"assets/products/w303.jpg" },
+ { code:"W304", name:"Byredo Blanche", price:300, type:"tims", gender:"women", image:"assets/products/w304.jpg" },
+ { code:"W306", name:"Trussardi Donna 2011", price:300, type:"tims", gender:"women", image:"assets/products/w306.jpg" },
+ { code:"W307", name:"Versace Bright Crystal", price:300, type:"tims", gender:"women", image:"assets/products/w307.jpg" },
+ { code:"W311", name:"Chanel Coco Mademoiselle", price:300, type:"tims", gender:"women", image:"assets/products/w311.jpg" },
+ { code:"W312", name:"Giorgio Armani Si", price:300, type:"tims", gender:"women", image:"assets/products/w312.jpg" },
+ { code:"W313", name:"Giorgio Armani My Way", price:300, type:"tims", gender:"women", image:"assets/products/w313.jpg" },
+ { code:"W314", name:"Victoria's Secret Bombshell", price:300, type:"tims", gender:"women", image:"assets/products/w314.jpg" },
+ { code:"W318", name:"Lanvin Modern Princess / Modern Woman", price:300, type:"tims", gender:"women", image:"assets/products/w318.jpg" },
+ { code:"W320", name:"Carolina Herrera Good Girl", price:300, type:"tims", gender:"women", image:"assets/products/w320.jpg" },
+ { code:"W324", name:"Kilian Good Girl Gone Bad", price:300, type:"tims", gender:"women", image:"assets/products/w324.jpg" },
+ { code:"W327", name:"Lanvin Eclat d'Arpege", price:300, type:"tims", gender:"women", image:"assets/products/w327.jpg" },
+ { code:"W328", name:"Dolce & Gabbana L'Imperatrice", price:300, type:"tims", gender:"women", image:"assets/products/w328.jpg" },
+ { code:"W329", name:"Dior J'Adore", price:300, type:"tims", gender:"women", image:"assets/products/w329.jpg" },
+ { code:"W330", name:"Chanel Chance Eau Tendre", price:300, type:"tims", gender:"women", image:"assets/products/w330.jpg" },
+ { code:"W338", name:"Moschino Funny", price:300, type:"tims", gender:"women", image:"assets/products/w338.jpg" },
+ { code:"W341", name:"Victoria's Secret XO", price:300, type:"tims", gender:"women", image:"assets/products/w341.jpg" },
+ { code:"W342", name:"Guerlain Aqua Allegoria Mandarine Basilic", price:300, type:"tims", gender:"women", image:"assets/products/w342.jpg" },
+ { code:"W343", name:"Tiziana Terenzi Andromeda", price:300, type:"tims", gender:"women", image:"assets/products/w343.jpg" },
+ { code:"W344", name:"Moschino Toy 2 Bubble Gum", price:300, type:"tims", gender:"women", image:"assets/products/w344.jpg" },
+ { code:"W345", name:"Jean Paul Gaultier Scandal", price:300, type:"tims", gender:"women", image:"assets/products/w345.jpg" },
+ { code:"W352", name:"Dolce & Gabbana The One", price:300, type:"tims", gender:"women", image:"assets/products/w352.jpg" },
+ { code:"W363", name:"Yves Saint Laurent Libre", price:300, type:"tims", gender:"women", image:"assets/products/w363.jpg" },
+ { code:"W364", name:"Tom Ford Black Orchid", price:300, type:"tims", gender:"women", image:"assets/products/w364.jpg" },
+ { code:"W371", name:"Dior Miss Dior Cherie", price:300, type:"tims", gender:"women", image:"assets/products/w371.jpg" },
+ { code:"W378", name:"Escada Island Kiss", price:300, type:"tims", gender:"women", image:"assets/products/w378.jpg" },
+ { code:"W382", name:"Montale Vanille Absolu", price:300, type:"tims", gender:"women", image:"assets/products/w382.jpg" },
+ { code:"W394", name:"Guerlain Mon Guerlain", price:300, type:"tims", gender:"women", image:"assets/products/w394.jpg" },
+ { code:"W396", name:"Creed Aventus for Her", price:300, type:"tims", gender:"women", image:"assets/products/w396.jpg" },
+ { code:"W402", name:"HFC Devil's Intrigue", price:300, type:"tims", gender:"women", image:"assets/products/w402.jpg" },
+ { code:"W406", name:"Givenchy L'Interdit Le Parfum", price:300, type:"tims", gender:"women", image:"assets/products/w406.jpg" },
+ { code:"W407", name:"Parfums de Marly Delina", price:300, type:"tims", gender:"women", image:"assets/products/w407.jpg" },
+ { code:"W409", name:"Prada Paradox", price:300, type:"tims", gender:"women", image:"assets/products/w409.jpg" },
+ { code:"W410", name:"Paco Rabanne Olympea", price:300, type:"tims", gender:"women", image:"assets/products/w410.jpg" },
+ { code:"W413", name:"Dolce & Gabbana Devotion", price:300, type:"tims", gender:"women", image:"assets/products/w413.jpg" },
+ { code:"W415", name:"Carolina Herrera Good Girl Supreme", price:300, type:"tims", gender:"women", image:"assets/products/w415.jpg" }
 ];
+const PRODUCTS_PER_PAGE = 20;
 let catalogFilters = {
  type:"all",
- gender:"all"
+ gender:"all",
+ search:"",
+ page:1
 };
 
 if (
@@ -1013,7 +1135,12 @@ function applyLanguage(lang){
   );
  });
 
- setGreeting();
+ const catalogSearch = document.getElementById("catalogSearch");
+ if(catalogSearch){
+  catalogSearch.placeholder = getCatalogMessage("searchPlaceholder");
+ }
+
+  setGreeting();
 
  if(!latestUserData){
   document.getElementById("tierBadge").innerText =
@@ -1022,6 +1149,8 @@ function applyLanguage(lang){
   document.getElementById("progressText").innerText =
   "0 " + t("mdlToStatus") + " SILVER " + t("status");
  }
+
+ renderProducts();
 }
 
 function setLanguage(lang){
@@ -1047,6 +1176,7 @@ function getGenderFromCode(code){
 
 function setCatalogFilter(group,value){
  catalogFilters[group] = value;
+ catalogFilters.page = 1;
 
  const container = document.getElementById(
   group === "type" ? "typeFilters" : "genderFilters"
@@ -1062,10 +1192,67 @@ function setCatalogFilter(group,value){
  renderProducts();
 }
 
+function setCatalogSearch(value){
+ catalogFilters.search = String(value || "").trim().toLowerCase();
+ catalogFilters.page = 1;
+ renderProducts();
+}
+
+function setCatalogPage(page){
+ catalogFilters.page = page;
+ renderProducts();
+}
+
+function getCatalogMessage(key){
+ const messages = {
+  arabicSoon:{
+   ro:"Parfumurile arabesti vor fi adaugate in curand.",
+   ru:"\u0410\u0440\u0430\u0431\u0441\u043a\u0438\u0435 \u043f\u0430\u0440\u0444\u044e\u043c\u044b \u0441\u043a\u043e\u0440\u043e \u0434\u043e\u0431\u0430\u0432\u0438\u043c.",
+   en:"Arabic perfumes will be added soon."
+  },
+  noProducts:{
+   ro:"Nu am gasit produse.",
+   ru:"\u0422\u043e\u0432\u0430\u0440\u044b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u044b.",
+   en:"No products found."
+  },
+  prev:{
+   ro:"Inapoi",
+   ru:"\u041d\u0430\u0437\u0430\u0434",
+   en:"Prev"
+  },
+  next:{
+   ro:"Inainte",
+   ru:"\u0412\u043f\u0435\u0440\u0435\u0434",
+   en:"Next"
+  },
+  searchPlaceholder:{
+   ro:"Cauta dupa cod sau nume",
+   ru:"\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043a\u043e\u0434\u0443 \u0438\u043b\u0438 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e",
+   en:"Search by code or name"
+  }
+ };
+
+ return messages[key]?.[currentLang] || messages[key]?.ro || "";
+}
+
 function renderProducts(){
  const grid = document.getElementById("productGrid");
+ const pagination = document.getElementById("catalogPagination");
 
  if(!grid) return;
+
+ grid.innerHTML = "";
+ if(pagination){
+  pagination.innerHTML = "";
+ }
+
+ if(catalogFilters.type === "arabic"){
+  const empty = document.createElement("div");
+  empty.className = "catalog-empty";
+  empty.innerText = getCatalogMessage("arabicSoon");
+  grid.appendChild(empty);
+  return;
+ }
 
  const filteredProducts = products.filter(product=>{
   const productGender = product.gender || getGenderFromCode(product.code);
@@ -1073,13 +1260,27 @@ function renderProducts(){
    catalogFilters.type === "all" || product.type === catalogFilters.type;
   const genderMatch =
    catalogFilters.gender === "all" || productGender === catalogFilters.gender;
+  const searchText = (product.code + " " + product.name).toLowerCase();
+  const searchMatch =
+   !catalogFilters.search || searchText.includes(catalogFilters.search);
 
-  return typeMatch && genderMatch;
+  return typeMatch && genderMatch && searchMatch;
  });
 
- grid.innerHTML = "";
+ if(filteredProducts.length === 0){
+  const empty = document.createElement("div");
+  empty.className = "catalog-empty";
+  empty.innerText = getCatalogMessage("noProducts");
+  grid.appendChild(empty);
+  return;
+ }
 
- filteredProducts.forEach(product=>{
+ const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+ catalogFilters.page = Math.min(catalogFilters.page, totalPages);
+ const pageStart = (catalogFilters.page - 1) * PRODUCTS_PER_PAGE;
+ const pageProducts = filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
+
+ pageProducts.forEach(product=>{
   const card = document.createElement("div");
   card.className = "product-card";
 
@@ -1113,6 +1314,24 @@ function renderProducts(){
   card.append(image,info);
   grid.appendChild(card);
  });
+
+ if(pagination && totalPages > 1){
+  const prev = document.createElement("button");
+  prev.innerText = getCatalogMessage("prev");
+  prev.disabled = catalogFilters.page === 1;
+  prev.onclick = () => setCatalogPage(catalogFilters.page - 1);
+
+  const page = document.createElement("div");
+  page.className = "catalog-page";
+  page.innerText = catalogFilters.page + " / " + totalPages;
+
+  const next = document.createElement("button");
+  next.innerText = getCatalogMessage("next");
+  next.disabled = catalogFilters.page === totalPages;
+  next.onclick = () => setCatalogPage(catalogFilters.page + 1);
+
+  pagination.append(prev,page,next);
+ }
 }
 
 let referralId = null;
