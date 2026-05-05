@@ -321,6 +321,7 @@ th{
      <tr>
       <th data-i18n="userId">User ID</th>
       <th data-i18n="username">Username</th>
+      <th data-i18n="referredBy">Referred by</th>
       <th data-i18n="totalSpent">Total spent</th>
       <th data-i18n="balance">Balance</th>
       <th data-i18n="referrals">Referrals</th>
@@ -366,6 +367,7 @@ const translations = {
   topClients:"Top clienti",
   userId:"User ID",
   username:"Username",
+  referredBy:"Recomandat de",
   totalSpent:"Total cheltuit",
   balance:"Balanta",
   referrals:"Recomandari",
@@ -405,6 +407,7 @@ const translations = {
   topClients:"\u0422\u043e\u043f \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u0432",
   userId:"User ID",
   username:"Username",
+  referredBy:"\u041e\u0442 \u043a\u043e\u0433\u043e",
   totalSpent:"\u0412\u0441\u0435\u0433\u043e \u043f\u043e\u0442\u0440\u0430\u0447\u0435\u043d\u043e",
   balance:"\u0411\u0430\u043b\u0430\u043d\u0441",
   referrals:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044b",
@@ -444,6 +447,7 @@ const translations = {
   topClients:"Top clients",
   userId:"User ID",
   username:"Username",
+  referredBy:"Referred by",
   totalSpent:"Total spent",
   balance:"Balance",
   referrals:"Referrals",
@@ -616,7 +620,7 @@ function renderUsers(users){
  const body = document.getElementById("usersBody");
 
  if(!users.length){
-  body.innerHTML = '<tr><td colspan="6">' + t("noUsers") + '</td></tr>';
+  body.innerHTML = '<tr><td colspan="7">' + t("noUsers") + '</td></tr>';
   return;
  }
 
@@ -624,6 +628,7 @@ function renderUsers(users){
   <tr>
    <td>${escapeHTML(user.id)}</td>
    <td>${escapeHTML(user.username ? "@" + user.username : "")}</td>
+   <td>${escapeHTML(user.referredByUsername ? "@" + user.referredByUsername : user.referredBy || "")}</td>
    <td>${money(user.totalSpent)} MDL</td>
    <td>${money(user.balance)} MDL</td>
    <td>${Number(user.referralCount || 0)}</td>

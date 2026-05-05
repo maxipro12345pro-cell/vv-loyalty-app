@@ -691,10 +691,18 @@ app.get("/admin/stats", async (req,res)=>{
      .sort((a,b)=>b.timestamp - a.timestamp)
      .slice(0,50);
 
+   const userById = new Map(
+     users.map(user=>[String(user.id), user])
+   );
+
    const topUsers = users
      .map(user=>({
        id:String(user.id),
        username:getUserDisplayUsername(user),
+       referredBy:user.referred_by ? String(user.referred_by) : "",
+       referredByUsername:user.referred_by && userById.get(String(user.referred_by))
+         ? getUserDisplayUsername(userById.get(String(user.referred_by)))
+         : "",
        balance:Number(user.balance || 0),
        totalSpent:Number(user.total_spent || 0),
        referralCount:Number(user.referral_count || 0),
