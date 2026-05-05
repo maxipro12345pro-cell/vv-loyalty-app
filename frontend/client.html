@@ -261,6 +261,44 @@ textarea{
  letter-spacing:.04em;
  text-transform:uppercase;
 }
+.referral-level-card{
+ margin-top:16px;
+ padding:14px;
+ border-radius:18px;
+ background:rgba(214,178,94,.08);
+ border:1px solid rgba(214,178,94,.28);
+}
+.referral-level-top{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+}
+.referral-level-name{
+ color:#d6b25e;
+ font-size:18px;
+ font-weight:bold;
+}
+.referral-level-next{
+ color:#aaa;
+ font-size:13px;
+ line-height:1.35;
+ text-align:right;
+}
+.referral-level-track{
+ height:8px;
+ margin-top:12px;
+ border-radius:999px;
+ overflow:hidden;
+ background:#2a2a33;
+}
+.referral-level-fill{
+ height:100%;
+ width:0%;
+ border-radius:999px;
+ background:#d6b25e;
+ transition:width .4s ease;
+}
 .reviews-card{
  margin-top:12px;
  padding:16px;
@@ -700,6 +738,18 @@ Close
  </div>
 
 </div>
+<div class="referral-level-card">
+ <div class="referral-level-top">
+  <div>
+   <div class="label" data-i18n="referralLevel">Referral level</div>
+   <div class="referral-level-name" id="referralLevelName">STARTER</div>
+  </div>
+  <div class="referral-level-next" id="referralLevelNext">1 invite to BRONZE</div>
+ </div>
+ <div class="referral-level-track">
+  <div class="referral-level-fill" id="referralLevelFill"></div>
+ </div>
+</div>
   <button onclick="shareReferral()" data-i18n="sendInvitation">
    Send Invitation
   </button>
@@ -1019,7 +1069,7 @@ const translations = {
   historyBotBonus:"bonus conectare bot",
   invitedClient:"client invitat",
   bonusVisit:"Vizita bonus",
-  bonusVisitText:"Primeste recompense extra dupa urmatoarea achizitie.",
+  bonusVisitText:"Ti-au fost adaugate 50 MDL bonus pentru conectarea botului.",
   newArrivals:"Noutati",
   newArrivalsText:"Parfumuri de lux selectate pentru clientii V&V.",
   home:"Acasa",
@@ -1046,7 +1096,10 @@ const translations = {
   branchBuiucaniTitle:"Buiucani",
   branchBuiucaniText:"In curand deschidem in sectorul Buiucani.",
   welcomeBonusTitle:"Bonus de bun venit",
-  welcomeBonusText:"Ai primit 50 MDL bonus pentru conectarea botului."
+  welcomeBonusText:"Ai primit 50 MDL bonus pentru conectarea botului.",
+  referralLevel:"Nivel de recomandare",
+  referralNext:"invitatii pana la",
+  referralMax:"Nivel maxim"
  },
  ru:{
   privateInvitation:"\u041f\u0440\u0438\u0432\u0430\u0442\u043d\u043e\u0435 \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435",
@@ -1074,7 +1127,7 @@ const translations = {
   historyBotBonus:"\u0431\u043e\u043d\u0443\u0441 \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430",
   invitedClient:"\u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u043d\u044b\u0439 \u043a\u043b\u0438\u0435\u043d\u0442",
   bonusVisit:"\u0411\u043e\u043d\u0443\u0441\u043d\u044b\u0439 \u0432\u0438\u0437\u0438\u0442",
-  bonusVisitText:"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u0435 \u0434\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0431\u043e\u043d\u0443\u0441\u044b \u043f\u043e\u0441\u043b\u0435 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0439 \u043f\u043e\u043a\u0443\u043f\u043a\u0438.",
+  bonusVisitText:"\u0412\u0430\u043c \u0437\u0430\u0447\u0438\u0441\u043b\u0435\u043d\u043e 50 \u0431\u043e\u043d\u0443\u0441\u043e\u0432 \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430.",
   newArrivals:"\u041d\u043e\u0432\u0438\u043d\u043a\u0438",
   newArrivalsText:"\u041b\u044e\u043a\u0441\u043e\u0432\u044b\u0435 \u0430\u0440\u043e\u043c\u0430\u0442\u044b, \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0434\u043b\u044f \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u0432 V&V.",
   home:"\u0413\u043b\u0430\u0432\u043d\u0430\u044f",
@@ -1101,7 +1154,10 @@ const translations = {
   branchBuiucaniTitle:"\u0411\u0443\u044e\u043a\u0430\u043d\u044b",
   branchBuiucaniText:"\u0421\u043a\u043e\u0440\u043e \u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435 \u0432 \u0441\u0435\u043a\u0442\u043e\u0440\u0435 \u0411\u0443\u044e\u043a\u0430\u043d\u044b.",
   welcomeBonusTitle:"\u041f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439 \u0431\u043e\u043d\u0443\u0441",
-  welcomeBonusText:"\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 50 MDL \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430."
+  welcomeBonusText:"\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 50 MDL \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430.",
+  referralLevel:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c",
+  referralNext:"\u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0439 \u0434\u043e",
+  referralMax:"\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c"
  },
  en:{
   privateInvitation:"Private Invitation",
@@ -1129,7 +1185,7 @@ const translations = {
   historyBotBonus:"bot connection bonus",
   invitedClient:"invited client",
   bonusVisit:"Bonus Visit",
-  bonusVisitText:"Earn extra rewards after your next purchase.",
+  bonusVisitText:"You have received 50 bonus MDL for connecting the bot.",
   newArrivals:"New Arrivals",
   newArrivalsText:"Luxury fragrances selected for V&V clients.",
   home:"Home",
@@ -1156,7 +1212,10 @@ const translations = {
   branchBuiucaniTitle:"Buiucani",
   branchBuiucaniText:"Opening soon in the Buiucani sector.",
   welcomeBonusTitle:"Welcome bonus",
-  welcomeBonusText:"You received 50 MDL for connecting the bot."
+  welcomeBonusText:"You received 50 MDL for connecting the bot.",
+  referralLevel:"Referral level",
+  referralNext:"invites to",
+  referralMax:"Highest level"
  }
 };
 
@@ -1198,6 +1257,9 @@ function applyLanguage(lang){
   document.getElementById("progressText").innerText =
   "0 " + t("mdlToStatus") + " SILVER " + t("status");
  }
+ else{
+  updateReferralLevel(Number(latestUserData.referralCount || 0));
+ }
 
  renderProducts();
 }
@@ -1221,6 +1283,57 @@ function getGenderFromCode(code){
  if(firstLetter === "U") return "unisex";
 
  return null;
+}
+
+function getReferralLevel(count){
+ const levels = [
+  { name:"STARTER", min:0 },
+  { name:"BRONZE", min:1 },
+  { name:"SILVER", min:3 },
+  { name:"GOLD", min:5 },
+  { name:"DIAMOND", min:10 }
+ ];
+
+ let current = levels[0];
+ let next = null;
+
+ for(let i = 0; i < levels.length; i++){
+  if(count >= levels[i].min){
+   current = levels[i];
+   next = levels[i + 1] || null;
+  }
+ }
+
+ return { current, next };
+}
+
+function updateReferralLevel(count){
+ const levelName = document.getElementById("referralLevelName");
+ const levelNext = document.getElementById("referralLevelNext");
+ const levelFill = document.getElementById("referralLevelFill");
+
+ if(!levelName || !levelNext || !levelFill){
+  return;
+ }
+
+ const safeCount = Math.max(0, Number(count || 0));
+ const level = getReferralLevel(safeCount);
+ levelName.innerText = level.current.name;
+
+ if(!level.next){
+  levelNext.innerText = t("referralMax");
+  levelFill.style.width = "100%";
+  return;
+ }
+
+ const needed = level.next.min - safeCount;
+ const span = level.next.min - level.current.min;
+ const progress = span > 0
+  ? ((safeCount - level.current.min) / span) * 100
+  : 0;
+
+ levelNext.innerText = needed + " " + t("referralNext") + " " + level.next.name;
+ levelFill.style.width = Math.max(0, Math.min(100, progress)) + "%";
 }
 
 function setCatalogFilter(group,value){
@@ -1719,8 +1832,9 @@ Number(data.referralCount || 0);
 
 document.getElementById("referralBonus").innerText =
 Number(data.referralBonus || 0).toFixed(0);
+updateReferralLevel(Number(data.referralCount || 0));
 
- latestUserData = data;
+latestUserData = data;
  updateTier(data);
  updateHistory(data);
  checkWelcomeBonus(data);
