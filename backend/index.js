@@ -244,6 +244,46 @@ function getTier(totalSpent){
  };
 }
 
+function calculateTieredCashback(previousTotalSpent, purchaseAmount){
+ const tiers = [
+   { name:"CORE", from:0, to:1000, cashback:2.5 },
+   { name:"SILVER", from:1000, to:5000, cashback:5 },
+   { name:"GOLD", from:5000, to:15000, cashback:7 },
+   { name:"BLACK", from:15000, to:Infinity, cashback:10 }
+ ];
+ const start = Math.max(0, Number(previousTotalSpent || 0));
+ const amount = Math.max(0, Number(purchaseAmount || 0));
+ const end = start + amount;
+ let bonus = 0;
+ const breakdown = [];
+
+ tiers.forEach(tier=>{
+   const segmentStart = Math.max(start, tier.from);
+   const segmentEnd = Math.min(end, tier.to);
+   const segmentAmount = Math.max(0, segmentEnd - segmentStart);
+
+   if(segmentAmount <= 0){
+     return;
+   }
+
+   const segmentBonus =
+     Math.round(segmentAmount * (tier.cashback / 100) * 100) / 100;
+
+   bonus += segmentBonus;
+   breakdown.push({
+     tier:tier.name,
+     amount:segmentAmount,
+     cashback:tier.cashback,
+     bonus:segmentBonus
+   });
+ });
+
+ return {
+   bonus:Math.round(bonus * 100) / 100,
+   breakdown
+ };
+}
+
 function getReferralLevel(referralCount){
  const count = Number(referralCount || 0);
 
@@ -445,9 +485,11 @@ if(!isCashierRequest(req)){
    return res.status(409).json({ error:"QR already used" });
  }
 
- const newTotalSpent = Number(user.total_spent || 0) + numericAmount;
+ const previousTotalSpent = Number(user.total_spent || 0);
+ const newTotalSpent = previousTotalSpent + numericAmount;
  const tier = getTier(newTotalSpent);
- const bonus = Math.round(numericAmount * (tier.cashback / 100) * 100) / 100;
+ const cashbackResult = calculateTieredCashback(previousTotalSpent, numericAmount);
+ const bonus = cashbackResult.bonus;
  const newBalance = Number(user.balance || 0) + bonus;
 
  const newHistory = [
@@ -455,6 +497,7 @@ if(!isCashierRequest(req)){
       type:"purchase",
       amount:numericAmount,
       bonus:bonus,
+      cashbackBreakdown:cashbackResult.breakdown,
       product:product || "Purchase",
       qrHash:qrHash,
       date:new Date().toLocaleString()
@@ -601,12 +644,17 @@ if(!isCashierRequest(req)){
 
  const newBalance =
    Number(user.balance) - numericPoints;
+ const newTotalSpent =
+   Number(user.total_spent || 0) + numericPurchaseAmount;
+ const tier=getTier(newTotalSpent);
 
  const newHistory = [
 {
   type:"redeem",
   points:numericPoints,
   amount:numericPurchaseAmount,
+  bonus:0,
+  note:"No cashback is awarded when points are used",
   date:new Date().toLocaleString()
 },
 ...history
@@ -616,6 +664,7 @@ if(!isCashierRequest(req)){
    .from("users")
    .update({
       balance:newBalance,
+      total_spent:newTotalSpent,
       history:newHistory
    })
    .eq("id", userId);
@@ -624,12 +673,10 @@ if(!isCashierRequest(req)){
    return res.status(500).json({error:updateError.message});
  }
 
- const tier=getTier(Number(user.total_spent||0));
-
  res.json({
    success:true,
    balance:newBalance,
-   totalSpent:Number(user.total_spent||0),
+   totalSpent:newTotalSpent,
    history:newHistory,
    tier:tier
  });
