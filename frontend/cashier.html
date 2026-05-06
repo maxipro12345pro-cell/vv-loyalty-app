@@ -121,7 +121,7 @@ box-sizing:border-box;
   margin-top:10px;
   ">
 
-  <button onclick="checkPin()" style="
+  <button id="pinButton" onclick="checkPin()" style="
   width:100%;
   border:none;
   border-radius:18px;
@@ -201,6 +201,7 @@ Add purchase bonus
 
 <script>
 const API = "https://vv-loyalty-app.onrender.com";
+let cashierUnlocked = false;
 
 function cashierHeaders(){
  return {
@@ -208,7 +209,19 @@ function cashierHeaders(){
  };
 }
 
+function requireCashierAccess(){
+ if(cashierUnlocked){
+  return true;
+ }
+
+ document.getElementById("pinScreen").style.display = "flex";
+ showError("Enter cashier PIN first");
+ return false;
+}
+
 async function loadClientResult(){
+ if(!requireCashierAccess()) return;
+
  const qr=document.getElementById("qrInput").value.trim();
  const clientId=getClientIdFromQR(qr);
 
@@ -269,6 +282,7 @@ function updateResult(data){
 
 async function addPurchase(){
  clearMessages();
+ if(!requireCashierAccess()) return;
 
  const qr=document.getElementById("qrInput").value.trim();
  const amount=document.getElementById("purchaseAmount").value;
@@ -310,6 +324,7 @@ document.getElementById("productName").value="";
 
 async function redeemPoints(){
  clearMessages();
+ if(!requireCashierAccess()) return;
 
  const qr=document.getElementById("qrInput").value.trim();
  const purchaseAmount=document.getElementById("redeemPurchaseAmount").value;
@@ -358,6 +373,8 @@ showSuccess("Points redeemed successfully");
 let qrScanner = null;
 
 function startScanner(){
+ if(!requireCashierAccess()) return;
+
  const reader = document.getElementById("reader");
  reader.style.display = "block";
 
@@ -385,15 +402,58 @@ function startScanner(){
    () => {}
  );
 }
-function checkPin(){
-  const pin = document.getElementById("cashierPin").value;
+async function checkPin(){
+ const pinInput = document.getElementById("cashierPin");
+ const pinError = document.getElementById("pinError");
+ const pinButton = document.getElementById("pinButton");
+ const pin = pinInput.value.trim();
 
-  if(pin.trim()){
-    document.getElementById("pinScreen").style.display = "none";
-  } else {
-   document.getElementById("pinError").style.display = "block";
+ pinError.style.display = "none";
+
+ if(!pin){
+  pinError.innerText = "Enter PIN";
+  pinError.style.display = "block";
+  return;
+ }
+
+ pinButton.disabled = true;
+ pinButton.innerText = "Checking...";
+
+ try{
+  const res = await fetch(API + "/cashier/check",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "x-cashier-pin":pin
+   },
+   body:JSON.stringify({ pin })
+  });
+  const data = await res.json();
+
+  if(!res.ok || data.error){
+   cashierUnlocked = false;
+   pinError.innerText = data.error || "Wrong PIN";
+   pinError.style.display = "block";
+   return;
+  }
+
+  cashierUnlocked = true;
+  document.getElementById("pinScreen").style.display = "none";
+ } catch(error){
+  cashierUnlocked = false;
+  pinError.innerText = "Connection error";
+  pinError.style.display = "block";
+ } finally{
+  pinButton.disabled = false;
+  pinButton.innerText = "Enter";
  }
 }
+
+document.getElementById("cashierPin").addEventListener("keydown",(event)=>{
+ if(event.key === "Enter"){
+  checkPin();
+ }
+});
 </script>
 
 </body>

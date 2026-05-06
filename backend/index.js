@@ -258,6 +258,14 @@ app.get("/",(req,res)=>{
  res.send("Bot backend works");
 });
 
+app.post("/cashier/check",(req,res)=>{
+ if(!isCashierRequest(req)){
+   return res.status(403).json({ error:"Invalid cashier PIN" });
+ }
+
+ res.json({ success:true });
+});
+
 app.get("/user/:id", async (req,res)=>{
  const id = String(req.params.id);
  const ref = req.query.ref && /^\d+$/.test(String(req.query.ref))
