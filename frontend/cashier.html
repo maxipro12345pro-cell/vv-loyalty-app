@@ -85,6 +85,29 @@ button{
  padding:18px;
  margin-top:18px;
 }
+
+.lang-switcher{
+ display:flex;
+ gap:8px;
+ margin-bottom:18px;
+}
+
+.lang-switcher button{
+ flex:1;
+ width:auto;
+ margin-top:0;
+ padding:10px 0;
+ border-radius:999px;
+ background:#1f1f2a;
+ border:1px solid rgba(214,178,94,.28);
+ color:#aaa;
+}
+
+.lang-switcher button.active{
+ background:#d6b25e;
+ color:#111;
+ border-color:#d6b25e;
+}
 </style>
 </head>
 
@@ -109,10 +132,16 @@ box-sizing:border-box;
  border:1px solid rgba(214,178,94,.35);
  text-align:center;
  ">
-  <h2 style="color:#d6b25e;">Cashier Access</h2>
-  <p style="color:#aaa;">Enter cashier PIN</p>
+  <div class="lang-switcher">
+   <button onclick="setLanguage('ro')">RO</button>
+   <button onclick="setLanguage('ru')">RU</button>
+   <button onclick="setLanguage('en')">EN</button>
+  </div>
 
-  <input id="cashierPin" type="password" placeholder="PIN" style="
+  <h2 style="color:#d6b25e;" data-i18n="cashierAccess">Cashier Access</h2>
+  <p style="color:#aaa;" data-i18n="enterCashierPin">Enter cashier PIN</p>
+
+  <input id="cashierPin" type="password" placeholder="PIN" data-i18n-placeholder="pin" style="
   width:100%;
   box-sizing:border-box;
   padding:14px;
@@ -121,7 +150,7 @@ box-sizing:border-box;
   margin-top:10px;
   ">
 
-  <button id="pinButton" onclick="checkPin()" style="
+  <button id="pinButton" onclick="checkPin()" data-i18n="enter" style="
   width:100%;
   border:none;
   border-radius:18px;
@@ -146,12 +175,18 @@ box-sizing:border-box;
  </div>
 </div>
 <div class="panel">
-<h1>V&V Cashier</h1>
+<div class="lang-switcher">
+ <button onclick="setLanguage('ro')">RO</button>
+ <button onclick="setLanguage('ru')">RU</button>
+ <button onclick="setLanguage('en')">EN</button>
+</div>
+
+<h1 data-i18n="cashierTitle">V&V Cashier</h1>
 
 <div class="card">
-<h3>Client QR</h3>
-<textarea id="qrInput" placeholder="Paste scanned QR here"></textarea>
-<button class="secondary" onclick="startScanner()">Open Camera Scanner</button>
+<h3 data-i18n="clientQr">Client QR</h3>
+<textarea id="qrInput" placeholder="Paste scanned QR here" data-i18n-placeholder="pasteQr"></textarea>
+<button class="secondary" onclick="startScanner()" data-i18n="openScanner">Open Camera Scanner</button>
 
 <div id="reader" style="
 display:none;
@@ -162,18 +197,21 @@ overflow:hidden;">
 </div>
 
 <div class="card">
-<h3>Add Purchase</h3>
+<h3 data-i18n="addPurchase">Add Purchase</h3>
 
 <input id="purchaseAmount"
 type="number"
 min="1"
-placeholder="Purchase amount">
+placeholder="Purchase amount"
+data-i18n-placeholder="purchaseAmount">
 
 <input id="productName"
 type="text"
-placeholder="Product name">
+placeholder="Product name"
+data-i18n-placeholder="productName">
 
 <button onclick="addPurchase()"
+data-i18n="addPurchaseBonus"
 >
 Add purchase bonus
 </button>
@@ -181,10 +219,11 @@ Add purchase bonus
 </div>
 
 <div class="card">
-<h3>Redeem Points</h3>
-<input id="redeemPurchaseAmount" type="number" min="0" placeholder="Purchase amount">
-<input id="redeemAmount" type="number" min="1" placeholder="Points to redeem">
+<h3 data-i18n="redeemPointsTitle">Redeem Points</h3>
+<input id="redeemPurchaseAmount" type="number" min="0" placeholder="Purchase amount" data-i18n-placeholder="purchaseAmount">
+<input id="redeemAmount" type="number" min="1" placeholder="Points to redeem" data-i18n-placeholder="pointsToRedeem">
 <button class="secondary" onclick="redeemPoints()"
+data-i18n="redeemPoints"
 >Redeem points</button>
 </div>
 
@@ -192,9 +231,9 @@ Add purchase bonus
 <div id="successMsg" class="success"></div>
 
 <div class="card">
-<h3>Client Result</h3>
-<p>Balance: <span id="balance">—</span> MDL</p>
-<p>Status: <span id="tier">—</span></p>
+<h3 data-i18n="clientResult">Client Result</h3>
+<p><span data-i18n="balance">Balance</span>: <span id="balance">—</span> MDL</p>
+<p><span data-i18n="status">Status</span>: <span id="tier">—</span></p>
 </div>
 
 </div>
@@ -202,6 +241,148 @@ Add purchase bonus
 <script>
 const API = "https://vv-loyalty-app.onrender.com";
 let cashierUnlocked = false;
+let currentLang = localStorage.getItem("cashierLang") || localStorage.getItem("lang") || "ro";
+
+const translations = {
+ ro:{
+  cashierAccess:"Acces casier",
+  enterCashierPin:"Introdu PIN-ul casierului",
+  pin:"PIN",
+  enter:"Intra",
+  checking:"Verificare...",
+  wrongPin:"PIN gresit",
+  enterPin:"Introdu PIN-ul",
+  connectionError:"Eroare de conexiune",
+  cashierTitle:"V&V Casier",
+  clientQr:"QR client",
+  pasteQr:"Lipeste QR-ul scanat aici",
+  openScanner:"Deschide camera",
+  addPurchase:"Adauga cumparare",
+  purchaseAmount:"Suma cumpararii",
+  productName:"Numele produsului",
+  addPurchaseBonus:"Adauga bonusul",
+  redeemPointsTitle:"Utilizare puncte",
+  pointsToRedeem:"Puncte de utilizat",
+  redeemPoints:"Utilizeaza puncte",
+  clientResult:"Rezultat client",
+  balance:"Balanta",
+  status:"Statut",
+  enterCashierFirst:"Introdu mai intai PIN-ul casierului",
+  clientLoadingError:"Eroare la incarcarea clientului",
+  invalidClientData:"Date client invalide",
+  scanQrFirst:"Scaneaza sau lipeste mai intai QR-ul clientului",
+  enterPurchaseAmount:"Introdu suma cumpararii",
+  purchaseError:"Eroare cumparare",
+  bonusAdded:"Bonus adaugat cu succes",
+  enterPointsAmount:"Introdu numarul de puncte",
+  redeemError:"Eroare utilizare puncte",
+  pointsRedeemed:"Puncte utilizate cu succes",
+  qrScanned:"QR scanat cu succes",
+  cashback:"Cashback"
+ },
+ ru:{
+  cashierAccess:"Доступ кассира",
+  enterCashierPin:"Введите PIN кассира",
+  pin:"PIN",
+  enter:"Войти",
+  checking:"Проверка...",
+  wrongPin:"Неверный PIN",
+  enterPin:"Введите PIN",
+  connectionError:"Ошибка соединения",
+  cashierTitle:"V&V Касса",
+  clientQr:"QR клиента",
+  pasteQr:"Вставьте сканированный QR",
+  openScanner:"Открыть камеру",
+  addPurchase:"Добавить покупку",
+  purchaseAmount:"Сумма покупки",
+  productName:"Название товара",
+  addPurchaseBonus:"Начислить бонус",
+  redeemPointsTitle:"Списать баллы",
+  pointsToRedeem:"Баллы к списанию",
+  redeemPoints:"Списать баллы",
+  clientResult:"Данные клиента",
+  balance:"Баланс",
+  status:"Статус",
+  enterCashierFirst:"Сначала введите PIN кассира",
+  clientLoadingError:"Ошибка загрузки клиента",
+  invalidClientData:"Некорректные данные клиента",
+  scanQrFirst:"Сначала отсканируйте или вставьте QR клиента",
+  enterPurchaseAmount:"Введите сумму покупки",
+  purchaseError:"Ошибка покупки",
+  bonusAdded:"Бонус успешно начислен",
+  enterPointsAmount:"Введите количество баллов",
+  redeemError:"Ошибка списания",
+  pointsRedeemed:"Баллы успешно списаны",
+  qrScanned:"QR успешно отсканирован",
+  cashback:"Cashback"
+ },
+ en:{
+  cashierAccess:"Cashier Access",
+  enterCashierPin:"Enter cashier PIN",
+  pin:"PIN",
+  enter:"Enter",
+  checking:"Checking...",
+  wrongPin:"Wrong PIN",
+  enterPin:"Enter PIN",
+  connectionError:"Connection error",
+  cashierTitle:"V&V Cashier",
+  clientQr:"Client QR",
+  pasteQr:"Paste scanned QR here",
+  openScanner:"Open Camera Scanner",
+  addPurchase:"Add Purchase",
+  purchaseAmount:"Purchase amount",
+  productName:"Product name",
+  addPurchaseBonus:"Add purchase bonus",
+  redeemPointsTitle:"Redeem Points",
+  pointsToRedeem:"Points to redeem",
+  redeemPoints:"Redeem points",
+  clientResult:"Client Result",
+  balance:"Balance",
+  status:"Status",
+  enterCashierFirst:"Enter cashier PIN first",
+  clientLoadingError:"Client loading error",
+  invalidClientData:"Invalid client data",
+  scanQrFirst:"Scan or paste client QR first",
+  enterPurchaseAmount:"Enter purchase amount",
+  purchaseError:"Purchase error",
+  bonusAdded:"Bonus added successfully",
+  enterPointsAmount:"Enter points amount",
+  redeemError:"Redeem error",
+  pointsRedeemed:"Points redeemed successfully",
+  qrScanned:"QR scanned successfully",
+  cashback:"Cashback"
+ }
+};
+
+function t(key){
+ return (translations[currentLang] || translations.ro)[key] || translations.ro[key] || key;
+}
+
+function applyLanguage(){
+ document.querySelectorAll("[data-i18n]").forEach(element=>{
+  const key = element.dataset.i18n;
+  element.innerText = t(key);
+ });
+
+ document.querySelectorAll("[data-i18n-placeholder]").forEach(element=>{
+  const key = element.dataset.i18nPlaceholder;
+  element.placeholder = t(key);
+ });
+
+ document.querySelectorAll(".lang-switcher button").forEach(button=>{
+  button.classList.toggle(
+   "active",
+   button.innerText.toLowerCase() === currentLang
+  );
+ });
+}
+
+function setLanguage(lang){
+ currentLang = translations[lang] ? lang : "ro";
+ localStorage.setItem("cashierLang", currentLang);
+ localStorage.setItem("lang", currentLang);
+ applyLanguage();
+}
 
 function cashierHeaders(){
  return {
@@ -215,7 +396,7 @@ function requireCashierAccess(){
  }
 
  document.getElementById("pinScreen").style.display = "flex";
- showError("Enter cashier PIN first");
+ showError(t("enterCashierFirst"));
  return false;
 }
 
@@ -233,7 +414,7 @@ const res=await fetch(API + "/user/" + clientId,{
  const data=await res.json();
 
  if(!res.ok || data.error){
-  showError(data.error || "Client loading error");
+  showError(data.error || t("clientLoadingError"));
   return;
  }
 
@@ -269,7 +450,7 @@ function showSuccess(text){
 
 function updateResult(data){
  if(!data || !data.tier){
-  showError("Invalid client data");
+  showError(t("invalidClientData"));
   return;
  }
 
@@ -277,7 +458,7 @@ function updateResult(data){
  Number(data.balance).toFixed(2);
 
  document.getElementById("tier").innerText =
- data.tier.name + " · Cashback " + data.tier.cashback + "%";
+ data.tier.name + " - " + t("cashback") + " " + data.tier.cashback + "%";
 }
 
 async function addPurchase(){
@@ -289,12 +470,12 @@ async function addPurchase(){
 const product=document.getElementById("productName").value.trim();
 
  if(!qr){
-   showError("Scan or paste client QR first");
+   showError(t("scanQrFirst"));
    return;
  }
 
  if(!amount || Number(amount)<=0){
-   showError("Enter purchase amount");
+   showError(t("enterPurchaseAmount"));
    return;
  }
 
@@ -312,12 +493,12 @@ body:JSON.stringify({
  const data=await res.json();
 
  if(!res.ok){
-   showError(data.error || "Purchase error");
+   showError(data.error || t("purchaseError"));
    return;
  }
 
  updateResult(data);
- showSuccess("Bonus added successfully");
+ showSuccess(t("bonusAdded"));
  document.getElementById("purchaseAmount").value="";
 document.getElementById("productName").value="";
 }
@@ -333,17 +514,17 @@ async function redeemPoints(){
  const clientId=getClientIdFromQR(qr);
 
  if(!clientId){
-   showError("Scan or paste client QR first");
+   showError(t("scanQrFirst"));
    return;
  }
 
  if(!points || Number(points)<=0){
-   showError("Enter points amount");
+   showError(t("enterPointsAmount"));
    return;
  }
 
  if(purchaseAmount === "" || Number(purchaseAmount)<0){
-   showError("Enter purchase amount");
+   showError(t("enterPurchaseAmount"));
    return;
  }
 
@@ -361,12 +542,12 @@ body:JSON.stringify({
  const data=await res.json();
 
  if(!res.ok){
-   showError(data.error || "Redeem error");
+   showError(data.error || t("redeemError"));
    return;
  }
 
  updateResult(data);
-showSuccess("Points redeemed successfully");
+showSuccess(t("pointsRedeemed"));
  document.getElementById("redeemPurchaseAmount").value="";
  document.getElementById("redeemAmount").value="";
 }
@@ -396,7 +577,7 @@ function startScanner(){
      qrScanner.stop();
      reader.style.display = "none";
 
-     showSuccess("QR scanned successfully");
+     showSuccess(t("qrScanned"));
      loadClientResult();
    },
    () => {}
@@ -411,13 +592,13 @@ async function checkPin(){
  pinError.style.display = "none";
 
  if(!pin){
-  pinError.innerText = "Enter PIN";
+  pinError.innerText = t("enterPin");
   pinError.style.display = "block";
   return;
  }
 
  pinButton.disabled = true;
- pinButton.innerText = "Checking...";
+ pinButton.innerText = t("checking");
 
  try{
   const res = await fetch(API + "/cashier/check",{
@@ -432,7 +613,7 @@ async function checkPin(){
 
   if(!res.ok || data.error){
    cashierUnlocked = false;
-   pinError.innerText = data.error || "Wrong PIN";
+   pinError.innerText = data.error || t("wrongPin");
    pinError.style.display = "block";
    return;
   }
@@ -441,11 +622,11 @@ async function checkPin(){
   document.getElementById("pinScreen").style.display = "none";
  } catch(error){
   cashierUnlocked = false;
-  pinError.innerText = "Connection error";
+  pinError.innerText = t("connectionError");
   pinError.style.display = "block";
  } finally{
   pinButton.disabled = false;
-  pinButton.innerText = "Enter";
+  pinButton.innerText = t("enter");
  }
 }
 
@@ -454,6 +635,8 @@ document.getElementById("cashierPin").addEventListener("keydown",(event)=>{
   checkPin();
  }
 });
+
+applyLanguage();
 </script>
 
 </body>
