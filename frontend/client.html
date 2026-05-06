@@ -739,7 +739,7 @@ Close
 
 <div id="shopTab" style="display:none;">
  <div class="catalog-filters">
-  <input class="catalog-search" id="catalogSearch" type="search" placeholder="Search by code or name" oninput="setCatalogSearch(this.value)">
+  <input class="catalog-search" id="catalogSearch" type="search" placeholder="Search by code or name" oninput="setCatalogSearch(this.value)" onkeydown="handleCatalogSearchKey(event)">
   <div class="filter-row" id="typeFilters">
    <button class="active" onclick="setCatalogFilter('type','all')">All</button>
    <button onclick="setCatalogFilter('type','tims')">Timss</button>
@@ -1468,6 +1468,7 @@ function closeReferralLevels(){
 }
 
 function setCatalogFilter(group,value){
+ blurCatalogSearch();
  catalogFilters[group] = value;
  catalogFilters.page = 1;
 
@@ -1494,9 +1495,25 @@ function setCatalogSearch(value){
 }
 
 function setCatalogPage(page){
+ blurCatalogSearch();
  catalogFilters.page = page;
  renderProducts();
  scrollCatalogToTop();
+}
+
+function blurCatalogSearch(){
+ const catalogSearch = document.getElementById("catalogSearch");
+ if(catalogSearch){
+  catalogSearch.blur();
+ }
+}
+
+function handleCatalogSearchKey(event){
+ if(event.key === "Enter" || event.key === "Escape"){
+  event.preventDefault();
+  blurCatalogSearch();
+  scrollCatalogToTop();
+ }
 }
 
 function scrollCatalogToTop(){
@@ -1537,6 +1554,7 @@ function syncCatalogFilterButtons(){
 }
 
 function openProductFromArrival(code){
+ blurCatalogSearch();
  catalogFilters.type = "all";
  catalogFilters.gender = "all";
  catalogFilters.search = String(code || "").toLowerCase();
@@ -2114,6 +2132,17 @@ document.addEventListener("visibilitychange",()=>{
   loadUser();
  }
 });
+document.addEventListener("touchstart",(event)=>{
+ const catalogSearch = document.getElementById("catalogSearch");
+
+ if(
+  catalogSearch &&
+  document.activeElement === catalogSearch &&
+  !event.target.closest(".catalog-search")
+ ){
+  blurCatalogSearch();
+ }
+},{passive:true});
 async function showQR(){
  const res = await fetch(API + "/qr/" + currentUserId,{
   headers:{
