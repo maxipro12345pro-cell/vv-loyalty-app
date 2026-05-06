@@ -1483,17 +1483,33 @@ function setCatalogFilter(group,value){
  });
 
  renderProducts();
+ scrollCatalogToTop();
 }
 
 function setCatalogSearch(value){
  catalogFilters.search = String(value || "").trim().toLowerCase();
  catalogFilters.page = 1;
  renderProducts();
+ scrollCatalogToTop();
 }
 
 function setCatalogPage(page){
  catalogFilters.page = page;
  renderProducts();
+ scrollCatalogToTop();
+}
+
+function scrollCatalogToTop(){
+ const shopTab = document.getElementById("shopTab");
+ if(!shopTab || shopTab.style.display === "none"){
+  return;
+ }
+
+ const targetTop = Math.max(0, shopTab.offsetTop - 10);
+ window.scrollTo({
+  top:targetTop,
+  behavior:"smooth"
+ });
 }
 
 function refreshCatalogFeatured(){
@@ -1534,6 +1550,7 @@ function openProductFromArrival(code){
  syncCatalogFilterButtons();
  showTab("shop");
  renderProducts();
+ scrollCatalogToTop();
 }
 
 function renderNewArrivals(){
