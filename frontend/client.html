@@ -39,6 +39,41 @@ textarea{
  -webkit-user-select:text;
  -webkit-touch-callout:default;
 }
+.app-loader{
+ position:fixed;
+ inset:0;
+ z-index:10000;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:radial-gradient(circle at center,rgba(214,178,94,.12),rgba(5,5,7,.98) 58%);
+ transition:opacity .35s ease,visibility .35s ease;
+}
+.app-loader.hidden{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+}
+.loader-inner{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:14px;
+ color:#d6b25e;
+ font-weight:bold;
+ letter-spacing:3px;
+}
+.loader-ring{
+ width:58px;
+ height:58px;
+ border-radius:50%;
+ border:2px solid rgba(214,178,94,.18);
+ border-top-color:#d6b25e;
+ animation:loaderSpin .9s linear infinite;
+}
+@keyframes loaderSpin{
+ to{transform:rotate(360deg);}
+}
 .app{
  max-width:430px;
  margin:auto;
@@ -90,6 +125,57 @@ textarea{
 .offer{background:#15151d;border-radius:22px;padding:18px;margin-top:18px;border:1px solid rgba(255,255,255,.06)}
 .offer h3{margin:0 0 8px;color:#d6b25e}
 .offer p{margin:0;color:#aaa;font-size:14px}
+.bonus-visit-card{
+ border-color:rgba(214,178,94,.35);
+ background:linear-gradient(135deg,rgba(214,178,94,.16),rgba(21,21,29,.95));
+}
+.bonus-visit-card p{
+ color:#fff;
+ font-size:16px;
+ font-weight:bold;
+ line-height:1.45;
+}
+.arrival-grid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+ margin-top:14px;
+}
+.arrival-card{
+ display:flex;
+ gap:10px;
+ align-items:center;
+ min-width:0;
+ padding:10px;
+ border-radius:16px;
+ background:rgba(255,255,255,.05);
+ border:1px solid rgba(214,178,94,.22);
+ color:#fff;
+ cursor:pointer;
+}
+.arrival-card:active{
+ transform:scale(.98);
+}
+.arrival-image{
+ width:48px;
+ height:48px;
+ flex:0 0 48px;
+ border-radius:12px;
+ background-size:cover;
+ background-position:center;
+ background-color:#20202a;
+}
+.arrival-name{
+ font-size:13px;
+ font-weight:bold;
+ line-height:1.25;
+}
+.arrival-price{
+ margin-top:4px;
+ color:#d6b25e;
+ font-size:12px;
+ font-weight:bold;
+}
 #shopTab,
 #ClubTab{
  margin-top:0;
@@ -553,6 +639,12 @@ button:active{
 </head>
 
 <body>
+<div class="app-loader" id="appLoader">
+ <div class="loader-inner">
+  <div class="loader-ring"></div>
+  <div>V&V</div>
+ </div>
+</div>
 <div class="app">
 <div id="homeTop">
  <div class="header">
@@ -631,7 +723,7 @@ Close
  </div>
 </div>
 
-<div class="offer">
+<div class="offer bonus-visit-card">
  <h3 data-i18n="bonusVisit">Bonus Visit</h3>
  <p data-i18n="bonusVisitText">Earn extra rewards after your next purchase.</p>
 </div>
@@ -639,6 +731,7 @@ Close
 <div class="offer">
  <h3 data-i18n="newArrivals">New Arrivals</h3>
  <p data-i18n="newArrivalsText">Luxury fragrances selected for V&V clients.</p>
+ <div class="arrival-grid" id="newArrivalsGrid"></div>
 </div>
 
 </div>
@@ -1007,6 +1100,7 @@ let catalogFilters = {
  page:1
 };
 let catalogFeaturedProducts = [];
+const NEW_ARRIVAL_CODES = ["OU515","OU553","OM173","OF320"];
 
 if (
  window.Telegram &&
@@ -1262,6 +1356,7 @@ function applyLanguage(lang){
  }
 
  renderProducts();
+ renderNewArrivals();
 }
 
 function setLanguage(lang){
@@ -1403,8 +1498,77 @@ function setCatalogPage(page){
 
 function refreshCatalogFeatured(){
  catalogFeaturedProducts = [...products]
-  .sort(()=>Math.random() - 0.5)
-  .slice(0,10);
+  .sort(()=>Math.random() - 0.5);
+}
+
+function syncCatalogFilterButtons(){
+ const groups = [
+  { id:"typeFilters", value:catalogFilters.type },
+  { id:"genderFilters", value:catalogFilters.gender }
+ ];
+
+ groups.forEach(group=>{
+  const container = document.getElementById(group.id);
+  if(!container) return;
+
+  container.querySelectorAll("button").forEach(button=>{
+   button.classList.toggle(
+    "active",
+    button.getAttribute("onclick").includes("'" + group.value + "'")
+   );
+  });
+ });
+}
+
+function openProductFromArrival(code){
+ catalogFilters.type = "all";
+ catalogFilters.gender = "all";
+ catalogFilters.search = String(code || "").toLowerCase();
+ catalogFilters.page = 1;
+
+ const catalogSearch = document.getElementById("catalogSearch");
+ if(catalogSearch){
+  catalogSearch.value = code || "";
+ }
+
+ syncCatalogFilterButtons();
+ showTab("shop");
+ renderProducts();
+}
+
+function renderNewArrivals(){
+ const grid = document.getElementById("newArrivalsGrid");
+ if(!grid) return;
+
+ grid.innerHTML = "";
+
+ NEW_ARRIVAL_CODES
+  .map(code=>products.find(product=>product.code === code))
+  .filter(Boolean)
+  .forEach(product=>{
+   const card = document.createElement("div");
+   card.className = "arrival-card";
+   card.onclick = () => openProductFromArrival(product.code);
+
+   const image = document.createElement("div");
+   image.className = "arrival-image";
+   image.style.backgroundImage = "url('" + product.image + "')";
+
+   const info = document.createElement("div");
+   info.style.minWidth = "0";
+
+   const name = document.createElement("div");
+   name.className = "arrival-name";
+   name.innerText = product.name;
+
+   const price = document.createElement("div");
+   price.className = "arrival-price";
+   price.innerText = product.price + " " + (product.unit || "lei");
+
+   info.append(name,price);
+   card.append(image,info);
+   grid.appendChild(card);
+  });
 }
 
 function getCatalogMessage(key){
@@ -1504,14 +1668,10 @@ function renderProducts(){
   return;
  }
 
- const totalPages = showFeatured
-  ? 1
-  : Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+ const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
  catalogFilters.page = Math.min(catalogFilters.page, totalPages);
  const pageStart = (catalogFilters.page - 1) * PRODUCTS_PER_PAGE;
- const pageProducts = showFeatured
-  ? filteredProducts
-  : filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
+ const pageProducts = filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
 
  pageProducts.forEach(product=>{
   const card = document.createElement("div");
@@ -1859,6 +2019,13 @@ function escapeHTML(value){
   .replaceAll("'","&#039;");
 }
 
+function hideAppLoader(){
+ const loader = document.getElementById("appLoader");
+ if(loader){
+  loader.classList.add("hidden");
+ }
+}
+
 async function loadUser(){
 
  setGreeting();
@@ -1893,11 +2060,13 @@ try{
  data = await res.json();
 } catch(error){
  console.log("User loading error:", error);
+ hideAppLoader();
  return;
 }
 
 if(!res.ok || data.error){
  console.log("User loading error:", data.error || res.status);
+ hideAppLoader();
  return;
 }
 document.getElementById("referralCount").innerText =
@@ -1912,11 +2081,22 @@ latestUserData = data;
  updateHistory(data);
  checkWelcomeBonus(data);
  previousTier = data.tier.name;
+ hideAppLoader();
 }
 applyLanguage(currentLang);
 renderProducts();
 loadUser();
-setInterval(loadUser,10000);
+setTimeout(hideAppLoader,4500);
+setInterval(()=>{
+ if(document.visibilityState === "visible"){
+  loadUser();
+ }
+},15000);
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState === "visible"){
+  loadUser();
+ }
+});
 async function showQR(){
  const res = await fetch(API + "/qr/" + currentUserId,{
   headers:{
