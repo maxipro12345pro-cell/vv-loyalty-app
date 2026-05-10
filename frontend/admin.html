@@ -598,7 +598,7 @@ function renderOperations(operations){
  }
 
  body.innerHTML = operations.map(item=>{
-  const user = item.username ? "@" + item.username : item.userId;
+  const user = item.username || item.userId;
   const details = item.product || item.invitedUser || "";
   const bonusOrPoints = item.type === "redeem"
    ? "-" + money(item.points)
@@ -627,8 +627,8 @@ function renderUsers(users){
  body.innerHTML = users.map(user=>`
   <tr>
    <td>${escapeHTML(user.id)}</td>
-   <td>${escapeHTML(user.username ? "@" + user.username : "")}</td>
-   <td>${escapeHTML(user.referredByUsername ? "@" + user.referredByUsername : user.referredBy || "")}</td>
+   <td>${escapeHTML(user.username || "")}</td>
+   <td>${escapeHTML(user.referredByUsername || user.referredBy || "")}</td>
    <td>${money(user.totalSpent)} MDL</td>
    <td>${money(user.balance)} MDL</td>
    <td>${Number(user.referralCount || 0)}</td>
