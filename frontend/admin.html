@@ -159,6 +159,28 @@ th{
  background:rgba(214,178,94,.06);
 }
 
+th.sortable{
+ cursor:pointer;
+ user-select:none;
+ -webkit-user-select:none;
+}
+
+th.sortable::after{
+ content:"";
+ display:inline-block;
+ margin-left:7px;
+ color:#aaa;
+ font-size:11px;
+}
+
+th.sortable.sort-asc::after{
+ content:"▲";
+}
+
+th.sortable.sort-desc::after{
+ content:"▼";
+}
+
 .error{
  display:none;
  color:#ff6b6b;
@@ -300,12 +322,12 @@ th{
    <table>
     <thead>
      <tr>
-      <th data-i18n="date">Date</th>
-      <th data-i18n="type">Type</th>
-      <th data-i18n="user">User</th>
-      <th data-i18n="amount">Amount</th>
-      <th data-i18n="bonusPoints">Bonus / Points</th>
-      <th data-i18n="details">Details</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="date" data-i18n="date">Date</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="type" data-i18n="type">Type</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="user" data-i18n="user">User</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="amount" data-i18n="amount">Amount</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="bonusPoints" data-i18n="bonusPoints">Bonus / Points</th>
+      <th class="sortable" data-sort-table="operations" data-sort-key="details" data-i18n="details">Details</th>
      </tr>
     </thead>
     <tbody id="operationsBody"></tbody>
@@ -319,13 +341,13 @@ th{
    <table>
     <thead>
      <tr>
-      <th data-i18n="userId">User ID</th>
-      <th data-i18n="username">Username</th>
-      <th data-i18n="referredBy">Referred by</th>
-      <th data-i18n="totalSpent">Total spent</th>
-      <th data-i18n="balance">Balance</th>
-      <th data-i18n="referrals">Referrals</th>
-      <th data-i18n="referralBonus">Referral bonus</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="id" data-i18n="userId">User ID</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="username" data-i18n="username">Username</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="referredBy" data-i18n="referredBy">Referred by</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="totalSpent" data-i18n="totalSpent">Total spent</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="balance" data-i18n="balance">Balance</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="referralCount" data-i18n="referrals">Referrals</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="referralBonus" data-i18n="referralBonus">Referral bonus</th>
      </tr>
     </thead>
     <tbody id="usersBody"></tbody>
@@ -338,6 +360,10 @@ th{
 const API = "https://vv-loyalty-app.onrender.com";
 let latestStats = null;
 let currentLang = localStorage.getItem("adminLang") || "ro";
+let adminSort = {
+ operations:{ key:"date", direction:"desc" },
+ users:{ key:"totalSpent", direction:"desc" }
+};
 
 const translations = {
  ro:{
@@ -589,15 +615,91 @@ function renderStats(data){
  renderUsers(data.topUsers || []);
 }
 
+function getSortValue(table,item,key){
+ if(table === "operations"){
+  if(key === "date"){
+   return Date.parse(item.date || "") || Number(item.timestamp || 0) || 0;
+  }
+  if(key === "user"){
+   return item.username || item.userId || "";
+  }
+  if(key === "bonusPoints"){
+   return item.type === "redeem"
+    ? -Number(item.points || 0)
+    : Number(item.bonus || 0);
+  }
+  if(key === "details"){
+   return item.product || item.invitedUser || "";
+  }
+ }
+
+ if(table === "users"){
+  if(key === "referredBy"){
+   return item.referredByUsername || item.referredBy || "";
+  }
+ }
+
+ return item[key] ?? "";
+}
+
+function sortRows(rows,table){
+ const sort = adminSort[table];
+
+ if(!sort){
+  return rows;
+ }
+
+ return [...rows].sort((a,b)=>{
+  const aValue = getSortValue(table,a,sort.key);
+  const bValue = getSortValue(table,b,sort.key);
+
+  if(typeof aValue === "number" && typeof bValue === "number"){
+   return sort.direction === "asc"
+    ? aValue - bValue
+    : bValue - aValue;
+  }
+
+  return sort.direction === "asc"
+   ? String(aValue).localeCompare(String(bValue), undefined, { numeric:true, sensitivity:"base" })
+   : String(bValue).localeCompare(String(aValue), undefined, { numeric:true, sensitivity:"base" });
+ });
+}
+
+function setAdminSort(table,key){
+ const current = adminSort[table] || {};
+
+ adminSort[table] = {
+  key,
+  direction:current.key === key && current.direction === "desc" ? "asc" : "desc"
+ };
+
+ if(latestStats){
+  renderStats(latestStats);
+ }
+}
+
+function updateSortHeaders(){
+ document.querySelectorAll("th.sortable").forEach(th=>{
+  const table = th.dataset.sortTable;
+  const key = th.dataset.sortKey;
+  const sort = adminSort[table];
+
+  th.classList.toggle("sort-asc", sort?.key === key && sort.direction === "asc");
+  th.classList.toggle("sort-desc", sort?.key === key && sort.direction === "desc");
+ });
+}
+
 function renderOperations(operations){
  const body = document.getElementById("operationsBody");
+ const sortedOperations = sortRows(operations,"operations");
+ updateSortHeaders();
 
- if(!operations.length){
+ if(!sortedOperations.length){
   body.innerHTML = '<tr><td colspan="6">' + t("noOperations") + '</td></tr>';
   return;
  }
 
- body.innerHTML = operations.map(item=>{
+ body.innerHTML = sortedOperations.map(item=>{
   const user = item.username || item.userId;
   const details = item.product || item.invitedUser || "";
   const bonusOrPoints = item.type === "redeem"
@@ -618,13 +720,15 @@ function renderOperations(operations){
 
 function renderUsers(users){
  const body = document.getElementById("usersBody");
+ const sortedUsers = sortRows(users,"users");
+ updateSortHeaders();
 
- if(!users.length){
+ if(!sortedUsers.length){
   body.innerHTML = '<tr><td colspan="7">' + t("noUsers") + '</td></tr>';
   return;
  }
 
- body.innerHTML = users.map(user=>`
+ body.innerHTML = sortedUsers.map(user=>`
   <tr>
    <td>${escapeHTML(user.id)}</td>
    <td>${escapeHTML(user.username || "")}</td>
@@ -672,6 +776,13 @@ function exportRecentCsv(){
 }
 
 applyLanguage();
+
+document.querySelectorAll("th.sortable").forEach(th=>{
+ th.addEventListener("click",()=>{
+  setAdminSort(th.dataset.sortTable, th.dataset.sortKey);
+ });
+});
+updateSortHeaders();
 
 if(localStorage.getItem("adminPin")){
  document.getElementById("pinScreen").style.display = "none";
