@@ -469,12 +469,21 @@ if(
    }
  }
  const tier = getTier(Number(user.total_spent || 0));
+ const { count: invitedFriendsCount, error: invitedFriendsError } = await supabase
+   .from("users")
+   .select("id", { count:"exact", head:true })
+   .eq("referred_by", id);
+
+ if(invitedFriendsError){
+   return res.status(500).json({ error:invitedFriendsError.message });
+ }
 
  res.json({
    id: user.id,
    balance: Number(user.balance || 0),
    totalSpent: Number(user.total_spent || 0),
    history: user.history || [],
+   invitedFriendsCount:Number(invitedFriendsCount || 0),
    referralCount: Number(user.referral_count || 0),
    referralBonus: Number(user.referral_bonus || 0),
    referredBy: user.referred_by || null,
@@ -858,6 +867,15 @@ app.get("/admin/stats", async (req,res)=>{
    const userById = new Map(
      users.map(user=>[String(user.id), user])
    );
+   const invitedFriendsByUserId = users.reduce((acc,user)=>{
+     const referrerId = String(user.referred_by || "");
+
+     if(referrerId){
+       acc.set(referrerId, (acc.get(referrerId) || 0) + 1);
+     }
+
+     return acc;
+   }, new Map());
 
    const topUsers = users
      .map(user=>({
@@ -869,6 +887,7 @@ app.get("/admin/stats", async (req,res)=>{
          : "",
        balance:Number(user.balance || 0),
        totalSpent:Number(user.total_spent || 0),
+       invitedFriendsCount:Number(invitedFriendsByUserId.get(String(user.id)) || 0),
        referralCount:Number(user.referral_count || 0),
        referralBonus:Number(user.referral_bonus || 0)
      }))

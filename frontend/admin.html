@@ -346,7 +346,7 @@ th.sortable.sort-desc::after{
       <th class="sortable" data-sort-table="users" data-sort-key="referredBy" data-i18n="referredBy">Referred by</th>
       <th class="sortable" data-sort-table="users" data-sort-key="totalSpent" data-i18n="totalSpent">Total spent</th>
       <th class="sortable" data-sort-table="users" data-sort-key="balance" data-i18n="balance">Balance</th>
-      <th class="sortable" data-sort-table="users" data-sort-key="referralCount" data-i18n="referrals">Referrals</th>
+      <th class="sortable" data-sort-table="users" data-sort-key="invitedFriendsCount" data-i18n="referrals">Referrals</th>
       <th class="sortable" data-sort-table="users" data-sort-key="referralBonus" data-i18n="referralBonus">Referral bonus</th>
      </tr>
     </thead>
@@ -735,7 +735,7 @@ function renderUsers(users){
    <td>${escapeHTML(user.referredByUsername || user.referredBy || "")}</td>
    <td>${money(user.totalSpent)} MDL</td>
    <td>${money(user.balance)} MDL</td>
-   <td>${Number(user.referralCount || 0)}</td>
+   <td>${Number(user.invitedFriendsCount ?? user.referralCount ?? 0)}</td>
    <td>${money(user.referralBonus)} MDL</td>
   </tr>
  `).join("");

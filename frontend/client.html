@@ -337,6 +337,12 @@ textarea{
  background:#d6b25e;
  transition:width .4s ease;
 }
+.referral-level-hint{
+ margin-top:10px;
+ color:#aaa;
+ font-size:12px;
+ line-height:1.35;
+}
 .referral-level-list{
  display:grid;
  gap:10px;
@@ -821,6 +827,9 @@ Close
  <div class="referral-level-track">
   <div class="referral-level-fill" id="referralLevelFill"></div>
  </div>
+ <div class="referral-level-hint" data-i18n="referralLevelHint">
+  Referral level grows after your friends make purchases.
+ </div>
 </div>
   <button onclick="shareReferral()" data-i18n="sendInvitation">
    Send Invitation
@@ -1180,10 +1189,11 @@ const translations = {
   welcomeBonusTitle:"Bonus de bun venit",
   welcomeBonusText:"Ai primit 50 MDL bonus pentru conectarea botului.",
   referralLevel:"Nivel de recomandare",
+  referralLevelHint:"Nivelul de recomandare creste dupa cumparaturile prietenilor invitati.",
   referralNext:"invitatii pana la",
   referralMax:"Nivel maxim",
   referralLevelsTitle:"Niveluri de recomandare",
-  referralLevelsText:"Cu cat nivelul tau de recomandare este mai mare, cu atat recompensa pentru clientii invitati este mai mare.",
+  referralLevelsText:"Nivelul creste dupa cumparaturile prietenilor invitati. Cu cat nivelul tau este mai mare, cu atat recompensa este mai mare.",
   referralInvites:"invitatii",
   referralReward:"bonus"
  },
@@ -1242,10 +1252,11 @@ const translations = {
   welcomeBonusTitle:"\u041f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439 \u0431\u043e\u043d\u0443\u0441",
   welcomeBonusText:"\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 50 MDL \u0437\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0431\u043e\u0442\u0430.",
   referralLevel:"\u0420\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c",
+  referralLevelHint:"\u0423\u0440\u043e\u0432\u0435\u043d\u044c \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u043e\u0432 \u0440\u0430\u0441\u0442\u0435\u0442 \u043f\u043e\u0441\u043b\u0435 \u043f\u043e\u043a\u0443\u043f\u043e\u043a \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u043d\u044b\u0445 \u0434\u0440\u0443\u0437\u0435\u0439.",
   referralNext:"\u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0439 \u0434\u043e",
   referralMax:"\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c",
   referralLevelsTitle:"\u0423\u0440\u043e\u0432\u043d\u0438 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u043e\u0432",
-  referralLevelsText:"\u0427\u0435\u043c \u0432\u044b\u0448\u0435 \u0432\u0430\u0448 \u0440\u0435\u0444\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c, \u0442\u0435\u043c \u0432\u044b\u0448\u0435 \u043d\u0430\u0433\u0440\u0430\u0434\u0430 \u0437\u0430 \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u043d\u044b\u0445 \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u0432.",
+  referralLevelsText:"\u0423\u0440\u043e\u0432\u0435\u043d\u044c \u0440\u0430\u0441\u0442\u0435\u0442 \u043f\u043e\u0441\u043b\u0435 \u043f\u043e\u043a\u0443\u043f\u043e\u043a \u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u043d\u044b\u0445 \u0434\u0440\u0443\u0437\u0435\u0439. \u0427\u0435\u043c \u0432\u044b\u0448\u0435 \u0443\u0440\u043e\u0432\u0435\u043d\u044c, \u0442\u0435\u043c \u0432\u044b\u0448\u0435 \u043d\u0430\u0433\u0440\u0430\u0434\u0430.",
   referralInvites:"\u043f\u0440\u0438\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0439",
   referralReward:"\u0431\u043e\u043d\u0443\u0441"
  },
@@ -1304,10 +1315,11 @@ const translations = {
   welcomeBonusTitle:"Welcome bonus",
   welcomeBonusText:"You received 50 MDL for connecting the bot.",
   referralLevel:"Referral level",
+  referralLevelHint:"Referral level grows after your invited friends make purchases.",
   referralNext:"invites to",
   referralMax:"Highest level",
   referralLevelsTitle:"Referral levels",
-  referralLevelsText:"The higher your referral level, the higher your reward from invited clients.",
+  referralLevelsText:"Your level grows after invited friends make purchases. The higher your level, the higher your reward.",
   referralInvites:"invites",
   referralReward:"bonus"
  }
@@ -2105,7 +2117,7 @@ if(!res.ok || data.error){
  return;
 }
 document.getElementById("referralCount").innerText =
-Number(data.referralCount || 0);
+Number(data.invitedFriendsCount ?? data.referralCount ?? 0);
 
 document.getElementById("referralBonus").innerText =
 Number(data.referralBonus || 0).toFixed(0);
